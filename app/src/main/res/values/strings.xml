@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">AndroidCalulus</string>
+    <string name="error_in_number_entered">Error in number entered</string>
+    <string name="phone">Phone:</string>
+    <string name="defaultPhoneNumber">555-555-5555</string>
+    <string name="start">Start</string>
+    <string name="integral_1">Integral 1</string>
+    <string name="integral_2">Integral 2</string>
+    <string name="integral_3">Integral 3</string>
+    <string name="end">End</string>
+    <string name="enter_your_phone_number_here">Enter your phone number here</string>
+    <string name="cpu_count">CPU Count</string>
+    <string name="single">Single</string>
+    <string name="half">Half</string>
+    <string name="all_1">All - 1</string>
+    <string name="all">All</string>
+    <string name="about">About</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="stop_on_first_success">Stop on first success</string>
+    <string name="why">why</string>
+    <string name="settings">Settings</string>
+</resources>
