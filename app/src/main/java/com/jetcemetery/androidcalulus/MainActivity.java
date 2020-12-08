@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import com.jetcemetery.androidcalulus.helper.getCPU_Cnt;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -82,8 +81,8 @@ public class MainActivity extends AppCompatActivity {
                     String ParsedNumber = getParsedNumber();
                     Toast.makeText(getApplicationContext(), "process [" + ParsedNumber + "]", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getApplicationContext(), RenderValues.class);
-                    MainActivityDataObj dataObj = getUserValues(ParsedNumber);
-                    intent.putExtra(MainActivityDataObj.DATAOBJ_NAME, dataObj);
+                    OperationValues dataObj = getUserValues(ParsedNumber);
+                    intent.putExtra(OperationValues.DATAOBJ_NAME, dataObj);
                     startActivity(intent);
                 }
                 else{
@@ -121,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         return returningVal;
     }
 
-    private MainActivityDataObj getUserValues(String srcPhoneNumber) {
+    private OperationValues getUserValues(String srcPhoneNumber) {
         //this function shall set up all the main activity data object
         //it will process the user inputs, save it inside a MainActivityDataObj, and then return the initialized object
         long phoneNumber = Long.valueOf(srcPhoneNumber);
@@ -137,18 +136,18 @@ public class MainActivity extends AppCompatActivity {
         integral_3_end = integral3_end.getValue();
 
 
-        MainActivityDataObj returningObj = new MainActivityDataObj(phoneNumber, integral_1_sta, integral_2_sta, integral_3_sta, integral_1_end, integral_2_end, integral_3_end, stopOnFirstSuccess);
+        OperationValues returningObj = new OperationValues(phoneNumber, integral_1_sta, integral_2_sta, integral_3_sta, integral_1_end, integral_2_end, integral_3_end, stopOnFirstSuccess);
         setCPU_Cnt(returningObj);
         return returningObj;
     }
 
-    private void setCPU_Cnt(MainActivityDataObj returningObj) {
+    private void setCPU_Cnt(OperationValues returningObj) {
 
         int id = rdgb_stopOnSuccess.getCheckedRadioButtonId();
         getCPU_Cnt findCPU_cnt = new getCPU_Cnt();
         int totalCPU_Cnt = findCPU_cnt.getCount();
         returningObj.setPhoneCpuCnt(totalCPU_Cnt);
-        Toast.makeText(getApplicationContext(), "Total CPUs so far == " + totalCPU_Cnt, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), "Total CPUs so far == " + totalCPU_Cnt, Toast.LENGTH_SHORT).show();
         switch (id) {
             case R.id.rdgb_cpu_cnt_Single:
                 returningObj.setCpu_single();

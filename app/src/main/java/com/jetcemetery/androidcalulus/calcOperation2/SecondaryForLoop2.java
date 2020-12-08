@@ -5,7 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.jetcemetery.androidcalulus.MainActivityDataObj;
+import com.jetcemetery.androidcalulus.OperationValues;
 import com.jetcemetery.androidcalulus.RenderValues;
 import com.jetcemetery.androidcalulus.calcOperation.PrintCalc;
 import com.jetcemetery.androidcalulus.calcOperation.SingleMathOp;
@@ -13,7 +13,7 @@ import com.jetcemetery.androidcalulus.helper.getRandomInRange;
 
 public class SecondaryForLoop2 {
     private static String TAG = "SecondaryForLoop2";
-    private MainActivityDataObj userInput;
+    private OperationValues userInput;
     private int movingValue;
     private Handler handler;
     private long targetNumber;
@@ -24,7 +24,7 @@ public class SecondaryForLoop2 {
     private int currentBatchAmount;
 
 
-    public SecondaryForLoop2(MainActivityDataObj data, int movingValue, Handler handler) {
+    public SecondaryForLoop2(OperationValues data, int movingValue, Handler handler) {
         this.userInput = data;
         this.movingValue = movingValue;
         this.handler = handler;

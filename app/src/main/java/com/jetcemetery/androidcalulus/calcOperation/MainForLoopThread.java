@@ -3,9 +3,8 @@ package com.jetcemetery.androidcalulus.calcOperation;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.widget.TextView;
 
-import com.jetcemetery.androidcalulus.MainActivityDataObj;
+import com.jetcemetery.androidcalulus.OperationValues;
 import com.jetcemetery.androidcalulus.RenderValues;
 
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ public class MainForLoopThread extends Thread {
     private Handler handler;
     int superCounter;
 
-    public MainForLoopThread(final MainActivityDataObj data, Handler handler){
+    public MainForLoopThread(final OperationValues data, Handler handler){
         //this will be the main thread separator
         //you need to create multiple loops based on start / end values of alpha
         //resultsArea = intObj;
@@ -57,7 +56,7 @@ public class MainForLoopThread extends Thread {
         //intObj.completed();
     }
 
-    private void createThread(final int start, final int end, final MainActivityDataObj data, final int opCount) {
+    private void createThread(final int start, final int end, final OperationValues data, final int opCount) {
         //the objective of this thread loop is to create as many small tasks as possible
         //however start them only when there is room available
         //hence if this operation needs to create 500 operations but there are only 8 threads
@@ -113,7 +112,7 @@ public class MainForLoopThread extends Thread {
     }
 
 
-    private int[] createPointsArray(MainActivityDataObj data) {
+    private int[] createPointsArray(OperationValues data) {
         //this method will create an array of int that will represent the start / end points for the for loops
         List<Integer> array = new ArrayList<Integer>();
         int startPt = data.alphaStart();

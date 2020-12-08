@@ -2,7 +2,7 @@ package com.jetcemetery.androidcalulus;
 
 import java.io.Serializable;
 
-public class MainActivityDataObj implements Serializable {
+public class OperationValues implements Serializable {
     public static String DATAOBJ_NAME = "DataObj";
     private Long phoneNum;
     private int integral_1_sta, integral_2_sta, integral_3_sta;
@@ -12,7 +12,7 @@ public class MainActivityDataObj implements Serializable {
     private int CPUs_on_device;
     private long expectedOperations;
 
-    public MainActivityDataObj(Long phoneNum, int integral_1_sta, int integral_2_sta, int integral_3_sta, int integral_1_end, int integral_2_end, int integral_3_end, boolean stopOnFirstSuccess) {
+    public OperationValues(Long phoneNum, int integral_1_sta, int integral_2_sta, int integral_3_sta, int integral_1_end, int integral_2_end, int integral_3_end, boolean stopOnFirstSuccess) {
         this.phoneNum = phoneNum;
         this.integral_1_sta = integral_1_sta;
         this.integral_2_sta = integral_2_sta;
@@ -25,6 +25,12 @@ public class MainActivityDataObj implements Serializable {
         init();
     }
 
+    public void setPhoneNumer(Long phoneNum){
+        this.phoneNum = phoneNum;
+    }
+    public void setPhoneNumer(String srcPhoneNum){
+        setPhoneNumer(String.valueOf(srcPhoneNum));
+    }
 
     public void setCpu_single() {
         this.cpu_single = true;
@@ -129,10 +135,13 @@ public class MainActivityDataObj implements Serializable {
         return returningStr;
     }
 
+    public int getCurrentProgress_for_progressBar(){
+        return operationForProgressBar(0);
+    }
     public int operationForProgressBar(long completedOperations){
-        int temp = (int) (completedOperations / expectedOperations);
+        double temp = (double) (completedOperations / expectedOperations);
         temp = temp * 100;
-        return temp;
+        return (int) temp;
     }
 
     public String getTotalOperationExpected() {

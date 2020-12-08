@@ -3,21 +3,20 @@ package com.jetcemetery.androidcalulus.calcOperation;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.widget.TextView;
 
-import com.jetcemetery.androidcalulus.MainActivityDataObj;
+import com.jetcemetery.androidcalulus.OperationValues;
 import com.jetcemetery.androidcalulus.RenderValues;
 
 public class SecondaryForLoop{
 
     private int movingAlpha;
     private Handler handler;
-    private MainActivityDataObj allData;
+    private OperationValues allData;
     private long startTime;
     private long targetNumber;
     private int range;
 
-    public SecondaryForLoop(MainActivityDataObj data, int srcAlpha, Handler handler) {
+    public SecondaryForLoop(OperationValues data, int srcAlpha, Handler handler) {
         allData = data;
         movingAlpha = srcAlpha;
         this.handler = handler;

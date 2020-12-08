@@ -6,15 +6,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.jetcemetery.androidcalulus.calcOperation.MainForLoopThread;
-import com.jetcemetery.androidcalulus.calcOperation.simplePost;
 import com.jetcemetery.androidcalulus.calcOperation2.MainForLoopThread2;
 
 public class RenderValues extends AppCompatActivity {
@@ -24,7 +20,7 @@ public class RenderValues extends AppCompatActivity {
     public final static int ONE_CALULATION_COMPLETED = 778;
     public final static int ONE_CALULATION_COMPLETED_BATCH = 779;
 
-    private MainActivityDataObj dataObj;
+    private OperationValues dataObj;
     private Button btn_goBack, btn_saveData, btn_stats;
     private ProgressBar myProgressBar;
     private TextView resultsArea, myProgressBar_txt;
@@ -51,7 +47,7 @@ public class RenderValues extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            dataObj = (MainActivityDataObj)getIntent().getSerializableExtra(MainActivityDataObj.DATAOBJ_NAME); //Obtaining data
+            dataObj = (OperationValues)getIntent().getSerializableExtra(OperationValues.DATAOBJ_NAME); //Obtaining data
             btn_saveData.setEnabled(true);
             btn_stats.setEnabled(true);
             //startNewThreadMainProcess();

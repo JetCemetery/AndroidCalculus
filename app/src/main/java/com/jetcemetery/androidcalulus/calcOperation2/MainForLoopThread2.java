@@ -6,22 +6,21 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
 
-import com.jetcemetery.androidcalulus.MainActivityDataObj;
+import com.jetcemetery.androidcalulus.OperationValues;
 import com.jetcemetery.androidcalulus.RenderValues;
-import com.jetcemetery.androidcalulus.calcOperation.SecondaryForLoop;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainForLoopThread2{
     private static String TAG = "MainForLoopThread2";
-    private MainActivityDataObj data;
+    private OperationValues data;
     private Handler mainLoopHandler;
     private int superCounter;
     private int[] pointsArray;
     private boolean pauseInEffect;
 
-    public MainForLoopThread2(MainActivityDataObj data, Handler handler){
+    public MainForLoopThread2(OperationValues data, Handler handler){
         //this is going to be the main loop caller
         //the soul purpose of this function is to take in the number of available CPUs
         //get the total number of
@@ -75,7 +74,7 @@ public class MainForLoopThread2{
         Log.d(TAG,"Stand alone thread has started");
     }
 
-    private int[] createPointsArray(MainActivityDataObj data) {
+    private int[] createPointsArray(OperationValues data) {
         //this method shall break down the first integral by number of CPUs allocated
         //IE if there are 1000 operations and four cores, break the operation into
         //[1] 1 - 250
@@ -100,7 +99,7 @@ public class MainForLoopThread2{
         return returningArr;
     }
 
-    private int[] createPointsArrayOld(MainActivityDataObj data) {
+    private int[] createPointsArrayOld(OperationValues data) {
         //this method will create an array of int that will represent the start / end points for the for loops
         List<Integer> array = new ArrayList<Integer>();
         int startPt = data.alphaStart();
