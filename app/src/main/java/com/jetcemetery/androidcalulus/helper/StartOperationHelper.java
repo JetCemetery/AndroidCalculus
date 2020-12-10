@@ -14,7 +14,7 @@ public class StartOperationHelper {
         misconfiguredIntegralRange_txt= "";
     }
 
-    public boolean misconfiguredIntegralRange() {
+    public boolean misconstruedIntegralRange() {
         boolean returningVal = false;
         misconfiguredIntegralRange_txt= "";
         if(dataObj.alphaEnd() < dataObj.alphaStart()){
@@ -32,7 +32,7 @@ public class StartOperationHelper {
         return returningVal;
     }
 
-    public String getMisconfiguredIntegralRange_text() {
+    public String getMisconstruedIntegralRange_text() {
         return this.misconfiguredIntegralRange_txt;
     }
 

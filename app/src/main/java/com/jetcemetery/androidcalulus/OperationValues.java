@@ -25,11 +25,12 @@ public class OperationValues implements Serializable {
         init();
     }
 
-    public void setPhoneNumer(Long phoneNum){
+    public void setPhoneNumber(Long phoneNum){
         this.phoneNum = phoneNum;
     }
-    public void setPhoneNumer(String srcPhoneNum){
-        setPhoneNumer(String.valueOf(srcPhoneNum));
+
+    public void setPhoneNumber(String srcPhoneNum){
+        setPhoneNumber(Long.valueOf(srcPhoneNum));
     }
 
     public void setCpu_single() {
@@ -66,7 +67,20 @@ public class OperationValues implements Serializable {
         cpu_half = false;
         cpu_all_m_1 = false;
         cpu_all = false;
-        expectedOperations = 1;
+        //expectedOperations = 1;
+        //helper function that will figure out how many operation exists for the current settings
+        //it's going to be the end of integral 1,2,3 - start of integral 1,2,3
+        //as a permutation format
+        long tempVal = 1;
+        int int1 = integral_1_end - integral_1_sta;
+        int int2 = integral_2_end - integral_2_sta;
+        int int3 = integral_3_end - integral_3_sta;
+        int lastPart = 1000;
+        tempVal = tempVal * int1;
+        tempVal = tempVal * int2;
+        tempVal = tempVal * int3;
+        tempVal = tempVal * lastPart;
+        expectedOperations = tempVal;
     }
 
     public int alphaStart() {
@@ -118,26 +132,13 @@ public class OperationValues implements Serializable {
     }
 
     public String getInitialProgressText() {
-        //helper function that will figure out how many operation exists for the current settings
-        //it's going to be the end of integral 1,2,3 - start of integral 1,2,3
-        //as a permutation format
-        long tempVal = 1;
-        int int1 = integral_1_end - integral_1_sta;
-        int int2 = integral_2_end - integral_2_sta;
-        int int3 = integral_3_end - integral_3_sta;
-        int lastPart = 1000;
-        tempVal = tempVal * int1;
-        tempVal = tempVal * int2;
-        tempVal = tempVal * int3;
-        tempVal = tempVal * lastPart;
-        expectedOperations = tempVal;
-        String returningStr ="0 / " + String.valueOf(tempVal);
-        return returningStr;
+        return "0 / " + String.valueOf(expectedOperations);
     }
 
     public int getCurrentProgress_for_progressBar(){
         return operationForProgressBar(0);
     }
+
     public int operationForProgressBar(long completedOperations){
         double temp = (double) (completedOperations / expectedOperations);
         temp = temp * 100;
@@ -146,5 +147,13 @@ public class OperationValues implements Serializable {
 
     public String getTotalOperationExpected() {
         return String.valueOf(expectedOperations);
+    }
+
+    public void setStopOnSuccess(boolean stopOnFirstSuccess) {
+        this.stopOnFirstSuccess = stopOnFirstSuccess;
+    }
+
+    public boolean getStopOnFirstSuccess(){
+        return stopOnFirstSuccess;
     }
 }

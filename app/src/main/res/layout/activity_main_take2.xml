@@ -12,7 +12,7 @@
         android:id="@+id/txt_phoneID2"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="#F8E591"
+        android:background="#FFD600"
         android:gravity="center|center_vertical"
         android:hint="@string/enter_your_phone_number_here"
         android:importantForAutofill="no"
@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:text="Start"
         android:textColor="#000000"
-        app:backgroundTint="#7FD883">
+        app:backgroundTint="#376E12">
 
     </Button>
 

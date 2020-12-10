@@ -5,7 +5,7 @@
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true" >
+    android:fillViewport="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -14,7 +14,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#aaaaaa"
+            android:background="#376E12"
             android:orientation="vertical"
             android:padding="5dp"
             tools:ignore="UselessParent">
@@ -37,7 +37,7 @@
                     android:layout_width="50dp"
                     android:layout_height="match_parent"
                     android:gravity="center|center_horizontal|center_vertical"
-                    android:background="#aaaaaa">
+                    >
                 </TextView>
 
                 <LinearLayout
@@ -58,7 +58,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:background="#aaaaaa"
+                            android:background="@drawable/rounded_corner"
                             android:gravity="center"
                             android:padding="5dp"
                             android:text="@string/integral_1">
@@ -80,7 +80,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:background="#aaaaaa"
+                            android:background="@drawable/rounded_corner"
                             android:gravity="center"
                             android:padding="5dp"
                             android:text="@string/integral_2">
@@ -101,7 +101,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:background="#aaaaaa"
+                            android:background="#FFFFFF"
                             android:gravity="center"
                             android:padding="5dp"
                             android:text="@string/integral_3">
@@ -126,7 +126,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center|center_horizontal|center_vertical"
                     android:text="@string/start"
-                    android:background="#aaaaaa">
+                    android:background="#FFFFFF">
                 </TextView>
 
                 <LinearLayout
@@ -144,12 +144,11 @@
                         android:layout_weight="1">
 
                         <NumberPicker
-                            android:id="@+id/integral1_start"
+                            android:id="@+id/integral1_start_2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:padding="5dp"
-                            android:background="#cccccc">
-
+                            android:background="#FFFFFF">
                         </NumberPicker>
 
                     </LinearLayout>
@@ -163,11 +162,11 @@
                         android:padding="5dp">
 
                         <NumberPicker
-                            android:id="@+id/integral2_start"
+                            android:id="@+id/integral2_start_2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:padding="5dp"
-                            android:background="#cccccc">
+                            android:background="#FFFFFF">
 
                         </NumberPicker>
 
@@ -182,11 +181,11 @@
                         android:padding="5dp">
 
                         <NumberPicker
-                            android:id="@+id/integral3_start"
+                            android:id="@+id/integral3_start_2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:padding="5dp"
-                            android:background="#cccccc">
+                            android:background="#FFFFFF">
 
                         </NumberPicker>
 
@@ -210,7 +209,8 @@
                     android:layout_height="match_parent"
                     android:gravity="center|center_horizontal|center_vertical"
                     android:text="@string/end"
-                    android:background="#aaaaaa">
+                    android:background="#FFFFFF"
+                    android:padding="5dp">
                 </TextView>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -228,11 +228,11 @@
 
 
                         <NumberPicker
-                            android:id="@+id/integral1_end"
+                            android:id="@+id/integral1_end_2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:padding="5dp"
-                            android:background="#cccccc">
+                            android:background="#FFFFFF">
 
                         </NumberPicker>
 
@@ -247,11 +247,11 @@
                         android:padding="5dp">
 
                         <NumberPicker
-                            android:id="@+id/integral2_end"
+                            android:id="@+id/integral2_end_2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:padding="5dp"
-                            android:background="#cccccc">
+                            android:background="#FFFFFF">
 
                         </NumberPicker>
 
@@ -267,11 +267,11 @@
 
 
                         <NumberPicker
-                            android:id="@+id/integral3_end"
+                            android:id="@+id/integral3_end_2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:padding="5dp"
-                            android:background="#cccccc">
+                            android:background="#FFFFFF">
 
                         </NumberPicker>
 
@@ -295,7 +295,7 @@
                 </TextView>
 
                 <RadioGroup
-                    android:id="@+id/rdgb_cpu_cnt"
+                    android:id="@+id/rdgb_cpu_cnt_2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
@@ -306,7 +306,7 @@
                         android:layout_weight="1"/>
 
                     <RadioButton
-                        android:id="@+id/rdgb_cpu_cnt_Single"
+                        android:id="@+id/rdgb_cpu_cnt_Single_2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -319,7 +319,7 @@
                         android:layout_weight="1"/>
 
                     <RadioButton
-                        android:id="@+id/rdgb_cpu_cnt_half"
+                        android:id="@+id/rdgb_cpu_cnt_half_2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
@@ -332,7 +332,7 @@
                         android:layout_weight="1"/>
 
                     <RadioButton
-                        android:id="@+id/rdgb_cpu_cnt_all_minus1"
+                        android:id="@+id/rdgb_cpu_cnt_all_minus1_2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
@@ -345,7 +345,7 @@
                         android:layout_weight="1"/>
 
                     <RadioButton
-                        android:id="@+id/rdgb_cpu_cnt_all"
+                        android:id="@+id/rdgb_cpu_cnt_all_2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
@@ -377,7 +377,7 @@
                 </TextView>
 
                 <RadioGroup
-                    android:id="@+id/rdgb_stopOnSuccess"
+                    android:id="@+id/rdgb_stopOnSuccess_2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
@@ -388,7 +388,7 @@
                         android:layout_weight="1"/>
 
                     <RadioButton
-                        android:id="@+id/rdgb_stopOnSuccess_Yes"
+                        android:id="@+id/rdgb_stopOnSuccess_Yes_2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -401,7 +401,7 @@
                         android:layout_weight="1"/>
 
                     <RadioButton
-                        android:id="@+id/rdgb_stopOnSuccess_No"
+                        android:id="@+id/rdgb_stopOnSuccess_No_2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
@@ -414,13 +414,6 @@
                         android:layout_weight="1"/>
                 </RadioGroup>
             </LinearLayout>
-
-            <Button
-                android:id="@+id/settings_btn_GoBack"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Go Back">
-            </Button>
 
         </LinearLayout>
 
