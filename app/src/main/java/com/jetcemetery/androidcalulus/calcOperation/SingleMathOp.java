@@ -1,10 +1,10 @@
 package com.jetcemetery.androidcalulus.calcOperation;
 
 public class SingleMathOp {
-    private int integrateOn;
-    private int alpha;
-    private int beta;
-    private int gamma;
+    private final int integrateOn;
+    private final int alpha;
+    private final int beta;
+    private final int gamma;
     private long mathOpResults;
 
     public SingleMathOp(int xVal, int srcAlpha, int srcBeta, int srcGamma) {

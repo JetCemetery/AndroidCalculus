@@ -3,6 +3,7 @@ package com.jetcemetery.androidcalulus.activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,8 +28,10 @@ import com.jetcemetery.androidcalulus.helper.StartOperationHelper;
 
 import java.util.ArrayList;
 
+import static com.jetcemetery.androidcalulus.R.*;
+
 public class MainActivity_take2 extends AppCompatActivity {
-    private static String TAG = "MainActivity_take2";
+    private static final String TAG = "MainActivity_take2";
     public static int POST_MESSAGE_IN_RESULTS2 = 555;
     public static int ONE_CALULATION_COMPLETED_BATCH = 556;
     public static int ONE_CALULATION_COMPLETED = 557;
@@ -39,7 +42,7 @@ public class MainActivity_take2 extends AppCompatActivity {
     private ProgressBar prbBar_progressBar;
     private OperationValues dataObj;
     private Handler updateUIHandler;
-    private Runnable myRunnable;
+//    private Runnable myRunnable;
     private MainForLoopThread3 myThread;
     private long currentOperationsCompleted;
     private String totalOperationExpected;
@@ -50,13 +53,13 @@ public class MainActivity_take2 extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_take2);
-        txtPhone = findViewById(R.id.txt_phoneID2);
-        txtError = findViewById(R.id.errorText2);
-        btnStart = findViewById(R.id.btn_start2);
-        prbBar_progressBar = findViewById(R.id.pgBar_Progress_bar2);
-        txt_progressBar2 = findViewById(R.id.txt_progress2);
-        txtResults = findViewById(R.id.txt_results2);
+        setContentView(layout.activity_main_take2);
+        txtPhone = findViewById(id.txt_phoneID2);
+        txtError = findViewById(id.errorText2);
+        btnStart = findViewById(id.btn_start2);
+        prbBar_progressBar = findViewById(id.pgBar_Progress_bar2);
+        txt_progressBar2 = findViewById(id.txt_progress2);
+        txtResults = findViewById(id.txt_results2);
         String un_parsed_phone = String.valueOf(txtPhone.getText());
         dataObj = OperationValues_default.getDefaultValues(un_parsed_phone);
         initView();
@@ -97,6 +100,7 @@ public class MainActivity_take2 extends AppCompatActivity {
                     if(passedDataObj.identicalDataObj(dataObj)){
                         //if here, then local data object, has the same settings
                         //so do nothing!
+                        Log.d(TAG, "Function verifyDataObject showed that current dataobj and passed are the same");
                     }else{
                         //if here, then we need to do the following
                         //over-write the local data object, with the passed data object
@@ -134,33 +138,30 @@ public class MainActivity_take2 extends AppCompatActivity {
         totalOperationExpected = dataObj.getTotalOperationExpected();
         updateProgressBar_and_Text();
 
-        btnStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                txtError.setVisibility(TextView.GONE);
-                StartOperationHelper helperObj = new StartOperationHelper(dataObj);
-                if(helperObj.misconstruedIntegralRange()){
-                    //should never get here
-                    //however if here, then the user set the integral start / end in wrong direction
-                    txtError.setVisibility(TextView.VISIBLE);
-                    txtError.setText(helperObj.getMisconstruedIntegralRange_text());
-                    Toast.makeText(getApplicationContext(), "Integral range is out of sequence", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if(helperObj.numberInputValid(txtPhone)){
-                    //if here, then input is valid
-                    txtError.setVisibility(View.GONE);
-                    String ParsedNumber = getParsedNumber();
-                    dataObj.setPhoneNumber(ParsedNumber);
-                    //Toast.makeText(getApplicationContext(), "process [" + ParsedNumber + "]", Toast.LENGTH_SHORT).show();
-                    InitiateMainForLoopThread();
-                }
-                else{
-                    //if here, then number is NOT valid
-                    txtError.setVisibility(View.VISIBLE);
-                    txtError.setText("ERROR!");
-                    Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
-                }
+        btnStart.setOnClickListener(v -> {
+            txtError.setVisibility(TextView.GONE);
+            StartOperationHelper helperObj = new StartOperationHelper(dataObj);
+            if(helperObj.misconstruedIntegralRange()){
+                //should never get here
+                //however if here, then the user set the integral start / end in wrong direction
+                txtError.setVisibility(TextView.VISIBLE);
+                txtError.setText(helperObj.getMisconstruedIntegralRange_text());
+                Toast.makeText(getApplicationContext(), "Integral range is out of sequence", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(helperObj.numberInputValid(txtPhone)){
+                //if here, then input is valid
+                txtError.setVisibility(View.GONE);
+                String ParsedNumber = getParsedNumber();
+                dataObj.setPhoneNumber(ParsedNumber);
+                //Toast.makeText(getApplicationContext(), "process [" + ParsedNumber + "]", Toast.LENGTH_SHORT).show();
+                InitiateMainForLoopThread();
+            }
+            else{
+                //if here, then number is NOT valid
+                txtError.setVisibility(View.VISIBLE);
+                txtError.setText(string.error_msg);
+                Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -182,17 +183,17 @@ public class MainActivity_take2 extends AppCompatActivity {
                 buildingData.add(c);
             }
         }
-        String returningStr = "";
+        StringBuilder returningStr = new StringBuilder();
         for(char c : buildingData){
-            returningStr += String.valueOf(c);
+            returningStr.append(c);
         }
-        return returningStr;
+        return returningStr.toString();
     }
 
     private void updateProgressBar_and_Text() {
         prbBar_progressBar.setProgress(dataObj.operationForProgressBar(currentOperationsCompleted));
         txt_progressBar2.setText(dataObj.getInitialProgressText());
-        String progressTxt = String.valueOf(currentOperationsCompleted) + " / " + totalOperationExpected;
+        String progressTxt = currentOperationsCompleted + " / " + totalOperationExpected;
         txt_progressBar2.setText(progressTxt);
     }
 
@@ -204,7 +205,7 @@ public class MainActivity_take2 extends AppCompatActivity {
         //if here, hide the home button, as we are home
         for (int i = 0; i < menu.size(); i++){
             int menuObjID = menu.getItem(i).getItemId();
-            if(menuObjID == R.id.menu_home){
+            if(menuObjID == id.menu_home){
                 menu.getItem(i).setVisible(false);
                 break;
             }
@@ -212,16 +213,17 @@ public class MainActivity_take2 extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //need to finish this stuff to complete the menu actions
-        Intent intent = null;
+        Intent intent;
         if(dataObj == null){
             dataObj = OperationValues_default.getDefaultValues();
         }
-        Bundle bundle = null;
+        Bundle bundle;
         switch (item.getItemId()){
-            case R.id.menu_help:
+            case id.menu_help:
                 intent = new Intent(getApplicationContext(), AboutActivity.class);
                 bundle = new Bundle();
                 bundle.putSerializable(OperationValues.DATAOBJ_NAME, dataObj);
@@ -232,7 +234,7 @@ public class MainActivity_take2 extends AppCompatActivity {
 
                 startActivity(intent);
                 break;
-            case R.id.menu_settings:
+            case id.menu_settings:
                 intent = new Intent(getApplicationContext(), SettingsActivity.class);
                 bundle = new Bundle();
                 bundle.putSerializable(OperationValues.DATAOBJ_NAME, dataObj);
@@ -293,7 +295,7 @@ public class MainActivity_take2 extends AppCompatActivity {
                             //Log.d(TAG,"strMSg == " + strMSg);
                             if(strMSg != null){
                                 if(!strMSg.isEmpty()){
-                                    currentOperationsCompleted += Integer.valueOf(strMSg);
+                                    currentOperationsCompleted += Integer.parseInt(strMSg);
                                     updateProgressBar_and_Text();
                                 }
                             }

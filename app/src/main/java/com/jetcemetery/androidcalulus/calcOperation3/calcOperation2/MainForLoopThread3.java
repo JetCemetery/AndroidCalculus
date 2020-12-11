@@ -1,21 +1,17 @@
 package com.jetcemetery.androidcalulus.calcOperation3.calcOperation2;
 
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.os.SystemClock;
 import android.util.Log;
 
 import com.jetcemetery.androidcalulus.OperationValues;
-import com.jetcemetery.androidcalulus.RenderValues;
 
 import java.util.ArrayList;
 
 public class MainForLoopThread3 {
-    private static String TAG = "MainForLoopThread3";
-    private OperationValues data;
-    private Handler mainLoopHandler;
-    private int[] pointsArray;
+    private static final String TAG = "MainForLoopThread3";
+    private final OperationValues data;
+    private final Handler mainLoopHandler;
+    private final int[] pointsArray;
     private ArrayList<SecondaryForLoop3> runnableList;
 
     public MainForLoopThread3(OperationValues data, Handler handler){
@@ -34,11 +30,11 @@ public class MainForLoopThread3 {
         for(int opCount=0; opCount < pointsArray.length-1; opCount++){
             //the goal plan for this is to create a new thread that passes the start/end values
             //run the START of that for loop, and make sure what executed in THAT loop is NOT run in thread mode
-            createThread(pointsArray[opCount],pointsArray[opCount+1], opCount);
+            createThread(pointsArray[opCount],pointsArray[opCount+1]);
         }
     }
 
-    private void createThread(int start, int end, final int opCount) {
+    private void createThread(int start, int end) {
         //the objective of this thread loop is to create as many small tasks as possible
         //however start them only when there is room available
         //hence if this operation needs to create 500 operations but there are only 8 threads
@@ -46,13 +42,11 @@ public class MainForLoopThread3 {
         Log.d(TAG,"Starting new thread start val [" + start + "] end val [" + end + "]");
 
         Thread myThread = new Thread() {
-            private long startTime = System.currentTimeMillis();
             @Override
             public void run()
             {
-                int startVal = start+0;
                 int endVal = end-1;
-                for(int movingValue = startVal; movingValue < endVal; movingValue++){
+                for(int movingValue = start; movingValue < endVal; movingValue++){
                     SecondaryForLoop3 secondObj = new SecondaryForLoop3(data, movingValue, mainLoopHandler);
                     runnableList.add(secondObj);
                     secondObj.run();
@@ -88,6 +82,9 @@ public class MainForLoopThread3 {
         return returningArr;
     }
 
+    /*
+    //comment out this function, but do not delete
+    //may use it later at some point
     public void postHandlerMessage(String answer) {
         Message msg = mainLoopHandler.obtainMessage();
         msg.what = RenderValues.POST_MESSAGE_IN_RESULTS;
@@ -96,6 +93,7 @@ public class MainForLoopThread3 {
         msg.setData(bundle);
         mainLoopHandler.sendMessage(msg);
     }
+     */
 
     public void pauseAllThreads() {
         Log.d(TAG,"At start of pausing");
@@ -139,6 +137,5 @@ public class MainForLoopThread3 {
             //this intern will call the garbage collector for all the those threads inside of said list
             runnableList = null;
         }
-
     }
 }

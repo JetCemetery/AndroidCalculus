@@ -18,7 +18,7 @@ public class SecondaryForLoop3 implements Runnable{
     private volatile String state = STATE_NEW;
     private Thread workerThread;
     //--------------
-    private static String TAG = "SecondaryForLoop3";
+    private static final String TAG = "SecondaryForLoop3";
     public static String STATE_NEW = "New";
     public static String STATE_PAUSED = "Paused";
     public static String STATE_RUNNING = "Running";
@@ -31,7 +31,7 @@ public class SecondaryForLoop3 implements Runnable{
     private final boolean operatingInBatchMode;
     private int currentBatchAmountRange;
     private int currentBatchAmount;
-    private volatile boolean stopProcess = false;
+    private volatile boolean stopProcess;// = false;
 
     public SecondaryForLoop3(OperationValues data, int movingValue, Handler handler) {
         this.userInput = data;
@@ -70,6 +70,7 @@ public class SecondaryForLoop3 implements Runnable{
                         setState(STATE_PAUSED);
                         try
                         {
+                            //noinspection BusyWait
                             Thread.sleep(1000); //stop for 1000ms increments
                             //use to kill thread process gracefully
                             if(stopProcess)

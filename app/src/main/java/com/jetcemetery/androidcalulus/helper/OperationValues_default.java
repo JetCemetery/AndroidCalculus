@@ -41,10 +41,10 @@ public class OperationValues_default {
                 buildingData.add(c);
             }
         }
-        String returningStr = "";
+        StringBuilder returningStr = new StringBuilder();
         for(char c : buildingData){
-            returningStr += String.valueOf(c);
+            returningStr.append(c);
         }
-        return Long.valueOf(returningStr);
+        return Long.parseLong(returningStr.toString());
     }
 }

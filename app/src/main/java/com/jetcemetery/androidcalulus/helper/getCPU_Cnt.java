@@ -7,9 +7,6 @@ import java.io.FileFilter;
 import java.util.regex.Pattern;
 
 public class getCPU_Cnt {
-    //taken from
-    //http://forums.makingmoneywithandroid.com/android-development/280-%5Bhow-%5D-get-number-cpu-cores-android-device.html
-    private static String TAG = "GetCPU_Cnt";
 
     public int getCount() {
         return getNumCores();
@@ -25,13 +22,13 @@ public class getCPU_Cnt {
             @Override
             public boolean accept(File pathname) {
                 //Check if filename is "cpu", followed by a single digit number
-                if(Pattern.matches("cpu[0-9]+", pathname.getName())) {
-                    return true;
-                }
-                return false;
+                return Pattern.matches("cpu[0-9]+", pathname.getName());
             }
         }
 
+        //taken from
+        //http://forums.makingmoneywithandroid.com/android-development/280-%5Bhow-%5D-get-number-cpu-cores-android-device.html
+        String TAG = "GetCPU_Cnt";
         try {
 
             //Get directory containing CPU info

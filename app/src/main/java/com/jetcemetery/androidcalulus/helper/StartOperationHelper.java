@@ -1,13 +1,11 @@
 package com.jetcemetery.androidcalulus.helper;
 
-import android.text.Editable;
-import android.view.View;
 import android.widget.EditText;
 
 import com.jetcemetery.androidcalulus.OperationValues;
 
 public class StartOperationHelper {
-    private OperationValues dataObj;
+    private final OperationValues dataObj;
     private String misconfiguredIntegralRange_txt;
     public StartOperationHelper(OperationValues dataObj) {
         this.dataObj = dataObj;
