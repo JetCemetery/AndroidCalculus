@@ -60,16 +60,9 @@ public class SecondaryForLoop3 implements Runnable{
         for(int movingBeta = movingIntegral_2; movingBeta<end_Integral_2; movingBeta++){
             //use to kill thread process gracefully
             Log.d(TAG,"At outer moving for loop beta == " + movingBeta);
-            if(stopProcess)
-                return;
             for(int movingGamma = movingIntegral_3; movingGamma<end_Integral_3; movingGamma++) {
                 //use to kill thread process gracefully
-                if(stopProcess)
-                    return;
                 for (int movingLowerLimit = rangeStart; movingLowerLimit < rangeEnd - 1; movingLowerLimit++) {
-                    //use to kill thread process gracefully
-                    if(stopProcess)
-                        return;
                     //for enabling pause resume section
                     //--------------
                     while(pauseWork)
