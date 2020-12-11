@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -58,13 +59,16 @@ public class SettingsActivity extends AppCompatActivity {
 
         //on create we need to get
         Intent intent = this.getIntent();
-        Bundle bundle = intent.getExtras();
-        if(bundle != null){
-            OperationValues tempObj = (OperationValues) bundle.getSerializable(OperationValues.DATAOBJ_NAME);
-            if(tempObj != null){
-                dataObj = tempObj;
+        if(intent != null){
+            Bundle bundle = intent.getExtras();
+            if(bundle != null){
+                OperationValues tempObj = (OperationValues) bundle.getSerializable(OperationValues.DATAOBJ_NAME);
+                if(tempObj != null){
+                    dataObj = tempObj;
+                }
             }
         }
+
 
         if(dataObj == null){
             //if here, then for some reason Data object was not initialised
@@ -104,51 +108,27 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private View.OnClickListener init_cpuSignle() {
-        return new View.OnClickListener(){
-            public void onClick(View v) {
-                dataObj.setCpu_single();
-            }
-        };
+        return v -> dataObj.setCpu_single();
     }
 
     private View.OnClickListener init_cpuHalf() {
-        return new View.OnClickListener(){
-            public void onClick(View v) {
-                dataObj.setCpu_half();
-            }
-        };
+        return v -> dataObj.setCpu_half();
     }
 
     private View.OnClickListener init_cpuMinus1() {
-        return new View.OnClickListener(){
-            public void onClick(View v) {
-                dataObj.setCpu_all_m_1();
-            }
-        };
+        return v -> dataObj.setCpu_all_m_1();
     }
 
     private View.OnClickListener init_cpuAll() {
-        return new View.OnClickListener(){
-            public void onClick(View v) {
-                dataObj.setCpu_all();
-            }
-        };
+        return v -> dataObj.setCpu_all();
     }
 
     private View.OnClickListener init_stopOnSuccess_Yes() {
-        return new View.OnClickListener(){
-            public void onClick(View v) {
-                dataObj.setStopOnSuccess(true);
-            }
-        };
+        return v -> dataObj.setStopOnSuccess(true);
     }
 
     private View.OnClickListener init_stopOnSuccess_No() {
-        return new View.OnClickListener(){
-            public void onClick(View v) {
-                dataObj.setStopOnSuccess(false);
-            }
-        };
+        return v -> dataObj.setStopOnSuccess(false);
     }
 
     private void setStartIntegral(NumberPicker srcIntegral) {
@@ -182,10 +162,10 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //need to finish this stuff to complete the menu actions
+        Log.d(TAG, "Start of onOptionsItemSelected");
         Intent intent = null;
-        //TODO fill in the data object with default if null....
-        //OperationValues dataObj = null;
         if(dataObj == null){
+            Log.d(TAG, "dataObj was null, so I'm going to go ahead and set it to default...");
             dataObj = OperationValues_default.getDefaultValues();
         }
 
@@ -199,6 +179,7 @@ public class SettingsActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.menu_home:
+                Log.d(TAG, "Inside menu home");
                 intent = new Intent(getApplicationContext(), MainActivity_take2.class);
                 bundle = new Bundle();
                 bundle.putSerializable(OperationValues.DATAOBJ_NAME, dataObj);

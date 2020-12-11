@@ -35,7 +35,7 @@ public class getCPU_Cnt {
             File dir = new File("/sys/devices/system/cpu/");
             //Filter to only list the devices we care about
             File[] files = dir.listFiles(new CpuFilter());
-            Log.d(TAG, "CPU Count: "+files.length);
+            //Log.d(TAG, "CPU Count: "+files.length);
             //Return the number of cores (virtual CPU devices)
             return files.length;
 

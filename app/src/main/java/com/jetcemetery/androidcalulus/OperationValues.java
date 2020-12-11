@@ -175,14 +175,14 @@ public class OperationValues implements Serializable {
         //cpu count
         //stop on first success
         boolean valuesSame = true;
-        valuesSame &= srcDataObj.alphaStart() == integral_1_sta;
-        valuesSame &= srcDataObj.alphaEnd() == integral_1_end;
-        valuesSame &= srcDataObj.betaStart() == integral_2_sta;
-        valuesSame &= srcDataObj.betaEnd() == integral_2_end;
-        valuesSame &= srcDataObj.gammaStart() == integral_3_sta;
-        valuesSame &= srcDataObj.gammaEnd() == integral_3_end;
-        valuesSame &= srcDataObj.getCPU_OptionsEnum() == cpu_options;
-        valuesSame &= srcDataObj.getStopOnFirstSuccess() == stopOnFirstSuccess;
+        valuesSame &= srcDataObj.alphaStart() == this.alphaStart();
+        valuesSame &= srcDataObj.alphaEnd() == this.alphaEnd();
+        valuesSame &= srcDataObj.betaStart() == this.betaStart();
+        valuesSame &= srcDataObj.betaEnd() == this.betaEnd();
+        valuesSame &= srcDataObj.gammaStart() == this.gammaStart();
+        valuesSame &= srcDataObj.gammaEnd() == this.gammaEnd();
+        valuesSame &= srcDataObj.getCPU_OptionsEnum() == this.getCPU_OptionsEnum();
+        valuesSame &= srcDataObj.getStopOnFirstSuccess() == this.getStopOnFirstSuccess();
 
         return valuesSame;
     }

@@ -36,8 +36,14 @@ public class StartOperationHelper {
 
     public boolean numberInputValid(EditText phoneText) {
         //from https://stackoverflow.com/questions/123559/how-to-validate-phone-numbers-using-regex/9636657#9636657
+        //such a dam strange error here with the dash
+        //we need to do a substitute in text.....
+        //per https://qaz.wtf/u/show.cgi
+        String goodversionDash = "-";   //45     002D     -     HYPHEN-MINUS
+        String badversionDash = "–";    //8211     2013     –     EN DASH
+        String un_parsed_phone = String.valueOf(phoneText.getText()).replace(badversionDash, goodversionDash);
         String regEx = "^\\s*(?:\\+?(\\d{1,3}))?([-. (]*(\\d{3})[-. )]*)?((\\d{3})[-. ]*(\\d{2,4})(?:[-.x ]*(\\d+))?)\\s*$";
-        String un_parsed_phone = String.valueOf(phoneText.getText());
+
         return un_parsed_phone.matches(regEx);
     }
 }

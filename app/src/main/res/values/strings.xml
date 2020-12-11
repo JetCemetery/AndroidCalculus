@@ -2,7 +2,7 @@
     <string name="app_name">AndroidCalulus</string>
     <string name="error_in_number_entered">Error in number entered</string>
     <string name="phone">Phone:</string>
-    <string name="defaultPhoneNumber">555–555–5555</string>
+    <string name="defaultPhoneNumber">555–555-5555</string>
     <string name="start">Start</string>
     <string name="integral_1">Integral 1</string>
     <string name="integral_2">Integral 2</string>
