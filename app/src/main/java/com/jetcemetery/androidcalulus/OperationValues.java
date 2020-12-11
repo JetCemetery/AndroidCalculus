@@ -8,9 +8,18 @@ public class OperationValues implements Serializable {
     private int integral_1_sta, integral_2_sta, integral_3_sta;
     private int integral_1_end, integral_2_end, integral_3_end;
     private boolean stopOnFirstSuccess;
-    private boolean cpu_single, cpu_half, cpu_all_m_1, cpu_all;
+    //private boolean cpu_single, cpu_half, cpu_all_m_1, cpu_all;
+    private cpu_use_options cpu_options;
     private int CPUs_on_device;
+    private int cpuToUse;
     private long expectedOperations;
+
+    public enum cpu_use_options {
+        CPU_SIGNLE,
+        CPU_HALF,
+        CPU_ALL_MINUS_1,
+        CPU_ALL,
+    };
 
     public OperationValues(Long phoneNum, int integral_1_sta, int integral_2_sta, int integral_3_sta, int integral_1_end, int integral_2_end, int integral_3_end, boolean stopOnFirstSuccess) {
         this.phoneNum = phoneNum;
@@ -22,6 +31,7 @@ public class OperationValues implements Serializable {
         this.integral_3_end = integral_3_end;
         this.stopOnFirstSuccess = stopOnFirstSuccess;
         CPUs_on_device = 1;
+        cpuToUse = 1;
         init();
     }
 
@@ -34,39 +44,40 @@ public class OperationValues implements Serializable {
     }
 
     public void setCpu_single() {
-        this.cpu_single = true;
-        this.cpu_half = false;
-        this.cpu_all_m_1 = false;
-        this.cpu_all = false;
+        cpu_options = cpu_use_options.CPU_SIGNLE;
+//        this.cpu_single = true;
+//        this.cpu_half = false;
+//        this.cpu_all_m_1 = false;
+//        this.cpu_all = false;
     }
 
     public void setCpu_half() {
-        this.cpu_single = false;
-        this.cpu_half = true;
-        this.cpu_all_m_1 = false;
-        this.cpu_all = false;
+        cpu_options = cpu_use_options.CPU_HALF;
+//        this.cpu_single = false;
+//        this.cpu_half = true;
+//        this.cpu_all_m_1 = false;
+//        this.cpu_all = false;
     }
 
     public void setCpu_all_m_1() {
-        this.cpu_single = false;
-        this.cpu_half = false;
-        this.cpu_all_m_1 = true;
-        this.cpu_all = false;
+        cpu_options = cpu_use_options.CPU_ALL_MINUS_1;
+//        this.cpu_single = false;
+//        this.cpu_half = false;
+//        this.cpu_all_m_1 = true;
+//        this.cpu_all = false;
     }
 
     public void setCpu_all() {
-        this.cpu_single = false;
-        this.cpu_half = false;
-        this.cpu_all_m_1 = false;
-        this.cpu_all = true;
+        cpu_options = cpu_use_options.CPU_ALL;
+//        this.cpu_single = false;
+//        this.cpu_half = false;
+//        this.cpu_all_m_1 = false;
+//        this.cpu_all = true;
     }
 
     private void init() {
         stopOnFirstSuccess = false;
-        cpu_single = false;
-        cpu_half = false;
-        cpu_all_m_1 = false;
-        cpu_all = false;
+        cpu_options =  cpu_use_options.CPU_SIGNLE;
         //expectedOperations = 1;
         //helper function that will figure out how many operation exists for the current settings
         //it's going to be the end of integral 1,2,3 - start of integral 1,2,3
@@ -155,5 +166,28 @@ public class OperationValues implements Serializable {
 
     public boolean getStopOnFirstSuccess(){
         return stopOnFirstSuccess;
+    }
+
+    public boolean identicalDataObj(OperationValues srcDataObj) {
+        //helper function that will compare this data object with the one that was passed
+        //you are only looking at the following params
+        //integrals start/end
+        //cpu count
+        //stop on first success
+        boolean valuesSame = true;
+        valuesSame &= srcDataObj.alphaStart() == integral_1_sta;
+        valuesSame &= srcDataObj.alphaEnd() == integral_1_end;
+        valuesSame &= srcDataObj.betaStart() == integral_2_sta;
+        valuesSame &= srcDataObj.betaEnd() == integral_2_end;
+        valuesSame &= srcDataObj.gammaStart() == integral_3_sta;
+        valuesSame &= srcDataObj.gammaEnd() == integral_3_end;
+        valuesSame &= srcDataObj.getCPU_OptionsEnum() == cpu_options;
+        valuesSame &= srcDataObj.getStopOnFirstSuccess() == stopOnFirstSuccess;
+
+        return valuesSame;
+    }
+
+    private cpu_use_options getCPU_OptionsEnum() {
+        return cpu_options;
     }
 }

@@ -1,12 +1,17 @@
 package com.jetcemetery.androidcalulus.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
+import android.widget.TextView;
 
 import com.jetcemetery.androidcalulus.OperationValues;
 import com.jetcemetery.androidcalulus.R;
@@ -19,6 +24,8 @@ public class SettingsActivity extends AppCompatActivity {
     private RadioButton rdgb_cpu_cnt_Single_2, rdgb_cpu_cnt_half_2, rdgb_cpu_cnt_all_minus1_2, rdgb_cpu_cnt_all_2;
     private RadioButton rdgb_stopOnSuccess_Yes_2, rdgb_stopOnSuccess_No_2;
     private OperationValues dataObj;
+    private TextView txt_start, txt_end;
+
 
     private int numberPicker_setMinValue = 1;
     private int numberPicker_setMaxValue = 1000000;
@@ -44,6 +51,10 @@ public class SettingsActivity extends AppCompatActivity {
         //Stop on first success
         rdgb_stopOnSuccess_Yes_2 = findViewById(R.id.rdgb_stopOnSuccess_Yes_2);
         rdgb_stopOnSuccess_No_2 = findViewById(R.id.rdgb_stopOnSuccess_No_2);
+
+        //the label text start/end
+        txt_start = findViewById(R.id.lbl_start2);
+        txt_end = findViewById(R.id.lbl_end2);
 
         //on create we need to get
         Intent intent = this.getIntent();
@@ -83,6 +94,13 @@ public class SettingsActivity extends AppCompatActivity {
         rdgb_stopOnSuccess_Yes_2.setOnClickListener(init_stopOnSuccess_Yes());
         rdgb_stopOnSuccess_No_2.setOnClickListener(init_stopOnSuccess_No());
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //the resume activity
+        //check to see dataObj that was passed is different from what is saved locally
     }
 
     private View.OnClickListener init_cpuSignle() {
@@ -143,5 +161,54 @@ public class SettingsActivity extends AppCompatActivity {
         srcIntegral.setMinValue(numberPicker_setMinValue);
         srcIntegral.setMaxValue(numberPicker_setMaxValue);
         srcIntegral.setValue(numberPicker_SetValueEnd);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //Need this for the menu stuff
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        //if here, hide the home button, as we are home
+        for (int i = 0; i < menu.size(); i++){
+            int menuObjID = menu.getItem(i).getItemId();
+            if(menuObjID == R.id.menu_settings){
+                menu.getItem(i).setVisible(false);
+                break;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        //need to finish this stuff to complete the menu actions
+        Intent intent = null;
+        //TODO fill in the data object with default if null....
+        //OperationValues dataObj = null;
+        if(dataObj == null){
+            dataObj = OperationValues_default.getDefaultValues();
+        }
+
+        Bundle bundle = null;
+        switch (item.getItemId()){
+            case R.id.menu_help:
+                intent = new Intent(getApplicationContext(), AboutActivity.class);
+                bundle = new Bundle();
+                bundle.putSerializable(OperationValues.DATAOBJ_NAME, dataObj);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                break;
+            case R.id.menu_home:
+                intent = new Intent(getApplicationContext(), MainActivity_take2.class);
+                bundle = new Bundle();
+                bundle.putSerializable(OperationValues.DATAOBJ_NAME, dataObj);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        return true;
     }
 }

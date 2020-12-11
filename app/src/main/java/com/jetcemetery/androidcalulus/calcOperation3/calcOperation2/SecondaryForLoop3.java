@@ -11,8 +11,18 @@ import com.jetcemetery.androidcalulus.calcOperation.PrintCalc;
 import com.jetcemetery.androidcalulus.calcOperation.SingleMathOp;
 import com.jetcemetery.androidcalulus.helper.getRandomInRange;
 
-public class SecondaryForLoop3 {
+public class SecondaryForLoop3 implements Runnable{
+    //for enabling pause resume section
+    //--------------
+    private volatile boolean pauseWork = false;
+    private volatile String state = STATE_NEW;
+    private Thread workerThread;
+    //--------------
     private static String TAG = "SecondaryForLoop3";
+    public static String STATE_NEW = "New";
+    public static String STATE_PAUSED = "Paused";
+    public static String STATE_RUNNING = "Running";
+    public static String STATE_FINISHED = "Finished";
     private final OperationValues userInput;
     private final int movingValue;
     private final Handler handler;
@@ -21,7 +31,7 @@ public class SecondaryForLoop3 {
     private final boolean operatingInBatchMode;
     private int currentBatchAmountRange;
     private int currentBatchAmount;
-
+    private volatile boolean stopProcess = false;
 
     public SecondaryForLoop3(OperationValues data, int movingValue, Handler handler) {
         this.userInput = data;
@@ -32,26 +42,59 @@ public class SecondaryForLoop3 {
         currentBatchAmount = 0;
         currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(100, 1000);
         operatingInBatchMode = true;
+        stopProcess = false;
     }
 
-    public void startProcess() {
+    @Override
+    public void run() {
         //this function will need some kind of optimization
         //see https://howtodoinjava.com/java/collections/performance-comparison-of-different-for-loops-in-java/
         //according to that, we need to reduce the number of function calls, so I am, and here it is
-        short movingIntegral_2 = (short) userInput.betaStart();
-        short end_Integral_2 = (short)userInput.betaEnd();
-        short movingIntegral_3 = (short)userInput.gammaStart();
-        short end_Integral_3 = (short)userInput.gammaEnd();
-        short rangeStart = (short) userInput.xStart();
-        short rangeEnd = (short) userInput.xEnd();
-        Log.d(TAG,"Starting secondary for loop now");
-        for(short movingBeta = movingIntegral_2; movingBeta<end_Integral_2; movingBeta++){
-            for(short movingGamma = movingIntegral_3; movingGamma<end_Integral_3; movingGamma++) {
-                for (short movingLowerLimit = rangeStart; movingLowerLimit < rangeEnd - 1; movingLowerLimit++) {
+        int movingIntegral_2 = (short) userInput.betaStart();
+        int end_Integral_2 = (short)userInput.betaEnd();
+        int movingIntegral_3 = (short)userInput.gammaStart();
+        int end_Integral_3 = (short)userInput.gammaEnd();
+        int rangeStart = (short) userInput.xStart();
+        int rangeEnd = (short) userInput.xEnd();
+
+        for(int movingBeta = movingIntegral_2; movingBeta<end_Integral_2; movingBeta++){
+            //use to kill thread process gracefully
+            Log.d(TAG,"At outer moving for loop beta == " + movingBeta);
+            if(stopProcess)
+                return;
+            for(int movingGamma = movingIntegral_3; movingGamma<end_Integral_3; movingGamma++) {
+                //use to kill thread process gracefully
+                if(stopProcess)
+                    return;
+                for (int movingLowerLimit = rangeStart; movingLowerLimit < rangeEnd - 1; movingLowerLimit++) {
+                    //use to kill thread process gracefully
+                    if(stopProcess)
+                        return;
+                    //for enabling pause resume section
+                    //--------------
+                    while(pauseWork)
+                    {
+                        setState(STATE_PAUSED);
+                        try
+                        {
+                            Thread.sleep(1000); //stop for 1000ms increments
+                            //use to kill thread process gracefully
+                            if(stopProcess)
+                                return;
+                        } catch (InterruptedException ie)
+                        {
+                            Log.e(TAG,"Interrupt on secondary for loop!");
+                            Log.e(TAG,ie.getMessage());
+                            //report or ignore
+                        }
+                    }
+                    setState(STATE_RUNNING);
+                    //--------------
+
                     SingleMathOp lowerLimitCalc = new SingleMathOp(movingLowerLimit, movingValue, movingBeta, movingGamma);
                     lowerLimitCalc.runMath();
                     long lowerLimitValue = lowerLimitCalc.getDervivate();
-                    for (short movingUpperLimit = (short) (movingLowerLimit + 1); movingUpperLimit < rangeEnd; movingUpperLimit++) {
+                    for (int movingUpperLimit = (movingLowerLimit + 1); movingUpperLimit < rangeEnd; movingUpperLimit++) {
                         SingleMathOp mathOp = new SingleMathOp(movingUpperLimit, movingValue, movingBeta, movingGamma);
                         mathOp.runMath();
                         long upperLimitValue = mathOp.getDervivate();
@@ -64,17 +107,23 @@ public class SecondaryForLoop3 {
                             Log.d(TAG,"****SUCCESS*********" + phoneNumberTxt);
                             postMessage(phoneNumberTxt + "\n");
                         }
+                        //use to kill thread process gracefully
+                        if(stopProcess)
+                            return;
                     }
                     postCompleteOperation();
                 }
             }
         }
+
+
         if(operatingInBatchMode){
             //if we were operating in batch mode, we need to clear out what left, and post it into the UI filed
             //to do so we call the normal postCompleteOperationBatch operation, but pass true in the parameter field
             //yup that's all
             postCompleteOperationBatch(true);
         }
+        setState(STATE_FINISHED);
     }
 
     private void postCompleteOperation() {
@@ -133,6 +182,46 @@ public class SecondaryForLoop3 {
         bundle.putString(MainActivity_take2.MESSAGE_NAME_ID2, msgStr);
         msg.setData(bundle);
         handler.sendMessage(msg);
+    }
+
+
+    //for enabling pause resume section
+    //--------------
+    //taken from
+    //https://coderanch.com/t/436108/java/Pause-Resume-Thread
+
+    public void pause()
+    {
+        this.pauseWork = true;
+    }
+
+    public void resume()
+    {
+        this.pauseWork = false;
+        if (workerThread != null)
+            workerThread.interrupt(); //wakeup if sleeping
+    }
+
+    private void setState(String state)
+    {
+        this.state = state;
+    }
+
+    public String getState()
+    {
+        return this.state;
+    }
+
+    /** startImmediately = true to begin work right away, false = start Work in paused state, call resume() to do work */
+    public void start(boolean startImmediately)
+    {
+        this.pauseWork = !startImmediately;
+        workerThread = new Thread(this);
+        workerThread.start();
+    }
+
+    public void gracefullExit(){
+        stopProcess = true;
     }
 
 }

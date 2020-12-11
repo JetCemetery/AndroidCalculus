@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ import com.jetcemetery.androidcalulus.helper.StartOperationHelper;
 import java.util.ArrayList;
 
 public class MainActivity_take2 extends AppCompatActivity {
+    private static String TAG = "MainActivity_take2";
     public static int POST_MESSAGE_IN_RESULTS2 = 555;
     public static int ONE_CALULATION_COMPLETED_BATCH = 556;
     public static int ONE_CALULATION_COMPLETED = 557;
@@ -42,6 +44,9 @@ public class MainActivity_take2 extends AppCompatActivity {
     private long currentOperationsCompleted;
     private String totalOperationExpected;
 
+//    private Button btn_tempPause;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +61,68 @@ public class MainActivity_take2 extends AppCompatActivity {
         dataObj = OperationValues_default.getDefaultValues(un_parsed_phone);
         initView();
         createUpdateUiHandler();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "On Resume function!");
+        //the resume activity
+        //check to see dataObj that was passed is different from what is saved locally
+        Intent intent = this.getIntent();
+        verifyDataObject(intent);
+        if(myThread != null){
+            myThread.resumeAllThreads();
+        }
+    }
+
+    private void verifyDataObject(Intent srcIntent) {
+        //this function shall be called on every single activity change
+        //the goal is simple
+        //check to see if the intent that was invoked into here carries with it a data object
+        //that data object holding all of the settings to run the app
+        //if the intent does hold a new data object, then check to see if the specs match of the current data object
+        //if they are different, then
+        //you must kill and threads that are running in main loop -> secondary loop
+        //update whatever
+        //then save the data object that was passed into the local data object
+        if(srcIntent != null && dataObj != null){
+            //intent not null, good start, as well as dataObj not being null and all.
+            Bundle bundle = srcIntent.getExtras();
+            if(bundle != null){
+                //bundle also not null, looking good
+                OperationValues passedDataObj = (OperationValues) bundle.getSerializable(OperationValues.DATAOBJ_NAME);
+                if(passedDataObj != null){
+                    //data object was present inside of intent, we are almost there, one more step
+                    if(passedDataObj.identicalDataObj(dataObj)){
+                        //if here, then local data object, has the same settings
+                        //so do nothing!
+                    }else{
+                        //if here, then we need to do the following
+                        //over-write the local data object, with the passed data object
+                        //kill any threads that are running from previous setting
+                        //reset the progress text
+                        dataObj = passedDataObj;
+                        currentOperationsCompleted = 0;
+                        if(myThread != null){
+                            myThread.stopAllThreads();
+                        }
+                    }
+                }
+            }
+        }
+
+        //at this point data object should have been set
+        //and threads killed if applicable
+        //if data object is not set, set to default
+        //then go ahead and call upon the update GUI stuff
+        if(dataObj == null){
+            currentOperationsCompleted = 0;
+            if(myThread != null){
+                myThread.stopAllThreads();
+            }
+            dataObj = OperationValues_default.getDefaultValues();
+        }
     }
 
     private void initView() {
@@ -85,12 +152,8 @@ public class MainActivity_take2 extends AppCompatActivity {
                     txtError.setVisibility(View.GONE);
                     String ParsedNumber = getParsedNumber();
                     dataObj.setPhoneNumber(ParsedNumber);
-                    Toast.makeText(getApplicationContext(), "process [" + ParsedNumber + "]", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "process [" + ParsedNumber + "]", Toast.LENGTH_SHORT).show();
                     InitiateMainForLoopThread();
-                    //Intent intent = new Intent(getApplicationContext(), RenderValues.class);
-                    //OperationValues dataObj = getUserValues(ParsedNumber);
-                    //intent.putExtra(OperationValues.DATAOBJ_NAME, dataObj);
-                    //startActivity(intent);
                 }
                 else{
                     //if here, then number is NOT valid
@@ -98,7 +161,6 @@ public class MainActivity_take2 extends AppCompatActivity {
                     txtError.setText("ERROR!");
                     Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
 
@@ -107,16 +169,8 @@ public class MainActivity_take2 extends AppCompatActivity {
     private void InitiateMainForLoopThread() {
         //this function shall create a new thread, and start the MainForLoopThread2 operation
         txtResults.setText("");
-        myRunnable = new Runnable() {
-            private long startTime = System.currentTimeMillis();
-            public void run() {
-                //MainForLoopThread mainThreadedProcess = new MainForLoopThread(dataObj, updateUIHandler);
-                //mainThreadedProcess.run();
-                myThread = new MainForLoopThread3(dataObj,updateUIHandler);
-                myThread.StartProcess();
-            }
-        };
-        myRunnable.run();
+        myThread = new MainForLoopThread3(dataObj,updateUIHandler);
+        myThread.StartProcess();
     }
 
     private String getParsedNumber() {
@@ -147,6 +201,14 @@ public class MainActivity_take2 extends AppCompatActivity {
         //Need this for the menu stuff
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+        //if here, hide the home button, as we are home
+        for (int i = 0; i < menu.size(); i++){
+            int menuObjID = menu.getItem(i).getItemId();
+            if(menuObjID == R.id.menu_home){
+                menu.getItem(i).setVisible(false);
+                break;
+            }
+        }
         return true;
     }
 
@@ -154,8 +216,9 @@ public class MainActivity_take2 extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //need to finish this stuff to complete the menu actions
         Intent intent = null;
-        //TODO fill in the data object with default if null....
-        OperationValues dataObj = null;
+        if(dataObj == null){
+            dataObj = OperationValues_default.getDefaultValues();
+        }
         Bundle bundle = null;
         switch (item.getItemId()){
             case R.id.menu_help:
@@ -163,6 +226,10 @@ public class MainActivity_take2 extends AppCompatActivity {
                 bundle = new Bundle();
                 bundle.putSerializable(OperationValues.DATAOBJ_NAME, dataObj);
                 intent.putExtras(bundle);
+                if(myThread != null){
+                    myThread.pauseAllThreads();
+                }
+
                 startActivity(intent);
                 break;
             case R.id.menu_settings:
@@ -170,6 +237,9 @@ public class MainActivity_take2 extends AppCompatActivity {
                 bundle = new Bundle();
                 bundle.putSerializable(OperationValues.DATAOBJ_NAME, dataObj);
                 intent.putExtras(bundle);
+                if(myThread != null){
+                    myThread.pauseAllThreads();
+                }
                 startActivity(intent);
                 break;
             default:
@@ -193,9 +263,6 @@ public class MainActivity_take2 extends AppCompatActivity {
                 @Override
                 public void handleMessage(Message msg) {
                     // Means the message is sent from child thread.
-                    //Log.d(TAG,"Got inside the handle section...");
-
-
                     if(msg != null){
                         int messageTypeID = msg.what;
                         if(messageTypeID == POST_MESSAGE_IN_RESULTS2){
@@ -204,15 +271,12 @@ public class MainActivity_take2 extends AppCompatActivity {
                             //in the text view area
                             Bundle bundle = msg.getData();
                             String strMSg = bundle.getString(MESSAGE_NAME_ID2);
-                            //Log.d(TAG,"strMSg == " + strMSg);
                             if(strMSg != null){
-                                //Log.d(TAG,"strMSg != null");
                                 if(!strMSg.isEmpty()){
                                     txtResults.append(strMSg);
                                 }
                             }
                         }else if(messageTypeID == ONE_CALULATION_COMPLETED){
-                            //Log.d(TAG,"Got into increment calculation");
                             //if here, then we are going to update the progress bar
                             //and update the text saying how many operation are completed
                             //vs how many more to go
@@ -228,14 +292,12 @@ public class MainActivity_take2 extends AppCompatActivity {
                             String strMSg = bundle.getString(MESSAGE_NAME_ID2);
                             //Log.d(TAG,"strMSg == " + strMSg);
                             if(strMSg != null){
-                                //Log.d(TAG,"strMSg != null");
                                 if(!strMSg.isEmpty()){
                                     currentOperationsCompleted += Integer.valueOf(strMSg);
                                     updateProgressBar_and_Text();
                                 }
                             }
                         }
-
                     }
                 }
             };

@@ -9,13 +9,14 @@ import android.util.Log;
 import com.jetcemetery.androidcalulus.OperationValues;
 import com.jetcemetery.androidcalulus.RenderValues;
 
+import java.util.ArrayList;
+
 public class MainForLoopThread3 {
     private static String TAG = "MainForLoopThread3";
     private OperationValues data;
     private Handler mainLoopHandler;
-    private int superCounter;
     private int[] pointsArray;
-    private boolean pauseInEffect;
+    private ArrayList<SecondaryForLoop3> runnableList;
 
     public MainForLoopThread3(OperationValues data, Handler handler){
         //this is going to be the main loop caller
@@ -23,20 +24,16 @@ public class MainForLoopThread3 {
         //get the total number of
         this.data = data;
         this.mainLoopHandler = handler;
-        superCounter = 0;
         pointsArray = createPointsArray(data);
-        pauseInEffect = false;
-        //TODO get time stamp?
-        //showTimeOp = data.getBooleanDebugTime();
 
     }
 
     public void StartProcess(){
-        Log.d(TAG, "StartProcess called, total loop should be " + pointsArray.length);
+        Log.d(TAG, "StartProcess called, total loop should be " + (pointsArray.length-1));
+        runnableList = new ArrayList<>();
         for(int opCount=0; opCount < pointsArray.length-1; opCount++){
             //the goal plan for this is to create a new thread that passes the start/end values
             //run the START of that for loop, and make sure what executed in THAT loop is NOT run in thread mode
-            superCounter++;
             createThread(pointsArray[opCount],pointsArray[opCount+1], opCount);
         }
     }
@@ -46,28 +43,23 @@ public class MainForLoopThread3 {
         //however start them only when there is room available
         //hence if this operation needs to create 500 operations but there are only 8 threads
         //create 8 threads and when one is finished, create the next one
-        Log.d(TAG,"Started new thread start val [" + start + "] end val [" + end + "]");
+        Log.d(TAG,"Starting new thread start val [" + start + "] end val [" + end + "]");
 
-        Thread thread = new Thread() {
+        Thread myThread = new Thread() {
             private long startTime = System.currentTimeMillis();
             @Override
             public void run()
             {
                 int startVal = start+0;
                 int endVal = end-1;
-                int operationNum = opCount+1;
                 for(int movingValue = startVal; movingValue < endVal; movingValue++){
                     SecondaryForLoop3 secondObj = new SecondaryForLoop3(data, movingValue, mainLoopHandler);
-                    secondObj.startProcess();
-                    while(pauseInEffect){
-                        SystemClock.sleep(1000);
-                        Log.d(TAG,"pauseInEffect for 1 second");
-                    }
+                    runnableList.add(secondObj);
+                    secondObj.run();
                 }
-                superCounter--;
             }
         };
-        thread.start();
+        myThread.start();
         Log.d(TAG,"Stand alone thread has started");
     }
 
@@ -105,7 +97,48 @@ public class MainForLoopThread3 {
         mainLoopHandler.sendMessage(msg);
     }
 
-    public void pause() {
-        this.pauseInEffect = true;
+    public void pauseAllThreads() {
+        Log.d(TAG,"At start of pausing");
+        for (SecondaryForLoop3 curTh : runnableList){
+            if(curTh != null){
+                if(curTh.getState().equals(SecondaryForLoop3.STATE_RUNNING)){
+                    curTh.pause();
+                }
+                else if(curTh.getState().equals(SecondaryForLoop3.STATE_NEW)){
+                    //should never get here, but just in case you know
+                    curTh.pause();
+                }
+            }
+        }
+    }
+
+    public void resumeAllThreads() {
+        Log.d(TAG,"At start of resuming");
+        for (SecondaryForLoop3 curTh : runnableList){
+            if(curTh != null){
+                if(curTh.getState().equals(SecondaryForLoop3.STATE_PAUSED)){
+                    curTh.resume();
+                }
+            }
+        }
+    }
+
+    public void stopAllThreads() {
+        Log.d(TAG,"At start of Killing all threads");
+        if(runnableList != null){
+            if(runnableList.size() > 1){
+                for (SecondaryForLoop3 curTh : runnableList){
+                    if(curTh != null){
+                        //will call a function that will gracefully kill the thread
+                        //not really kill more like let the run method goto exit
+                        curTh.gracefullExit();
+                    }
+                }
+            }
+            //set the runnable list to null
+            //this intern will call the garbage collector for all the those threads inside of said list
+            runnableList = null;
+        }
+
     }
 }
