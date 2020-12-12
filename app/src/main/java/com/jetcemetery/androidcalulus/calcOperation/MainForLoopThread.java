@@ -127,7 +127,7 @@ public class MainForLoopThread {
                     if(curTh != null){
                         //will call a function that will gracefully kill the thread
                         //not really kill more like let the run method goto exit
-                        curTh.gracefullExit();
+                        curTh.gracefulExit();
                     }
                 }
             }

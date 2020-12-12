@@ -8,7 +8,7 @@ import static java.lang.Math.abs;
 
 public class OperationValues implements Serializable {
     private static final String TAG = "OperationValues";
-    public static String DATAOBJ_NAME = "DataObj";
+    public static String DATA_OBJ_NAME = "DataObj";
     private Long phoneNum;
     private final String rawPhoneNumber;
     private int integral_1_sta, integral_2_sta, integral_3_sta;
@@ -17,10 +17,10 @@ public class OperationValues implements Serializable {
     private cpu_use_options cpu_options;
     private int CPUs_on_device;
     private final int cpuToUse;
-    private long expectedOperations;
+    private float expectedOperations;
 
     public enum cpu_use_options {
-        CPU_SIGNLE,
+        CPU_SINGLE,
         CPU_HALF,
         CPU_ALL_MINUS_1,
         CPU_ALL,
@@ -60,7 +60,7 @@ public class OperationValues implements Serializable {
     }
 
     public void setCpu_single() {
-        cpu_options = cpu_use_options.CPU_SIGNLE;
+        cpu_options = cpu_use_options.CPU_SINGLE;
     }
 
     public void setCpu_half() {
@@ -87,9 +87,10 @@ public class OperationValues implements Serializable {
         tempVal = tempVal * lastPart;
         expectedOperations = tempVal;
     }
+
     private void init() {
         stopOnFirstSuccess = false;
-        cpu_options =  cpu_use_options.CPU_SIGNLE;
+        cpu_options =  cpu_use_options.CPU_SINGLE;
         //expectedOperations = 1;
         //helper function that will figure out how many operation exists for the current settings
         //it's going to be the end of integral 1,2,3 - start of integral 1,2,3
@@ -146,21 +147,27 @@ public class OperationValues implements Serializable {
     }
 
     public String getInitialProgressText() {
-        return "0 / " + expectedOperations;
+        //there's an issue of non whole numbers for the expected text...
+        return "0 / " + String.valueOf(Long.valueOf((long) expectedOperations));
     }
 
-    public int getCurrentProgress_for_progressBar(){
-        return operationForProgressBar(0);
-    }
+//    public int getCurrentProgress_for_progressBar(){
+//        return operationForProgressBar(0);
+//    }
 
-    public int operationForProgressBar(long completedOperations){
-        double temp = (double) (completedOperations / expectedOperations);
+    public int operationForProgressBar(float completedOperations){
+        String tempStr = "Comp [" + completedOperations + "] exp [" + expectedOperations + "]\n";
+        float temp = (float) (completedOperations / expectedOperations);
         temp = temp * 100;
+        tempStr+= "temp == [" + temp + "]";
+        Log.d(TAG, tempStr);
         return (int) temp;
     }
 
     public String getTotalOperationExpected() {
-        return String.valueOf(expectedOperations);
+        //type float leaves a .0 at the end
+        //need to cast into type long, and then into type string
+        return String.valueOf(Long.valueOf((long) expectedOperations));
     }
 
     public void setStopOnSuccess(boolean stopOnFirstSuccess) {

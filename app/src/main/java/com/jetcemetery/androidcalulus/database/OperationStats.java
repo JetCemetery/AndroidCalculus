@@ -4,7 +4,7 @@ public class OperationStats {
     public static final String TABLE_NAME = "OperationStats";
 
     public static final String COLUMN_ID = "id";
-    public static final String COLUMN_TIME_ELAPSED = "timeEllapsedSinceStart";
+    public static final String COLUMN_TIME_ELAPSED = "timeElapsedSinceStart";
     public static final String COLUMN_SUCCESS = "success";
 
     private long id;
@@ -26,13 +26,13 @@ public class OperationStats {
     }
 
     public OperationStats(long id, long timeElapsed, int success) {
-        boolean sucessOp = true;
+        boolean successOp = true;
         if(success == 0){
-            sucessOp = false;
+            successOp = false;
         }
         this.id = id;
         this.timeElapsed = timeElapsed;
-        this.success = sucessOp;
+        this.success = successOp;
     }
 
     public long getId() {

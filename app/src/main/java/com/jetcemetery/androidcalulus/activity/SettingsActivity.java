@@ -65,7 +65,7 @@ public class SettingsActivity extends AppCompatActivity {
         if(intent != null){
             Bundle bundle = intent.getExtras();
             if(bundle != null){
-                OperationValues tempObj = (OperationValues) bundle.getSerializable(OperationValues.DATAOBJ_NAME);
+                OperationValues tempObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
                 if(tempObj != null){
                     dataObj = tempObj;
                     Log.d(TAG, "Intent has sent a tempObj!");
@@ -94,12 +94,14 @@ public class SettingsActivity extends AppCompatActivity {
         setEndIntegral(integral3_end);
 
         //CPU radio group
-        rdgb_cpu_cnt_Single_2.setOnClickListener(init_cpuSignle());
+        //TODO finish coding the cpu choices and let user truly select cpu usage
+        rdgb_cpu_cnt_Single_2.setOnClickListener(init_cpuSingle());
         rdgb_cpu_cnt_half_2.setOnClickListener(init_cpuHalf());
         rdgb_cpu_cnt_all_minus1_2.setOnClickListener(init_cpuMinus1());
         rdgb_cpu_cnt_all_2.setOnClickListener(init_cpuAll());
 
         //Stop on Success Group
+        //TODO add the needed code on the activity page
         rdgb_stopOnSuccess_Yes_2.setOnClickListener(init_stopOnSuccess_Yes());
         rdgb_stopOnSuccess_No_2.setOnClickListener(init_stopOnSuccess_No());
 
@@ -122,7 +124,7 @@ public class SettingsActivity extends AppCompatActivity {
             case CPU_ALL:
                 rdgb_cpu_cnt_all_2.setSelected(true);
                 break;
-            case CPU_SIGNLE:
+            case CPU_SINGLE:
             default:
                 rdgb_cpu_cnt_Single_2.setSelected(true);
                 break;
@@ -136,7 +138,7 @@ public class SettingsActivity extends AppCompatActivity {
         //check to see dataObj that was passed is different from what is saved locally
     }
 
-    private View.OnClickListener init_cpuSignle() {
+    private View.OnClickListener init_cpuSingle() {
         return v -> dataObj.setCpu_single();
     }
 
@@ -204,7 +206,7 @@ public class SettingsActivity extends AppCompatActivity {
             case R.id.menu_help:
                 intent = new Intent(getApplicationContext(), AboutActivity.class);
                 bundle = new Bundle();
-                bundle.putSerializable(OperationValues.DATAOBJ_NAME, returnCurrentStateAsDataObj());
+                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, returnCurrentStateAsDataObj());
                 intent.putExtras(bundle);
                 startActivity(intent);
                 break;
@@ -212,7 +214,7 @@ public class SettingsActivity extends AppCompatActivity {
                 Log.d(TAG, "Inside menu home");
                 intent = new Intent(getApplicationContext(), MainActivity.class);
                 bundle = new Bundle();
-                bundle.putSerializable(OperationValues.DATAOBJ_NAME, returnCurrentStateAsDataObj());
+                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, returnCurrentStateAsDataObj());
                 Log.d(TAG, "dataObj has been packed and sent to main activity");
                 intent.putExtras(bundle);
                 startActivity(intent);

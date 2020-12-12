@@ -84,11 +84,11 @@ public class SecondaryForLoop implements Runnable{
 
                     SingleMathOp lowerLimitCalc = new SingleMathOp(movingLowerLimit, movingValue, movingBeta, movingGamma);
                     lowerLimitCalc.runMath();
-                    long lowerLimitValue = lowerLimitCalc.getDervivate();
+                    long lowerLimitValue = lowerLimitCalc.getDerivative();
                     for (int movingUpperLimit = (movingLowerLimit + 1); movingUpperLimit < rangeEnd; movingUpperLimit++) {
                         SingleMathOp mathOp = new SingleMathOp(movingUpperLimit, movingValue, movingBeta, movingGamma);
                         mathOp.runMath();
-                        long upperLimitValue = mathOp.getDervivate();
+                        long upperLimitValue = mathOp.getDerivative();
                         long diff = upperLimitValue - lowerLimitValue;
                         if (Math.abs(targetNumber - diff) < range) {
                             //if here then number is within range!
@@ -132,7 +132,7 @@ public class SecondaryForLoop implements Runnable{
         //calling this update UI function a few thousand times per second broke the UI thread
         //so now we must Make with call as Batch!
         Message msg = handler.obtainMessage();
-        msg.what = MainActivity.ONE_CALULATION_COMPLETED_BATCH;
+        msg.what = MainActivity.ONE_CALCULATION_COMPLETED_BATCH;
         handler.sendMessage(msg);
     }
 
@@ -152,7 +152,7 @@ public class SecondaryForLoop implements Runnable{
                 currentBatchAmount--;
             }
             Message msg = handler.obtainMessage();
-            msg.what = MainActivity.ONE_CALULATION_COMPLETED_BATCH;
+            msg.what = MainActivity.ONE_CALCULATION_COMPLETED_BATCH;
             Bundle bundle = new Bundle();
             bundle.putString(MainActivity.MESSAGE_NAME_ID, String.valueOf(currentBatchAmount));
             msg.setData(bundle);
@@ -211,7 +211,7 @@ public class SecondaryForLoop implements Runnable{
         workerThread.start();
     }
 
-    public void gracefullExit(){
+    public void gracefulExit(){
         stopProcess = true;
     }
 

@@ -9,7 +9,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="wrap_content" >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -18,13 +18,6 @@
             android:orientation="vertical"
             android:padding="5dp"
             tools:ignore="UselessParent">
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -129,7 +122,7 @@
                     android:layout_marginBottom="5dp"
                     android:background="@drawable/rounded_corner"
                     android:gravity="center|center_horizontal|center_vertical"
-                    android:text="@string/start"></TextView>
+                    android:text="@string/start" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -150,7 +143,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@drawable/rounded_corner"
-                            android:padding="5dp"></NumberPicker>
+                            android:padding="5dp" />
 
                     </LinearLayout>
 
@@ -200,9 +193,7 @@
                 android:id="@+id/layout_StartIntegrals"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_alignParentBottom="true"
-                >
+                android:orientation="horizontal">
 
 
                 <TextView
@@ -213,7 +204,7 @@
                     android:layout_marginBottom="5dp"
                     android:background="@drawable/rounded_corner"
                     android:gravity="center|center_horizontal|center_vertical"
-                    android:text="@string/end"></TextView>
+                    android:text="@string/end" />
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

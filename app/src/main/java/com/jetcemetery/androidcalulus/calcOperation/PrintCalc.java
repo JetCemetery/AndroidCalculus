@@ -10,8 +10,8 @@ public class PrintCalc {
         String alphaStr = "" + alpha * 4 + "x" + "^3";
         String beta_str = " + " + beta * 3 + "x" + "^2";
         String gamma_str = " + " + gamma * 2 + "x" + "";
-//		String end_prt = reducedFraction(mathOp2(mathOperation.getDervivate(),num),movingX) + ") dx";
-        String end_prt = " + " + mathOp2(mathOperation.getDervivate(),num) + "/" + movingX + ") dx";
+//		String end_prt = reducedFraction(mathOp2(mathOperation.getDerivative(),num),movingX) + ") dx";
+        String end_prt = " + " + mathOp2(mathOperation.getDerivative(),num) + "/" + movingX + ") dx";
         String opening = "the integral of 0 to " + movingX + " of (";
         return opening + alphaStr + beta_str + gamma_str + end_prt;
     }

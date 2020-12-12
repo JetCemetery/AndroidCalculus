@@ -26,7 +26,7 @@ public class SingleMathOp {
         mathOpResults = (al+be+ga);
     }
 
-    public long getDervivate(){
+    public long getDerivative(){
         return this.mathOpResults;
     }
 

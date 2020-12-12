@@ -33,8 +33,8 @@ import static com.jetcemetery.androidcalulus.R.*;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity_take";
     public static int POST_MESSAGE_IN_RESULTS = 555;
-    public static int ONE_CALULATION_COMPLETED_BATCH = 556;
-    public static int ONE_CALULATION_COMPLETED = 557;
+    public static int ONE_CALCULATION_COMPLETED_BATCH = 556;
+    public static int ONE_CALCULATION_COMPLETED = 557;
     public final static String MESSAGE_NAME_ID ="My_data_msg";
     private EditText txtPhone;
     private TextView txtError, txtResults, txt_progressBar2;
@@ -50,12 +50,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(layout.activity_main_take2);
-        txtPhone = findViewById(id.txt_phoneID2);
-        txtError = findViewById(id.errorText2);
-        btnStart = findViewById(id.btn_start2);
-        prbBar_progressBar = findViewById(id.pgBar_Progress_bar2);
-        txt_progressBar2 = findViewById(id.txt_progress2);
-        txtResults = findViewById(id.txt_results2);
+        txtPhone = findViewById(id.txt_phoneID);
+        txtError = findViewById(id.errorText);
+        btnStart = findViewById(id.btn_start);
+        prbBar_progressBar = findViewById(id.pgBar_Progress_bar);
+        txt_progressBar2 = findViewById(id.txt_progress);
+        txtResults = findViewById(id.txt_results);
         if(defaultInitRequired()){
             String un_parsed_phone = String.valueOf(txtPhone.getText());
             dataObj = OperationValues_default.getDefaultValues(un_parsed_phone);
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         //this function shall have two features
         //  1 - Return true if no data object was passed, return false otherwise
         //  2 - if an data object was passed, then check if current data object is null
-        //        if local dataobject is not null, compare to local
+        //        if local data object is not null, compare to local
         //              if the two are different,
         //                assume the object passed, is going to be the new settings
         //                stop all previous threads if applicable
@@ -85,12 +85,12 @@ public class MainActivity extends AppCompatActivity {
         if(bundle == null){
             return true;
         }
-        OperationValues passedDataObj = (OperationValues) bundle.getSerializable(OperationValues.DATAOBJ_NAME);
+        OperationValues passedDataObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
         if(passedDataObj == null){
             return true;
         }
         Log.d(TAG, "In defaultInitRequired function, passed doing null checks");
-        //if here, then when this activity was called, a dataobject was passed into it
+        //if here, then when this activity was called, a data object was passed into it
         //now lets check against what we have local
         if(dataObj == null){
             //all right, cool local data object is null, lets go ahead and overwrite the local UI elements
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         else{
             //if here, then we have a local data object still in effect
             //we need to do the following
-            //check if the local dataobject and the passed data object are the same
+            //check if the local data object and the passed data object are the same
             //if the same then
             //  resume thread operation
             //  update UI
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                 //except resume threads if applicable
                 //  note, it okay to attempt to resume the threads even if the start button was never clicked
                 //  no threads were created, so nothing will happen, and no errors called.
-                Log.d(TAG, "Function checkIfDataObjectedPassed showed that current dataobj and passed are the same");
+                Log.d(TAG, "Function checkIfDataObjectedPassed showed that current data obj and passed are the same");
                 resumeThreads_if_applicable = true;
             }else{
                 Log.d(TAG, "Function checkIfDataObjectedPassed data object has been updated");
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
             Bundle bundle = srcIntent.getExtras();
             if(bundle != null){
                 //bundle also not null, looking good
-                OperationValues passedDataObj = (OperationValues) bundle.getSerializable(OperationValues.DATAOBJ_NAME);
+                OperationValues passedDataObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
                 if(passedDataObj != null){
                     //data object was present inside of intent, we are almost there, one more step
                     if(passedDataObj.identicalDataObj(dataObj)){
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
                         //except resume threads if applicable
                         //  note, it okay to attempt to resume the threads even if the start button was never clicked
                         //  no threads were created, so nothing will happen, and no errors called.
-                        Log.d(TAG, "Function verifyDataObject showed that current dataobj and passed are the same");
+                        Log.d(TAG, "Function verifyDataObject showed that current data obj and passed are the same");
                         resumeThreads_if_applicable = true;
                     }else{
                         Log.d(TAG, "Function verifyDataObject data object has been updated");
@@ -277,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateProgressBar_and_Text() {
         prbBar_progressBar.setProgress(dataObj.operationForProgressBar(currentOperationsCompleted));
+        //prbBar_progressBar.setProgress(55);
         txt_progressBar2.setText(dataObj.getInitialProgressText());
         String progressTxt = currentOperationsCompleted + " / " + totalOperationExpected;
         txt_progressBar2.setText(progressTxt);
@@ -324,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
             case id.menu_help:
                 intent = new Intent(getApplicationContext(), AboutActivity.class);
                 bundle = new Bundle();
-                bundle.putSerializable(OperationValues.DATAOBJ_NAME, returnCurrentStateAsDataObj());
+                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, returnCurrentStateAsDataObj());
                 intent.putExtras(bundle);
                 if(myThread != null){
                     myThread.pauseAllThreads();
@@ -337,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(getApplicationContext(), SettingsActivity.class);
                 bundle = new Bundle();
                 //dataObj.printSelf("Inside main");
-                bundle.putSerializable(OperationValues.DATAOBJ_NAME, returnCurrentStateAsDataObj());
+                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, returnCurrentStateAsDataObj());
                 intent.putExtras(bundle);
                 if(myThread != null){
                     myThread.pauseAllThreads();
@@ -384,14 +385,14 @@ public class MainActivity extends AppCompatActivity {
                                     txtResults.append(strMSg);
                                 }
                             }
-                        }else if(messageTypeID == ONE_CALULATION_COMPLETED){
+                        }else if(messageTypeID == ONE_CALCULATION_COMPLETED){
                             //if here, then we are going to update the progress bar
                             //and update the text saying how many operation are completed
                             //vs how many more to go
                             currentOperationsCompleted++;
                             updateProgressBar_and_Text();
 
-                        }else if(messageTypeID == ONE_CALULATION_COMPLETED_BATCH){
+                        }else if(messageTypeID == ONE_CALCULATION_COMPLETED_BATCH){
                             //if here, then we are doing a batch operation complete
                             //this was an issue when dealing with the UI thread being to slow
                             //so now we batch the stuff up and send it to the UI thread
@@ -401,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
                             //Log.d(TAG,"strMSg == " + strMSg);
                             if(strMSg != null){
                                 if(!strMSg.isEmpty()){
-                                    currentOperationsCompleted += Integer.parseInt(strMSg);
+                                    currentOperationsCompleted += Long.valueOf(strMSg);
                                     updateProgressBar_and_Text();
                                 }
                             }
