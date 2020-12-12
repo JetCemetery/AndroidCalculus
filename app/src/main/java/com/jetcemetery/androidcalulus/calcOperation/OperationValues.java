@@ -1,17 +1,22 @@
-package com.jetcemetery.androidcalulus;
+package com.jetcemetery.androidcalulus.calcOperation;
+
+import android.util.Log;
 
 import java.io.Serializable;
 
+import static java.lang.Math.abs;
+
 public class OperationValues implements Serializable {
+    private static final String TAG = "OperationValues";
     public static String DATAOBJ_NAME = "DataObj";
     private Long phoneNum;
+    private final String rawPhoneNumber;
     private int integral_1_sta, integral_2_sta, integral_3_sta;
     private int integral_1_end, integral_2_end, integral_3_end;
     private boolean stopOnFirstSuccess;
-    //private boolean cpu_single, cpu_half, cpu_all_m_1, cpu_all;
     private cpu_use_options cpu_options;
     private int CPUs_on_device;
-    private int cpuToUse;
+    private final int cpuToUse;
     private long expectedOperations;
 
     public enum cpu_use_options {
@@ -19,10 +24,11 @@ public class OperationValues implements Serializable {
         CPU_HALF,
         CPU_ALL_MINUS_1,
         CPU_ALL,
-    };
+    }
 
-    public OperationValues(Long phoneNum, int integral_1_sta, int integral_2_sta, int integral_3_sta, int integral_1_end, int integral_2_end, int integral_3_end, boolean stopOnFirstSuccess) {
-        this.phoneNum = phoneNum;
+    public OperationValues(String phoneNum, int integral_1_sta, int integral_2_sta, int integral_3_sta, int integral_1_end, int integral_2_end, int integral_3_end, boolean stopOnFirstSuccess) {
+        //this.phoneNum = phoneNum;
+        this.rawPhoneNumber = phoneNum;
         this.integral_1_sta = integral_1_sta;
         this.integral_2_sta = integral_2_sta;
         this.integral_3_sta = integral_3_sta;
@@ -35,6 +41,16 @@ public class OperationValues implements Serializable {
         init();
     }
 
+    public void setIntegralRanges(int start1, int start2, int start3, int end1, int end2, int end3) {
+        this.integral_1_sta = start1;
+        this.integral_2_sta = start2;
+        this.integral_3_sta = start3;
+
+        this.integral_1_end = end1;
+        this.integral_2_end = end2;
+        this.integral_3_end = end3;
+    }
+
     public void setPhoneNumber(Long phoneNum){
         this.phoneNum = phoneNum;
     }
@@ -45,43 +61,21 @@ public class OperationValues implements Serializable {
 
     public void setCpu_single() {
         cpu_options = cpu_use_options.CPU_SIGNLE;
-//        this.cpu_single = true;
-//        this.cpu_half = false;
-//        this.cpu_all_m_1 = false;
-//        this.cpu_all = false;
     }
 
     public void setCpu_half() {
         cpu_options = cpu_use_options.CPU_HALF;
-//        this.cpu_single = false;
-//        this.cpu_half = true;
-//        this.cpu_all_m_1 = false;
-//        this.cpu_all = false;
     }
 
     public void setCpu_all_m_1() {
         cpu_options = cpu_use_options.CPU_ALL_MINUS_1;
-//        this.cpu_single = false;
-//        this.cpu_half = false;
-//        this.cpu_all_m_1 = true;
-//        this.cpu_all = false;
     }
 
     public void setCpu_all() {
         cpu_options = cpu_use_options.CPU_ALL;
-//        this.cpu_single = false;
-//        this.cpu_half = false;
-//        this.cpu_all_m_1 = false;
-//        this.cpu_all = true;
     }
 
-    private void init() {
-        stopOnFirstSuccess = false;
-        cpu_options =  cpu_use_options.CPU_SIGNLE;
-        //expectedOperations = 1;
-        //helper function that will figure out how many operation exists for the current settings
-        //it's going to be the end of integral 1,2,3 - start of integral 1,2,3
-        //as a permutation format
+    public void updateTotalExpectedOperations() {
         long tempVal = 1;
         int int1 = integral_1_end - integral_1_sta;
         int int2 = integral_2_end - integral_2_sta;
@@ -92,6 +86,15 @@ public class OperationValues implements Serializable {
         tempVal = tempVal * int3;
         tempVal = tempVal * lastPart;
         expectedOperations = tempVal;
+    }
+    private void init() {
+        stopOnFirstSuccess = false;
+        cpu_options =  cpu_use_options.CPU_SIGNLE;
+        //expectedOperations = 1;
+        //helper function that will figure out how many operation exists for the current settings
+        //it's going to be the end of integral 1,2,3 - start of integral 1,2,3
+        //as a permutation format
+        updateTotalExpectedOperations();
     }
 
     public int alphaStart() {
@@ -143,7 +146,7 @@ public class OperationValues implements Serializable {
     }
 
     public String getInitialProgressText() {
-        return "0 / " + String.valueOf(expectedOperations);
+        return "0 / " + expectedOperations;
     }
 
     public int getCurrentProgress_for_progressBar(){
@@ -175,19 +178,52 @@ public class OperationValues implements Serializable {
         //cpu count
         //stop on first success
         boolean valuesSame = true;
-        valuesSame &= srcDataObj.alphaStart() == this.alphaStart();
-        valuesSame &= srcDataObj.alphaEnd() == this.alphaEnd();
-        valuesSame &= srcDataObj.betaStart() == this.betaStart();
-        valuesSame &= srcDataObj.betaEnd() == this.betaEnd();
-        valuesSame &= srcDataObj.gammaStart() == this.gammaStart();
-        valuesSame &= srcDataObj.gammaEnd() == this.gammaEnd();
-        valuesSame &= srcDataObj.getCPU_OptionsEnum() == this.getCPU_OptionsEnum();
-        valuesSame &= srcDataObj.getStopOnFirstSuccess() == this.getStopOnFirstSuccess();
 
+        valuesSame &= withinRange(srcDataObj.alphaStart(), this.alphaStart(),"alpha Start");
+        valuesSame &= withinRange(srcDataObj.alphaEnd(), this.alphaEnd(),"alphaEnd");
+        valuesSame &= withinRange(srcDataObj.betaStart(), this.betaStart(),"betaStart");
+        valuesSame &= withinRange(srcDataObj.betaEnd(), this.betaEnd(),"betaEnd");
+        valuesSame &= withinRange(srcDataObj.gammaStart(), this.gammaStart(),"gammaStart");
+        valuesSame &= withinRange(srcDataObj.gammaEnd(), this.gammaEnd(),"gammaEnd");
+
+
+        if(!srcDataObj.getCPU_OptionsEnum().equals(this.getCPU_OptionsEnum())){
+            valuesSame = false;
+            Log.d(TAG,"valuesSame tripped to false on getCPU_OptionsEnum");
+        }
+
+        if(srcDataObj.getStopOnFirstSuccess() != this.getStopOnFirstSuccess()){
+            valuesSame = false;
+            Log.d(TAG,"valuesSame tripped to false on step on success");
+        }
+
+        if(!valuesSame){
+            String buildingStr = "identicalDataObj this one is off somewhere\n";
+            buildingStr+=srcDataObj.alphaStart()+ " == " + this.alphaStart() + "\n";
+            buildingStr+=srcDataObj.alphaEnd()+ " == " + this.alphaEnd()+ "\n";
+            buildingStr+=srcDataObj.betaStart()+ " == " + this.betaStart()+ "\n";
+            buildingStr+=srcDataObj.betaEnd()+ " == " + this.betaEnd()+ "\n";
+            buildingStr+=srcDataObj.gammaStart()+ " == " + this.gammaStart()+ "\n";
+            buildingStr+=srcDataObj.gammaEnd()+ " == " + this.gammaEnd()+ "\n";
+            buildingStr+=srcDataObj.getCPU_OptionsEnum()+ " == " + this.getCPU_OptionsEnum()+ "\n";
+            buildingStr+=srcDataObj.getStopOnFirstSuccess()+ " == " + this.getStopOnFirstSuccess()+ "\n";
+            Log.d(TAG,buildingStr);
+        }
+        Log.d(TAG,"Returning valuesSame = [" + valuesSame + "]");
         return valuesSame;
     }
 
-    private cpu_use_options getCPU_OptionsEnum() {
+    private boolean withinRange(int srcValue, int srcThisValue, String msg) {
+        //temp debug helper
+        Log.d(TAG,"data passed == \t[" + srcValue + "]\t["+srcThisValue+"]");
+        if(abs(srcValue - srcThisValue) > 1){
+            Log.d(TAG,"Returning false for here [" + msg + "]");
+            return false;
+        }
+        return true;
+    }
+
+    public cpu_use_options getCPU_OptionsEnum() {
         return cpu_options;
     }
 }

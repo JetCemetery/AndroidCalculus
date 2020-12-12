@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.MainActivity_take2"
+    tools:context=".activity.MainActivity"
     android:padding="8dp"
     android:orientation="vertical">
 
@@ -34,7 +34,7 @@
         android:id="@+id/btn_start2"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Start"
+        android:text="@string/start"
         android:textColor="#000000"
         app:backgroundTint="#376E12">
 
@@ -54,7 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="100 / 100"
+        android:text="@string/_initialText"
         android:textSize="24sp"
         app:autoSizeMaxTextSize="34sp"
         app:autoSizeMinTextSize="14sp"
@@ -66,8 +66,8 @@
     <TextView
         android:id="@+id/txt_results2"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:text="Results">
+        android:layout_height="wrap_content"
+        android:text="@string/results">
 
     </TextView>
 

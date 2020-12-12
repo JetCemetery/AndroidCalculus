@@ -2,7 +2,7 @@ package com.jetcemetery.androidcalulus.helper;
 
 import android.widget.EditText;
 
-import com.jetcemetery.androidcalulus.OperationValues;
+import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
 
 public class StartOperationHelper {
     private final OperationValues dataObj;

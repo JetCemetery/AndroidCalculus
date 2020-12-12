@@ -3,104 +3,216 @@ package com.jetcemetery.androidcalulus.calcOperation;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
-import com.jetcemetery.androidcalulus.OperationValues;
-import com.jetcemetery.androidcalulus.RenderValues;
+import com.jetcemetery.androidcalulus.activity.MainActivity;
+import com.jetcemetery.androidcalulus.helper.getRandomInRange;
 
-public class SecondaryForLoop{
+public class SecondaryForLoop implements Runnable{
+    //for enabling pause resume section
+    //--------------
+    private volatile boolean pauseWork = false;
+    private volatile String state = STATE_NEW;
+    private Thread workerThread;
+    //--------------
+    private static final String TAG = "SecondaryForLoop3";
+    public static String STATE_NEW = "New";
+    public static String STATE_PAUSED = "Paused";
+    public static String STATE_RUNNING = "Running";
+    public static String STATE_FINISHED = "Finished";
+    private final OperationValues userInput;
+    private final int movingValue;
+    private final Handler handler;
+    private final long targetNumber;
+    private final int range;
+    private final boolean operatingInBatchMode;
+    private int currentBatchAmountRange;
+    private int currentBatchAmount;
+    private volatile boolean stopProcess;// = false;
 
-    private int movingAlpha;
-    private Handler handler;
-    private OperationValues allData;
-    private long startTime;
-    private long targetNumber;
-    private int range;
-
-    public SecondaryForLoop(OperationValues data, int srcAlpha, Handler handler) {
-        allData = data;
-        movingAlpha = srcAlpha;
+    public SecondaryForLoop(OperationValues data, int movingValue, Handler handler) {
+        this.userInput = data;
+        this.movingValue = movingValue;
         this.handler = handler;
-        startTime = System.currentTimeMillis();
-        targetNumber = data.getNumber();
-        range = 1000;
-        //range = data.getPrecision();
+        this.targetNumber = data.getNumber();
+        this.range = 1000;
+        currentBatchAmount = 0;
+        currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(100, 1000);
+        operatingInBatchMode = true;
+        stopProcess = false;
     }
 
-    public void StartOperation() {
-        //start operation has two variations
-        //the first one where there lower limit is set to zero
-        //the other is where we have a moving lower limit
+    @Override
+    public void run() {
+        //this function will need some kind of optimization
+        //see https://howtodoinjava.com/java/collections/performance-comparison-of-different-for-loops-in-java/
+        //according to that, we need to reduce the number of function calls, so I am, and here it is
+        int movingIntegral_2 = (short) userInput.betaStart();
+        int end_Integral_2 = (short)userInput.betaEnd();
+        int movingIntegral_3 = (short)userInput.gammaStart();
+        int end_Integral_3 = (short)userInput.gammaEnd();
+        int rangeStart = (short) userInput.xStart();
+        int rangeEnd = (short) userInput.xEnd();
 
-        if(allData.getMovingLowerLimit()){
-            //if here then we are having a moving lower limit
-            movingLowerLimit();
-        }
-        else{
-            //if here then we have a stationary lower limit of zero
-            stationaryLowerLimit();
-        }
+        for(int movingBeta = movingIntegral_2; movingBeta<end_Integral_2; movingBeta++){
+            //use to kill thread process gracefully
+            Log.d(TAG,"At outer moving for loop beta == " + movingBeta);
+            for(int movingGamma = movingIntegral_3; movingGamma<end_Integral_3; movingGamma++) {
+                //use to kill thread process gracefully
+                for (int movingLowerLimit = rangeStart; movingLowerLimit < rangeEnd - 1; movingLowerLimit++) {
+                    //for enabling pause resume section
+                    //--------------
+                    while(pauseWork)
+                    {
+                        setState(STATE_PAUSED);
+                        try
+                        {
+                            //noinspection BusyWait
+                            Thread.sleep(1000); //stop for 1000ms increments
+                            //use to kill thread process gracefully
+                            if(stopProcess)
+                                return;
+                        } catch (InterruptedException ie)
+                        {
+                            Log.e(TAG,"Interrupt on secondary for loop!");
+                            Log.e(TAG,ie.getMessage());
+                            //report or ignore
+                        }
+                    }
+                    setState(STATE_RUNNING);
+                    //--------------
 
-    }
-
-    private void movingLowerLimit() {
-        //the new way that the operation will be done
-        //VERY similar to lower limits as far as moving Alpha, Beta and Gamma goes
-        //except that the moving x is split into lower and upper limit and the upper limit will be the moving target
-        for(int movingBeta = allData.betaStart(); movingBeta<allData.betaEnd(); movingBeta++){
-            for(int movingGamma = allData.gammaStart(); movingGamma<allData.gammaEnd(); movingGamma++){
-                //Alpha, Beta and Gamma should remain the same through out the operations
-
-                for(int movingLowerLimit = allData.xStart(); movingLowerLimit < allData.xEnd()-1; movingLowerLimit++){
-                    SingleMathOp lowerLimitCalc = new SingleMathOp(movingLowerLimit, movingAlpha, movingBeta, movingGamma);
+                    SingleMathOp lowerLimitCalc = new SingleMathOp(movingLowerLimit, movingValue, movingBeta, movingGamma);
                     lowerLimitCalc.runMath();
                     long lowerLimitValue = lowerLimitCalc.getDervivate();
-
-                    for(int movingUpperLimit = movingLowerLimit+1; movingUpperLimit<allData.xEnd(); movingUpperLimit++)	{
-                        SingleMathOp mathOp = new SingleMathOp(movingUpperLimit, movingAlpha, movingBeta, movingGamma);
+                    for (int movingUpperLimit = (movingLowerLimit + 1); movingUpperLimit < rangeEnd; movingUpperLimit++) {
+                        SingleMathOp mathOp = new SingleMathOp(movingUpperLimit, movingValue, movingBeta, movingGamma);
                         mathOp.runMath();
                         long upperLimitValue = mathOp.getDervivate();
                         long diff = upperLimitValue - lowerLimitValue;
-                        if(Math.abs(targetNumber - diff) < range){
+                        if (Math.abs(targetNumber - diff) < range) {
                             //if here then number is within range!
+
                             long dividend = targetNumber - diff;
-                            postMessage(PrintCalc.PrintCalcObjPass(movingLowerLimit,movingUpperLimit, movingAlpha, movingBeta, movingGamma, allData.getNumber(),dividend));
-                            //resultsArea.append();
+                            String phoneNumberTxt = PrintCalc.PrintCalcObjPass(movingLowerLimit, movingUpperLimit, movingValue, movingBeta, movingGamma, userInput.getNumber(), dividend);
+                            Log.d(TAG,"****SUCCESS*********" + phoneNumberTxt);
+                            postMessage(phoneNumberTxt + "\n");
                         }
+                        //use to kill thread process gracefully
+                        if(stopProcess)
+                            return;
                     }
+                    postCompleteOperation();
                 }
             }
         }
-//		System.out.println("increment result!");
-        //resultsArea.incrementProgressbar();
+
+
+        if(operatingInBatchMode){
+            //if we were operating in batch mode, we need to clear out what left, and post it into the UI filed
+            //to do so we call the normal postCompleteOperationBatch operation, but pass true in the parameter field
+            //yup that's all
+            postCompleteOperationBatch(true);
+        }
+        setState(STATE_FINISHED);
+    }
+
+    private void postCompleteOperation() {
+        //we have two methods of posting an operation, either solo or batch
+        //make the call the same, and figure which mode later, or right below
+        if(operatingInBatchMode){
+            postCompleteOperationBatch(false);
+        }
+        else{
+            postCompleteOperationSingle();
+        }
+    }
+    private void postCompleteOperationSingle() {
+        //there was an issue with the main UI thread
+        //calling this update UI function a few thousand times per second broke the UI thread
+        //so now we must Make with call as Batch!
+        Message msg = handler.obtainMessage();
+        msg.what = MainActivity.ONE_CALULATION_COMPLETED_BATCH;
+        handler.sendMessage(msg);
+    }
+
+    private void postCompleteOperationBatch(boolean forceSend) {
+        //this method was WAY to taxing on the main thread
+        //need to do this stuff in a batch kind of mode, see new method
+        //include a boolean called forced send
+        //this means after the current integral for loop is completed, there probably is left over stuff
+        //saved in this batch mode
+        //go ahead and send the remainder to the UI thread to update and show true and accurate count
+        //of the number of operation completed
+        currentBatchAmount++;
+        if(currentBatchAmount >= currentBatchAmountRange || forceSend){
+            if(forceSend){
+                //if here, then decrement the count by one, we didn't really finish another operation
+                //we are here to clear out our queue.
+                currentBatchAmount--;
+            }
+            Message msg = handler.obtainMessage();
+            msg.what = MainActivity.ONE_CALULATION_COMPLETED_BATCH;
+            Bundle bundle = new Bundle();
+            bundle.putString(MainActivity.MESSAGE_NAME_ID, String.valueOf(currentBatchAmount));
+            msg.setData(bundle);
+            handler.sendMessage(msg);
+            //to mimic authenticity, set the range amount to some random number
+            //it's faking it I know, but that's okay, at least app does not crash anymore.
+            currentBatchAmount = 0;
+            currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(100, 1000);
+        }
+
     }
 
     private void postMessage(String msgStr) {
+        //normal post message operation
         Message msg = handler.obtainMessage();
+        msg.what = MainActivity.POST_MESSAGE_IN_RESULTS;
         Bundle bundle = new Bundle();
-        bundle.putString(RenderValues.MESSAGE_NAME_ID, msgStr);
+        bundle.putString(MainActivity.MESSAGE_NAME_ID, msgStr);
         msg.setData(bundle);
         handler.sendMessage(msg);
     }
 
-    private void stationaryLowerLimit() {
-        //classical way I did the calc problem with more parts moved out
-        for(int movingBeta = allData.betaStart(); movingBeta<allData.betaEnd(); movingBeta++){
-            for(int movingGamma = allData.gammaStart(); movingGamma<allData.gammaEnd(); movingGamma++){
-                for(int movingX = allData.xStart(); movingX<allData.xEnd(); movingX++)	{
-                    SingleMathOp mathOp = new SingleMathOp(movingX, movingAlpha, movingBeta, movingGamma);
 
-                    mathOp.runMath();
-                    if(Math.abs(targetNumber - mathOp.getDervivate()) < range){
-                        //if here then number is within range!
-                        postMessage(PrintCalc.PrintCalcOp(movingX, movingAlpha, movingBeta, movingGamma, allData.getNumber()));
-                    }
-                }
-            }
-        }
+    //for enabling pause resume section
+    //--------------
+    //taken from
+    //https://coderanch.com/t/436108/java/Pause-Resume-Thread
+
+    public void pause()
+    {
+        this.pauseWork = true;
     }
 
-    //public void showStartTime(int movingAlpha2, CalcOpInterface intObj) {
-    //    new ShowOperationTime(movingAlpha2,intObj,startTime);
-    //}
+    public void resume()
+    {
+        this.pauseWork = false;
+        if (workerThread != null)
+            workerThread.interrupt(); //wakeup if sleeping
+    }
+
+    private void setState(String state)
+    {
+        this.state = state;
+    }
+
+    public String getState()
+    {
+        return this.state;
+    }
+
+    /** startImmediately = true to begin work right away, false = start Work in paused state, call resume() to do work */
+    public void start(boolean startImmediately)
+    {
+        this.pauseWork = !startImmediately;
+        workerThread = new Thread(this);
+        workerThread.start();
+    }
+
+    public void gracefullExit(){
+        stopProcess = true;
+    }
 
 }

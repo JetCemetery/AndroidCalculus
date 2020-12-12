@@ -3,23 +3,21 @@
     package="com.jetcemetery.androidcalulus">
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/calchashtag"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/calchashtag"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidCalulus">
-        <activity android:name=".activity.AboutActivity"></activity>
+        <activity android:name=".activity.AboutActivity"/>
         <activity android:name=".activity.SettingsActivity" />
-        <activity android:name=".activity.MainActivity_take2">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RenderValues" />
-        <activity android:name=".MainActivity" />
     </application>
 
 </manifest>

@@ -1,6 +1,6 @@
 package com.jetcemetery.androidcalulus.helper;
 
-import com.jetcemetery.androidcalulus.OperationValues;
+import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
 
 import java.util.ArrayList;
 
@@ -10,11 +10,11 @@ public class OperationValues_default {
 
     //two constructors, one with a phone number provided, the other makes up the phone number
     public static OperationValues getDefaultValues(){
-        String defaultPhoneNumber = "5555555555";
+        String defaultPhoneNumber = "555-555-5555";
         return getDefaultValues(defaultPhoneNumber);
     }
     public static OperationValues getDefaultValues(String un_parsed_phone){
-        long phoneNumber = parsePhoneInput(un_parsed_phone);
+        //long phoneNumber = parsePhoneInput(un_parsed_phone);
         int integral_1_sta, integral_2_sta, integral_3_sta;
         int integral_1_end, integral_2_end, integral_3_end;
         boolean stopOnFirstSuccess = true;
@@ -27,7 +27,7 @@ public class OperationValues_default {
         integral_1_end = INTEGRAL_END_DEFAULT;
         integral_2_end = INTEGRAL_END_DEFAULT;
         integral_3_end = INTEGRAL_END_DEFAULT;
-        OperationValues returningObj = new OperationValues(phoneNumber, integral_1_sta, integral_2_sta, integral_3_sta, integral_1_end, integral_2_end, integral_3_end, stopOnFirstSuccess);
+        OperationValues returningObj = new OperationValues(un_parsed_phone, integral_1_sta, integral_2_sta, integral_3_sta, integral_1_end, integral_2_end, integral_3_end, stopOnFirstSuccess);
         returningObj.setPhoneCpuCnt(cpu_count);
         return returningObj;
     }

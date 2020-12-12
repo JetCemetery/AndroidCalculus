@@ -20,9 +20,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jetcemetery.androidcalulus.OperationValues;
+import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
 import com.jetcemetery.androidcalulus.R;
-import com.jetcemetery.androidcalulus.calcOperation3.calcOperation2.MainForLoopThread3;
+import com.jetcemetery.androidcalulus.calcOperation.MainForLoopThread;
 import com.jetcemetery.androidcalulus.helper.OperationValues_default;
 import com.jetcemetery.androidcalulus.helper.StartOperationHelper;
 
@@ -30,19 +30,19 @@ import java.util.ArrayList;
 
 import static com.jetcemetery.androidcalulus.R.*;
 
-public class MainActivity_take2 extends AppCompatActivity {
-    private static final String TAG = "MainActivity_take2";
-    public static int POST_MESSAGE_IN_RESULTS2 = 555;
+public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity_take";
+    public static int POST_MESSAGE_IN_RESULTS = 555;
     public static int ONE_CALULATION_COMPLETED_BATCH = 556;
     public static int ONE_CALULATION_COMPLETED = 557;
-    public final static String MESSAGE_NAME_ID2 ="My_data_msg2";
+    public final static String MESSAGE_NAME_ID ="My_data_msg";
     private EditText txtPhone;
     private TextView txtError, txtResults, txt_progressBar2;
     private Button btnStart;
     private ProgressBar prbBar_progressBar;
     private OperationValues dataObj;
     private Handler updateUIHandler;
-    private MainForLoopThread3 myThread;
+    private MainForLoopThread myThread;
     private long currentOperationsCompleted;
     private String totalOperationExpected;
 
@@ -76,7 +76,7 @@ public class MainActivity_take2 extends AppCompatActivity {
         //                redraw UI elements
         //
 
-        Log.d(TAG, "In checkIfDataObjectedPassed function");
+        Log.d(TAG, "In defaultInitRequired function");
         Intent intent = this.getIntent();
         if(intent == null){
             return true;
@@ -89,15 +89,19 @@ public class MainActivity_take2 extends AppCompatActivity {
         if(passedDataObj == null){
             return true;
         }
+        Log.d(TAG, "In defaultInitRequired function, passed doing null checks");
         //if here, then when this activity was called, a dataobject was passed into it
         //now lets check against what we have local
         if(dataObj == null){
             //all right, cool local data object is null, lets go ahead and overwrite the local UI elements
             //kill any threads that are applicable, and set local data object to what was passed
-            currentOperationsCompleted = 0;
             txtPhone.setText(String.valueOf(passedDataObj.getNumber()));
             safeStopAllThreads();
             dataObj = passedDataObj;
+            Log.d(TAG, "local dataObj was null, do a quick overwrite and be done");
+            currentOperationsCompleted = 0;
+            totalOperationExpected = dataObj.getTotalOperationExpected();
+            updateProgressBar_and_Text();
         }
         else{
             //if here, then we have a local data object still in effect
@@ -110,6 +114,7 @@ public class MainActivity_take2 extends AppCompatActivity {
             //  overwrite local UI still with the passed data object
             //  kill threads from previous
             //  update UI
+            Log.d(TAG, "dataObj was NOT null continue testing");
             boolean resumeThreads_if_applicable = false;
             if(passedDataObj.identicalDataObj(dataObj)){
                 //if here, then local data object, has the same settings
@@ -137,8 +142,6 @@ public class MainActivity_take2 extends AppCompatActivity {
         return false;
     }
 
-
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -149,8 +152,6 @@ public class MainActivity_take2 extends AppCompatActivity {
         verifyDataObject(intent);
         safeResumeAllThreads();
     }
-
-
 
     private void verifyDataObject(Intent srcIntent) {
         //this function shall be called on every single activity change
@@ -254,7 +255,7 @@ public class MainActivity_take2 extends AppCompatActivity {
     private void InitiateMainForLoopThread() {
         //this function shall create a new thread, and start the MainForLoopThread2 operation
         txtResults.setText("");
-        myThread = new MainForLoopThread3(dataObj,updateUIHandler);
+        myThread = new MainForLoopThread(dataObj,updateUIHandler);
         myThread.StartProcess();
     }
 
@@ -323,7 +324,7 @@ public class MainActivity_take2 extends AppCompatActivity {
             case id.menu_help:
                 intent = new Intent(getApplicationContext(), AboutActivity.class);
                 bundle = new Bundle();
-                bundle.putSerializable(OperationValues.DATAOBJ_NAME, dataObj);
+                bundle.putSerializable(OperationValues.DATAOBJ_NAME, returnCurrentStateAsDataObj());
                 intent.putExtras(bundle);
                 if(myThread != null){
                     myThread.pauseAllThreads();
@@ -332,13 +333,16 @@ public class MainActivity_take2 extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case id.menu_settings:
+                Log.d(TAG, "Inside onOptionsItemSelected about to pack data object");
                 intent = new Intent(getApplicationContext(), SettingsActivity.class);
                 bundle = new Bundle();
-                bundle.putSerializable(OperationValues.DATAOBJ_NAME, dataObj);
+                //dataObj.printSelf("Inside main");
+                bundle.putSerializable(OperationValues.DATAOBJ_NAME, returnCurrentStateAsDataObj());
                 intent.putExtras(bundle);
                 if(myThread != null){
                     myThread.pauseAllThreads();
                 }
+                Log.d(TAG, "Data object packed and ready to be sent to next activity");
                 startActivity(intent);
                 break;
             default:
@@ -348,6 +352,11 @@ public class MainActivity_take2 extends AppCompatActivity {
         return true;
     }
 
+    private OperationValues returnCurrentStateAsDataObj() {
+        //this function shall update the current OperationValues, and update any of the fields as needed
+        dataObj.setPhoneNumber(Long.valueOf(getParsedNumber()));
+        return dataObj;
+    }
     /*
         This section of code shall initialize the threaded handler.
         It will contain the code that will process incoming messages.
@@ -364,12 +373,12 @@ public class MainActivity_take2 extends AppCompatActivity {
                     // Means the message is sent from child thread.
                     if(msg != null){
                         int messageTypeID = msg.what;
-                        if(messageTypeID == POST_MESSAGE_IN_RESULTS2){
+                        if(messageTypeID == POST_MESSAGE_IN_RESULTS){
                             //Log.d(TAG,"Got into the post message in results section");
                             //if here, then we are going to post a message text of some kind
                             //in the text view area
                             Bundle bundle = msg.getData();
-                            String strMSg = bundle.getString(MESSAGE_NAME_ID2);
+                            String strMSg = bundle.getString(MESSAGE_NAME_ID);
                             if(strMSg != null){
                                 if(!strMSg.isEmpty()){
                                     txtResults.append(strMSg);
@@ -388,7 +397,7 @@ public class MainActivity_take2 extends AppCompatActivity {
                             //so now we batch the stuff up and send it to the UI thread
                             //multi threading, isn't it fun????
                             Bundle bundle = msg.getData();
-                            String strMSg = bundle.getString(MESSAGE_NAME_ID2);
+                            String strMSg = bundle.getString(MESSAGE_NAME_ID);
                             //Log.d(TAG,"strMSg == " + strMSg);
                             if(strMSg != null){
                                 if(!strMSg.isEmpty()){

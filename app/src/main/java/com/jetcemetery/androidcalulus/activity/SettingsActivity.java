@@ -3,6 +3,7 @@ package com.jetcemetery.androidcalulus.activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +15,7 @@ import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.jetcemetery.androidcalulus.OperationValues;
+import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
 import com.jetcemetery.androidcalulus.R;
 import com.jetcemetery.androidcalulus.helper.OperationValues_default;
 
@@ -37,6 +38,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        Log.d(TAG, "Start of onCreate");
         integral1_start = findViewById(R.id.integral1_start_2);
         integral2_start = findViewById(R.id.integral2_start_2);
         integral3_start = findViewById(R.id.integral3_start_2);
@@ -58,6 +60,7 @@ public class SettingsActivity extends AppCompatActivity {
         txt_end = findViewById(R.id.lbl_end2);
 
         //on create we need to get
+        Log.d(TAG, "Before starting getting intent");
         Intent intent = this.getIntent();
         if(intent != null){
             Bundle bundle = intent.getExtras();
@@ -65,15 +68,17 @@ public class SettingsActivity extends AppCompatActivity {
                 OperationValues tempObj = (OperationValues) bundle.getSerializable(OperationValues.DATAOBJ_NAME);
                 if(tempObj != null){
                     dataObj = tempObj;
+                    Log.d(TAG, "Intent has sent a tempObj!");
                 }
             }
         }
 
-
+        Log.d(TAG, "checking data object is not null");
         if(dataObj == null){
             //if here, then for some reason Data object was not initialised
             //this is bad, very bad, so for now set the values to default
             dataObj = OperationValues_default.getDefaultValues();
+            Log.d(TAG, "data object set to default values");
         }
         init();
     }
@@ -98,6 +103,30 @@ public class SettingsActivity extends AppCompatActivity {
         rdgb_stopOnSuccess_Yes_2.setOnClickListener(init_stopOnSuccess_Yes());
         rdgb_stopOnSuccess_No_2.setOnClickListener(init_stopOnSuccess_No());
 
+        //set values from the local data object
+        integral1_start.setValue(dataObj.alphaStart());
+        integral2_start.setValue(dataObj.betaStart());
+        integral3_start.setValue(dataObj.gammaStart());
+
+        integral1_end.setValue(dataObj.alphaEnd());
+        integral2_end.setValue(dataObj.betaEnd());
+        integral3_end.setValue(dataObj.gammaEnd());
+
+        switch(dataObj.getCPU_OptionsEnum()){
+            case CPU_HALF:
+                rdgb_cpu_cnt_half_2.setSelected(true);
+                break;
+            case CPU_ALL_MINUS_1:
+                rdgb_cpu_cnt_all_minus1_2.setSelected(true);
+                break;
+            case CPU_ALL:
+                rdgb_cpu_cnt_all_2.setSelected(true);
+                break;
+            case CPU_SIGNLE:
+            default:
+                rdgb_cpu_cnt_Single_2.setSelected(true);
+                break;
+        }
     }
 
     @Override
@@ -159,30 +188,32 @@ public class SettingsActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //need to finish this stuff to complete the menu actions
         Log.d(TAG, "Start of onOptionsItemSelected");
-        Intent intent = null;
+        Intent intent;
         if(dataObj == null){
             Log.d(TAG, "dataObj was null, so I'm going to go ahead and set it to default...");
             dataObj = OperationValues_default.getDefaultValues();
         }
 
-        Bundle bundle = null;
+        Bundle bundle;
         switch (item.getItemId()){
             case R.id.menu_help:
                 intent = new Intent(getApplicationContext(), AboutActivity.class);
                 bundle = new Bundle();
-                bundle.putSerializable(OperationValues.DATAOBJ_NAME, dataObj);
+                bundle.putSerializable(OperationValues.DATAOBJ_NAME, returnCurrentStateAsDataObj());
                 intent.putExtras(bundle);
                 startActivity(intent);
                 break;
             case R.id.menu_home:
                 Log.d(TAG, "Inside menu home");
-                intent = new Intent(getApplicationContext(), MainActivity_take2.class);
+                intent = new Intent(getApplicationContext(), MainActivity.class);
                 bundle = new Bundle();
-                bundle.putSerializable(OperationValues.DATAOBJ_NAME, dataObj);
+                bundle.putSerializable(OperationValues.DATAOBJ_NAME, returnCurrentStateAsDataObj());
+                Log.d(TAG, "dataObj has been packed and sent to main activity");
                 intent.putExtras(bundle);
                 startActivity(intent);
                 break;
@@ -191,5 +222,35 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    private OperationValues returnCurrentStateAsDataObj() {
+        //this function shall update the current OperationValues, and update any of the fields as needed
+        int start1 = integral1_start.getValue();
+        int start2 = integral2_start.getValue();
+        int start3 = integral3_start.getValue();
+
+        int end1 = integral1_end.getValue();
+        int end2 = integral2_end.getValue();
+        int end3 = integral3_end.getValue();
+
+        dataObj.setIntegralRanges(start1, start2 , start3, end1, end2, end3);
+        if(rdgb_cpu_cnt_Single_2.isSelected()){
+            dataObj.setCpu_single();
+        }
+        else if(rdgb_cpu_cnt_half_2.isSelected()){
+            dataObj.setCpu_half();
+        }
+        else if(rdgb_cpu_cnt_all_minus1_2.isSelected()){
+            dataObj.setCpu_all_m_1();
+        }
+        else if(rdgb_cpu_cnt_all_2.isSelected()){
+            dataObj.setCpu_all();
+        }
+
+        dataObj.setStopOnSuccess(rdgb_stopOnSuccess_Yes_2.isSelected());
+        dataObj.updateTotalExpectedOperations();
+
+        return dataObj;
     }
 }
