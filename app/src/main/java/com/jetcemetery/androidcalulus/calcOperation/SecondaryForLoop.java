@@ -97,6 +97,9 @@ public class SecondaryForLoop implements Runnable{
                             String phoneNumberTxt = PrintCalc.PrintCalcObjPass(movingLowerLimit, movingUpperLimit, movingValue, movingBeta, movingGamma, userInput.getNumber(), dividend);
                             Log.d(TAG,"****SUCCESS*********" + phoneNumberTxt);
                             postMessage(phoneNumberTxt + "\n");
+                            if(userInput.getStopOnFirstSuccess()){
+                                SignalStop();
+                            }
                         }
                         //use to kill thread process gracefully
                         if(stopProcess)
@@ -115,6 +118,15 @@ public class SecondaryForLoop implements Runnable{
             postCompleteOperationBatch(true);
         }
         setState(STATE_FINISHED);
+    }
+
+    private void SignalStop() {
+        //if here, then user wanted to stop on first success
+        //use post massage to stop all threads
+        stopProcess = true;
+        Message msg = handler.obtainMessage();
+        msg.what = MainActivity.SUCCESSFUL_OPERATION;
+        handler.sendMessage(msg);
     }
 
     private void postCompleteOperation() {

@@ -36,6 +36,7 @@ public class OperationValues implements Serializable {
         this.integral_2_end = integral_2_end;
         this.integral_3_end = integral_3_end;
         this.stopOnFirstSuccess = stopOnFirstSuccess;
+        Log.d(TAG, "OperationValues constructor stop on success == " + this.stopOnFirstSuccess);
         CPUs_on_device = 1;
         cpuToUse = 1;
         init();
@@ -159,8 +160,8 @@ public class OperationValues implements Serializable {
         String tempStr = "Comp [" + completedOperations + "] exp [" + expectedOperations + "]\n";
         float temp = (float) (completedOperations / expectedOperations);
         temp = temp * 100;
-        tempStr+= "temp == [" + temp + "]";
-        Log.d(TAG, tempStr);
+//        tempStr+= "temp == [" + temp + "]";
+//        Log.d(TAG, tempStr);
         return (int) temp;
     }
 
@@ -170,11 +171,13 @@ public class OperationValues implements Serializable {
         return String.valueOf(Long.valueOf((long) expectedOperations));
     }
 
-    public void setStopOnSuccess(boolean stopOnFirstSuccess) {
-        this.stopOnFirstSuccess = stopOnFirstSuccess;
+    public void setStopOnSuccess(boolean value) {
+        stopOnFirstSuccess = value;
+        Log.d(TAG, "OperationValues getStopOnFirstSuccess stop on success == " + this.stopOnFirstSuccess);
     }
 
     public boolean getStopOnFirstSuccess(){
+        Log.d(TAG, "OperationValues getStopOnFirstSuccess stop on success == " + this.stopOnFirstSuccess);
         return stopOnFirstSuccess;
     }
 

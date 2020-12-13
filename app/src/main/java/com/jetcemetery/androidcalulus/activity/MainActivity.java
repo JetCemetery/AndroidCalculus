@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     public static int POST_MESSAGE_IN_RESULTS = 555;
     public static int ONE_CALCULATION_COMPLETED_BATCH = 556;
     public static int ONE_CALCULATION_COMPLETED = 557;
+    public static int SUCCESSFUL_OPERATION = 558;
     public final static String MESSAGE_NAME_ID ="My_data_msg";
     private EditText txtPhone;
     private TextView txtError, txtResults, txt_progressBar2;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private MainForLoopThread myThread;
     private long currentOperationsCompleted;
     private String totalOperationExpected;
+    private boolean blockUpdates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         prbBar_progressBar = findViewById(id.pgBar_Progress_bar);
         txt_progressBar2 = findViewById(id.txt_progress);
         txtResults = findViewById(id.txt_results);
+        blockUpdates = false;
         if(defaultInitRequired()){
             String un_parsed_phone = String.valueOf(txtPhone.getText());
             dataObj = OperationValues_default.getDefaultValues(un_parsed_phone);
@@ -63,6 +66,13 @@ public class MainActivity extends AppCompatActivity {
 
         initView();
         createUpdateUiHandler();
+        //Toast.makeText(getApplicationContext(), "Integral range is out of sequence", Toast.LENGTH_SHORT).show();
+        debug_isStopOnFirstSuccess();
+    }
+
+    private void debug_isStopOnFirstSuccess() {
+        boolean isStop = dataObj.getStopOnFirstSuccess();
+        Toast.makeText(getApplicationContext(), "isStop == " + isStop, Toast.LENGTH_SHORT).show();
     }
 
     private boolean defaultInitRequired() {
@@ -235,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             if(helperObj.numberInputValid(txtPhone)){
+                debug_isStopOnFirstSuccess();
                 //if here, then input is valid
                 txtError.setVisibility(View.GONE);
                 String ParsedNumber = getParsedNumber();
@@ -276,8 +287,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateProgressBar_and_Text() {
-        prbBar_progressBar.setProgress(dataObj.operationForProgressBar(currentOperationsCompleted));
-        //prbBar_progressBar.setProgress(55);
+        if(!blockUpdates){
+            prbBar_progressBar.setProgress(dataObj.operationForProgressBar(currentOperationsCompleted));
+        }
         txt_progressBar2.setText(dataObj.getInitialProgressText());
         String progressTxt = currentOperationsCompleted + " / " + totalOperationExpected;
         txt_progressBar2.setText(progressTxt);
@@ -406,6 +418,12 @@ public class MainActivity extends AppCompatActivity {
                                     updateProgressBar_and_Text();
                                 }
                             }
+                        }else if(messageTypeID == SUCCESSFUL_OPERATION){
+                            //if here, then user wanted to stop on first successful operation
+                            //kill all threads and set progress to 100;
+                            myThread.stopAllThreads();
+                            blockUpdates = true;
+                            prbBar_progressBar.setProgress(100);
                         }
                     }
                 }
