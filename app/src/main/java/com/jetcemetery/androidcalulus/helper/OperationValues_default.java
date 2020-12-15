@@ -14,12 +14,9 @@ public class OperationValues_default {
         return getDefaultValues(defaultPhoneNumber);
     }
     public static OperationValues getDefaultValues(String un_parsed_phone){
-        //long phoneNumber = parsePhoneInput(un_parsed_phone);
         int integral_1_sta, integral_2_sta, integral_3_sta;
         int integral_1_end, integral_2_end, integral_3_end;
-        boolean stopOnFirstSuccess = true;
-        getCPU_Cnt findCPU_cnt = new getCPU_Cnt();
-        int cpu_count = findCPU_cnt.getCount();
+        boolean stopOnFirstSuccess = false;
         integral_1_sta = INTEGRAL_START_DEFAULT;
         integral_2_sta = INTEGRAL_START_DEFAULT;
         integral_3_sta = INTEGRAL_START_DEFAULT;
@@ -28,11 +25,10 @@ public class OperationValues_default {
         integral_2_end = INTEGRAL_END_DEFAULT;
         integral_3_end = INTEGRAL_END_DEFAULT;
         OperationValues returningObj = new OperationValues(un_parsed_phone, integral_1_sta, integral_2_sta, integral_3_sta, integral_1_end, integral_2_end, integral_3_end, stopOnFirstSuccess);
-        returningObj.setPhoneCpuCnt(cpu_count);
         return returningObj;
     }
 
-    private static long parsePhoneInput(String un_parsed_phone) {
+    public static long parsePhoneInput(String un_parsed_phone) {
         //helper method that will take care of parsing the phone number passed
         ArrayList<Character> buildingData = new ArrayList<>();
         //String un_parsed_phone = String.valueOf(phoneText.getText());

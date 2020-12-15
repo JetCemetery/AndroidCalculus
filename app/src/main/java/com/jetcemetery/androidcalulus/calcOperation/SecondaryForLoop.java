@@ -6,6 +6,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.jetcemetery.androidcalulus.activity.MainActivity;
+import com.jetcemetery.androidcalulus.helper.OperationValues_default;
 import com.jetcemetery.androidcalulus.helper.getRandomInRange;
 
 public class SecondaryForLoop implements Runnable{
@@ -34,7 +35,7 @@ public class SecondaryForLoop implements Runnable{
         this.userInput = data;
         this.movingValue = movingValue;
         this.handler = handler;
-        this.targetNumber = data.getNumber();
+        this.targetNumber = OperationValues_default.parsePhoneInput(data.getNumber());
         this.range = 1000;
         currentBatchAmount = 0;
         currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(100, 1000);
@@ -94,7 +95,8 @@ public class SecondaryForLoop implements Runnable{
                             //if here then number is within range!
 
                             long dividend = targetNumber - diff;
-                            String phoneNumberTxt = PrintCalc.PrintCalcObjPass(movingLowerLimit, movingUpperLimit, movingValue, movingBeta, movingGamma, userInput.getNumber(), dividend);
+
+                            String phoneNumberTxt = PrintCalc.PrintCalcObjPass(movingLowerLimit, movingUpperLimit, movingValue, movingBeta, movingGamma, targetNumber, dividend);
                             Log.d(TAG,"****SUCCESS*********" + phoneNumberTxt);
                             postMessage(phoneNumberTxt + "\n");
                             if(userInput.getStopOnFirstSuccess()){

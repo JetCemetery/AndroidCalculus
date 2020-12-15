@@ -50,8 +50,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(layout.activity_main_take2);
+        Log.d(TAG, "Calling onCreate");
+        tempDebug();
         txtPhone = findViewById(id.txt_phoneID);
         txtError = findViewById(id.errorText);
         btnStart = findViewById(id.btn_start);
@@ -60,22 +63,30 @@ public class MainActivity extends AppCompatActivity {
         txtResults = findViewById(id.txt_results);
         blockUpdates = false;
         if(defaultInitRequired()){
+            Log.d(TAG, "The default Init IS required");
             String un_parsed_phone = String.valueOf(txtPhone.getText());
             dataObj = OperationValues_default.getDefaultValues(un_parsed_phone);
         }
 
         initView();
         createUpdateUiHandler();
-        //Toast.makeText(getApplicationContext(), "Integral range is out of sequence", Toast.LENGTH_SHORT).show();
-        debug_isStopOnFirstSuccess();
     }
 
-    private void debug_isStopOnFirstSuccess() {
-        boolean isStop = dataObj.getStopOnFirstSuccess();
-        Toast.makeText(getApplicationContext(), "isStop == " + isStop, Toast.LENGTH_SHORT).show();
+    private void tempDebug() {
+        Log.d(TAG, "tempDebug [start]");
+        if(dataObj == null){
+            Log.d(TAG, "dataObj == null");
+        }
+        if(myThread == null){
+            Log.d(TAG, "myThread == null");
+        }
+
+        Log.d(TAG, "tempDebug [end]");
     }
+
 
     private boolean defaultInitRequired() {
+        Log.d(TAG, "Calling defaultInitRequired");
         //this function shall have two features
         //  1 - Return true if no data object was passed, return false otherwise
         //  2 - if an data object was passed, then check if current data object is null
@@ -86,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
         //                redraw UI elements
         //
 
-        Log.d(TAG, "In defaultInitRequired function");
         Intent intent = this.getIntent();
         if(intent == null){
             return true;
@@ -99,16 +109,16 @@ public class MainActivity extends AppCompatActivity {
         if(passedDataObj == null){
             return true;
         }
-        Log.d(TAG, "In defaultInitRequired function, passed doing null checks");
+        Log.d(TAG, "In defaultInitRequired function, the default Init is NOT required");
         //if here, then when this activity was called, a data object was passed into it
         //now lets check against what we have local
         if(dataObj == null){
+            Log.d(TAG, "In defaultInitRequired dataObj was null for some reason, not good");
             //all right, cool local data object is null, lets go ahead and overwrite the local UI elements
             //kill any threads that are applicable, and set local data object to what was passed
             txtPhone.setText(String.valueOf(passedDataObj.getNumber()));
             safeStopAllThreads();
             dataObj = passedDataObj;
-            Log.d(TAG, "local dataObj was null, do a quick overwrite and be done");
             currentOperationsCompleted = 0;
             totalOperationExpected = dataObj.getTotalOperationExpected();
             updateProgressBar_and_Text();
@@ -164,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void verifyDataObject(Intent srcIntent) {
+        Log.d(TAG, "Calling verifyDataObject");
         //this function shall be called on every single activity change
         //the goal is simple
         //check to see if the intent that was invoked into here carries with it a data object
@@ -182,6 +193,8 @@ public class MainActivity extends AppCompatActivity {
                 //bundle also not null, looking good
                 OperationValues passedDataObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
                 if(passedDataObj != null){
+                    Log.d(TAG, "inside verifyDataObject, passedDataObj enum == " + passedDataObj.getCPU_OptionsEnum());
+                    Log.d(TAG, "inside verifyDataObject, dataObj enum == " + dataObj.getCPU_OptionsEnum());
                     //data object was present inside of intent, we are almost there, one more step
                     if(passedDataObj.identicalDataObj(dataObj)){
                         //if here, then local data object, has the same settings
@@ -209,12 +222,15 @@ public class MainActivity extends AppCompatActivity {
         //and threads killed if applicable
         //if data object is not set, set to default
         //then go ahead and call upon the update GUI stuff
+        Log.d(TAG, "Function verifyDataObject Next few steps");
         if(dataObj == null){
+            Log.d(TAG, "Function verifyDataObject dataObj == null");
             currentOperationsCompleted = 0;
             safeStopAllThreads();
             dataObj = OperationValues_default.getDefaultValues();
         }
         else{
+            Log.d(TAG, "Function verifyDataObject dataObj != null");
             //if here, then data object is all initialized
             //all that needs to be done is to resume the threads if applicable
             if(resumeThreads_if_applicable){
@@ -222,9 +238,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+
     }
 
     private void initView() {
+        Log.d(TAG, "Calling initView");
         //Section below shall initialize the code need when the start button is clicked
         //IF QC passes inside the code, call the MainForLoopThread2 on a new thread
         //passing the data object and the handler thread
@@ -236,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setOnClickListener(v -> {
             txtError.setVisibility(TextView.GONE);
             StartOperationHelper helperObj = new StartOperationHelper(dataObj);
+            dataObj.tempDebugPrint();
             if(helperObj.misconstruedIntegralRange()){
                 //should never get here
                 //however if here, then the user set the integral start / end in wrong direction
@@ -245,12 +264,9 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             if(helperObj.numberInputValid(txtPhone)){
-                debug_isStopOnFirstSuccess();
-                //if here, then input is valid
                 txtError.setVisibility(View.GONE);
-                String ParsedNumber = getParsedNumber();
-                dataObj.setPhoneNumber(ParsedNumber);
-                //Toast.makeText(getApplicationContext(), "process [" + ParsedNumber + "]", Toast.LENGTH_SHORT).show();
+                String rawPhone = String.valueOf(txtPhone.getText());
+                dataObj.setPhoneNumber(rawPhone);
                 InitiateMainForLoopThread();
             }
             else{
@@ -268,22 +284,6 @@ public class MainActivity extends AppCompatActivity {
         txtResults.setText("");
         myThread = new MainForLoopThread(dataObj,updateUIHandler);
         myThread.StartProcess();
-    }
-
-    private String getParsedNumber() {
-        //this function needs to scrub the input of the phone number, and return only whole digits
-        ArrayList<Character> buildingData = new ArrayList<>();
-        String un_parsed_phone = String.valueOf(txtPhone.getText());
-        for(char c : un_parsed_phone.toCharArray()){
-            if(Character.isDigit(c)){
-                buildingData.add(c);
-            }
-        }
-        StringBuilder returningStr = new StringBuilder();
-        for(char c : buildingData){
-            returningStr.append(c);
-        }
-        return returningStr.toString();
     }
 
     private void updateProgressBar_and_Text() {
@@ -328,6 +328,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //need to finish this stuff to complete the menu actions
+        tempDebug();
         Intent intent;
         if(dataObj == null){
             dataObj = OperationValues_default.getDefaultValues();
@@ -356,6 +357,7 @@ public class MainActivity extends AppCompatActivity {
                     myThread.pauseAllThreads();
                 }
                 Log.d(TAG, "Data object packed and ready to be sent to next activity");
+                tempDebug();
                 startActivity(intent);
                 break;
             default:
@@ -367,7 +369,8 @@ public class MainActivity extends AppCompatActivity {
 
     private OperationValues returnCurrentStateAsDataObj() {
         //this function shall update the current OperationValues, and update any of the fields as needed
-        dataObj.setPhoneNumber(Long.valueOf(getParsedNumber()));
+        String rawPhone = String.valueOf(txtPhone.getText());
+        dataObj.setPhoneNumber(rawPhone);
         return dataObj;
     }
     /*

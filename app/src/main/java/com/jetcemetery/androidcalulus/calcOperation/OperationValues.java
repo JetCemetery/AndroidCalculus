@@ -2,6 +2,8 @@ package com.jetcemetery.androidcalulus.calcOperation;
 
 import android.util.Log;
 
+import com.jetcemetery.androidcalulus.helper.getCPU_Cnt;
+
 import java.io.Serializable;
 
 import static java.lang.Math.abs;
@@ -9,15 +11,20 @@ import static java.lang.Math.abs;
 public class OperationValues implements Serializable {
     private static final String TAG = "OperationValues";
     public static String DATA_OBJ_NAME = "DataObj";
-    private Long phoneNum;
-    private final String rawPhoneNumber;
+    private String rawPhoneNumber;
     private int integral_1_sta, integral_2_sta, integral_3_sta;
     private int integral_1_end, integral_2_end, integral_3_end;
     private boolean stopOnFirstSuccess;
     private cpu_use_options cpu_options;
     private int CPUs_on_device;
-    private final int cpuToUse;
+    private int cpuToUse;
     private float expectedOperations;
+
+    public void tempDebugPrint() {
+        //temp debugger
+        Log.d(TAG, "inside temp debugger");
+        Log.d(TAG, "stopOnFirstSuccess == " + stopOnFirstSuccess);
+    }
 
     public enum cpu_use_options {
         CPU_SINGLE,
@@ -27,7 +34,6 @@ public class OperationValues implements Serializable {
     }
 
     public OperationValues(String phoneNum, int integral_1_sta, int integral_2_sta, int integral_3_sta, int integral_1_end, int integral_2_end, int integral_3_end, boolean stopOnFirstSuccess) {
-        //this.phoneNum = phoneNum;
         this.rawPhoneNumber = phoneNum;
         this.integral_1_sta = integral_1_sta;
         this.integral_2_sta = integral_2_sta;
@@ -36,9 +42,6 @@ public class OperationValues implements Serializable {
         this.integral_2_end = integral_2_end;
         this.integral_3_end = integral_3_end;
         this.stopOnFirstSuccess = stopOnFirstSuccess;
-        Log.d(TAG, "OperationValues constructor stop on success == " + this.stopOnFirstSuccess);
-        CPUs_on_device = 1;
-        cpuToUse = 1;
         init();
     }
 
@@ -52,28 +55,28 @@ public class OperationValues implements Serializable {
         this.integral_3_end = end3;
     }
 
-    public void setPhoneNumber(Long phoneNum){
-        this.phoneNum = phoneNum;
-    }
-
     public void setPhoneNumber(String srcPhoneNum){
-        setPhoneNumber(Long.valueOf(srcPhoneNum));
+        rawPhoneNumber = srcPhoneNum;
     }
 
     public void setCpu_single() {
         cpu_options = cpu_use_options.CPU_SINGLE;
+        CPUs_to_use_populate();
     }
 
     public void setCpu_half() {
         cpu_options = cpu_use_options.CPU_HALF;
+        CPUs_to_use_populate();
     }
 
     public void setCpu_all_m_1() {
         cpu_options = cpu_use_options.CPU_ALL_MINUS_1;
+        CPUs_to_use_populate();
     }
 
     public void setCpu_all() {
         cpu_options = cpu_use_options.CPU_ALL;
+        CPUs_to_use_populate();
     }
 
     public void updateTotalExpectedOperations() {
@@ -90,13 +93,37 @@ public class OperationValues implements Serializable {
     }
 
     private void init() {
-        stopOnFirstSuccess = false;
-        cpu_options =  cpu_use_options.CPU_SINGLE;
+        cpu_options =  cpu_use_options.CPU_HALF;
+        getCPU_Cnt findCPU_cnt = new getCPU_Cnt();
+        CPUs_on_device = findCPU_cnt.getCount();
+        CPUs_to_use_populate();
+
         //expectedOperations = 1;
         //helper function that will figure out how many operation exists for the current settings
         //it's going to be the end of integral 1,2,3 - start of integral 1,2,3
         //as a permutation format
         updateTotalExpectedOperations();
+    }
+
+    private void CPUs_to_use_populate() {
+        //self setting function
+        //depending on how many CPUs this phone has (based on getCPU_Cnt function), and what the
+        //state of cpu_options enum is set, set the count for the variable cpuToUse
+        switch(cpu_options){
+            case CPU_HALF:
+                cpuToUse = CPUs_on_device / 2;
+                break;
+            case CPU_ALL_MINUS_1:
+                cpuToUse = CPUs_on_device -1;
+                break;
+            case CPU_ALL:
+                cpuToUse = CPUs_on_device;
+                break;
+            case CPU_SINGLE:
+            default:
+                cpuToUse = 1;
+                break;
+        }
     }
 
     public int alphaStart() {
@@ -111,8 +138,8 @@ public class OperationValues implements Serializable {
         return 2;
     }
 
-    public long getNumber() {
-        return this.phoneNum;
+    public String getNumber() {
+        return this.rawPhoneNumber;
     }
 
     public boolean getMovingLowerLimit() {
@@ -143,25 +170,14 @@ public class OperationValues implements Serializable {
         return 1000;
     }
 
-    public void setPhoneCpuCnt(int totalCPU_cnt) {
-        CPUs_on_device = totalCPU_cnt;
-    }
-
     public String getInitialProgressText() {
         //there's an issue of non whole numbers for the expected text...
         return "0 / " + String.valueOf(Long.valueOf((long) expectedOperations));
     }
 
-//    public int getCurrentProgress_for_progressBar(){
-//        return operationForProgressBar(0);
-//    }
-
     public int operationForProgressBar(float completedOperations){
-        String tempStr = "Comp [" + completedOperations + "] exp [" + expectedOperations + "]\n";
         float temp = (float) (completedOperations / expectedOperations);
         temp = temp * 100;
-//        tempStr+= "temp == [" + temp + "]";
-//        Log.d(TAG, tempStr);
         return (int) temp;
     }
 
@@ -173,11 +189,9 @@ public class OperationValues implements Serializable {
 
     public void setStopOnSuccess(boolean value) {
         stopOnFirstSuccess = value;
-        Log.d(TAG, "OperationValues getStopOnFirstSuccess stop on success == " + this.stopOnFirstSuccess);
     }
 
     public boolean getStopOnFirstSuccess(){
-        Log.d(TAG, "OperationValues getStopOnFirstSuccess stop on success == " + this.stopOnFirstSuccess);
         return stopOnFirstSuccess;
     }
 
@@ -196,15 +210,14 @@ public class OperationValues implements Serializable {
         valuesSame &= withinRange(srcDataObj.gammaStart(), this.gammaStart(),"gammaStart");
         valuesSame &= withinRange(srcDataObj.gammaEnd(), this.gammaEnd(),"gammaEnd");
 
-
+        Log.d(TAG, "src  getCPU_OptionsEnum == " + srcDataObj.getCPU_OptionsEnum());
+        Log.d(TAG, "this getCPU_OptionsEnum == " + this.getCPU_OptionsEnum());
         if(!srcDataObj.getCPU_OptionsEnum().equals(this.getCPU_OptionsEnum())){
             valuesSame = false;
-            Log.d(TAG,"valuesSame tripped to false on getCPU_OptionsEnum");
         }
 
         if(srcDataObj.getStopOnFirstSuccess() != this.getStopOnFirstSuccess()){
             valuesSame = false;
-            Log.d(TAG,"valuesSame tripped to false on step on success");
         }
 
         if(!valuesSame){
@@ -219,15 +232,11 @@ public class OperationValues implements Serializable {
             buildingStr+=srcDataObj.getStopOnFirstSuccess()+ " == " + this.getStopOnFirstSuccess()+ "\n";
             Log.d(TAG,buildingStr);
         }
-        Log.d(TAG,"Returning valuesSame = [" + valuesSame + "]");
         return valuesSame;
     }
 
     private boolean withinRange(int srcValue, int srcThisValue, String msg) {
-        //temp debug helper
-        Log.d(TAG,"data passed == \t[" + srcValue + "]\t["+srcThisValue+"]");
         if(abs(srcValue - srcThisValue) > 1){
-            Log.d(TAG,"Returning false for here [" + msg + "]");
             return false;
         }
         return true;

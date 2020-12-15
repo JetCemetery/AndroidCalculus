@@ -46,8 +46,16 @@ public class MainForLoopThread {
                 int endVal = end-1;
                 for(int movingValue = start; movingValue < endVal; movingValue++){
                     SecondaryForLoop secondObj = new SecondaryForLoop(data, movingValue, mainLoopHandler);
-                    runnableList.add(secondObj);
-                    secondObj.run();
+                    if(runnableList == null){
+                        //if here, then we PROBABLY set the stop on first success
+                        //AND then we hit a section that posted a successful thing with a integral
+                        break;
+                    }
+                    else{
+                        runnableList.add(secondObj);
+                        secondObj.run();
+                    }
+
                 }
             }
         };
