@@ -4,11 +4,12 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
-public class getCPU_Cnt {
+public class getCPU_Cnt  implements Serializable{
 
-    public int getCount() {
+        public int getCount() {
         return getNumCores();
     }
     /**

@@ -9,21 +9,21 @@ import com.jetcemetery.androidcalulus.activity.MainActivity;
 import com.jetcemetery.androidcalulus.helper.OperationValues_default;
 import com.jetcemetery.androidcalulus.helper.getRandomInRange;
 
-public class SecondaryForLoop implements Runnable{
+public class SecondaryForLoop implements Runnable {
     //for enabling pause resume section
     //--------------
     private volatile boolean pauseWork = false;
     private volatile String state = STATE_NEW;
     private Thread workerThread;
     //--------------
-    private static final String TAG = "SecondaryForLoop3";
+    private static final String TAG = "SecondaryForLoop";
     public static String STATE_NEW = "New";
     public static String STATE_PAUSED = "Paused";
     public static String STATE_RUNNING = "Running";
     public static String STATE_FINISHED = "Finished";
     private final OperationValues userInput;
     private final int movingValue;
-    private final Handler handler;
+    private Handler handler;
     private final long targetNumber;
     private final int range;
     private final boolean operatingInBatchMode;
@@ -200,8 +200,9 @@ public class SecondaryForLoop implements Runnable{
         this.pauseWork = true;
     }
 
-    public void resume()
+    public void resume(Handler mainLoopHandler)
     {
+        this.handler = mainLoopHandler;
         this.pauseWork = false;
         if (workerThread != null)
             workerThread.interrupt(); //wakeup if sleeping

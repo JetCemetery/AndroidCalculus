@@ -39,6 +39,11 @@
         app:backgroundTint="#376E12">
 
     </Button>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/pauseBtn"
+        android:text="Pause"/>
 
     <ProgressBar
         android:id="@+id/pgBar_Progress_bar"

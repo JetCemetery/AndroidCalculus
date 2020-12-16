@@ -3,31 +3,115 @@ package com.jetcemetery.androidcalulus.calcOperation;
 import android.os.Handler;
 import android.util.Log;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
-public class MainForLoopThread implements Serializable {
-    private static final String TAG = "MainForLoopThread";
-    public static String DATA_OBJ_NAME = "MainForLoopThread";
+public class Singleton_MainLoop {
+    private static final String TAG = "Signleton_MainLoop";
+    public static String DATA_OBJ_NAME = "Signleton_MainLoop";
+    private static Singleton_MainLoop instance;
+
     private OperationValues data;
     private transient Handler mainLoopHandler;
     private int[] pointsArray;
     private ArrayList<SecondaryForLoop> runnableList;
 
-    public String preventGarbageCollector;
+    public static void initInstance()
+    {
+        if (instance == null)
+        {
+            // Create the instance
+            instance = new Singleton_MainLoop();
+        }
+    }
 
-    public MainForLoopThread(OperationValues data, Handler handler){
+    public void pauseAllThreads() {
+        Log.d(TAG,"At start of pausing");
+        if(NoActiveThreads()){
+            return;
+        }
+        for (SecondaryForLoop curTh : runnableList){
+            if(curTh != null){
+                if(curTh.getState().equals(SecondaryForLoop.STATE_RUNNING)){
+                    Log.d(TAG,"A thread was paused as it's state was running");
+                    curTh.pause();
+                }
+                else if(curTh.getState().equals(SecondaryForLoop.STATE_NEW)){
+                    //should never get here, but just in case you know
+                    Log.d(TAG,"A thread was paused as it's state was new");
+                    curTh.pause();
+                }
+            }
+        }
+        Log.d(TAG,"All threads pausing completed");
+    }
+
+    public void resumeAllThreads(Handler updateUIHandler) {
+        Log.d(TAG,"At start of resuming");
+        this.mainLoopHandler = updateUIHandler;
+        if(NoActiveThreads()){
+            return;
+        }
+        for (SecondaryForLoop curTh : runnableList){
+            if(curTh != null){
+                if(curTh.getState().equals(SecondaryForLoop.STATE_PAUSED)){
+                    curTh.resume(mainLoopHandler);
+                }
+            }
+        }
+    }
+
+    private boolean NoActiveThreads() {
+        boolean returningBool = false;
+        if(runnableList == null){
+            returningBool = true;
+        }else if(runnableList.size() == 0){
+            returningBool = true;
+        }
+        return returningBool;
+    }
+
+    public void stopAllThreads() {
+        Log.d(TAG,"At start of Killing all threads");
+        if(runnableList != null){
+            if(runnableList.size() > 1){
+                for (SecondaryForLoop curTh : runnableList){
+                    if(curTh != null){
+                        //will call a function that will gracefully kill the thread
+                        //not really kill more like let the run method goto exit
+                        curTh.gracefulExit();
+                    }
+                }
+            }
+            //set the runnable list to null
+            //this intern will call the garbage collector for all the those threads inside of said list
+            runnableList = null;
+        }
+        instance = null;
+    }
+
+    public static Singleton_MainLoop getInstance()
+    {
+        // Return the instance
+//        initInstance();
+        return instance;
+    }
+
+    private Singleton_MainLoop()
+    {
+        // Constructor hidden because this is a singleton
+    }
+
+    public void MainForLoopThread(OperationValues data, Handler handler){
         //this is going to be the main loop caller
         //the soul purpose of this function is to take in the number of available CPUs
         //get the total number of
         this.data = data;
         this.mainLoopHandler = handler;
         pointsArray = createPointsArray(data);
-        preventGarbageCollector="Prevent deletion";
     }
 
     public void StartProcess(){
-       // Log.d(TAG, "StartProcess called, total loop should be " + (pointsArray.length-1));
+        // Log.d(TAG, "StartProcess called, total loop should be " + (pointsArray.length-1));
         runnableList = new ArrayList<>();
         for(int opCount=0; opCount < pointsArray.length-1; opCount++){
             //the goal plan for this is to create a new thread that passes the start/end values
@@ -92,50 +176,11 @@ public class MainForLoopThread implements Serializable {
         return returningArr;
     }
 
-    public void pauseAllThreads() {
-        Log.d(TAG,"At start of pausing");
-        for (SecondaryForLoop curTh : runnableList){
-            if(curTh != null){
-                if(curTh.getState().equals(SecondaryForLoop.STATE_RUNNING)){
-                    Log.d(TAG,"A thread was paused as it's state was running");
-                    curTh.pause();
-                }
-                else if(curTh.getState().equals(SecondaryForLoop.STATE_NEW)){
-                    //should never get here, but just in case you know
-                    Log.d(TAG,"A thread was paused as it's state was new");
-                    curTh.pause();
-                }
-            }
+    public boolean debug_threadsActive() {
+        if(runnableList == null){
+            return true;
         }
-        Log.d(TAG,"All threads pausing completed");
+        return false;
     }
 
-    public void resumeAllThreads() {
-        Log.d(TAG,"At start of resuming");
-        for (SecondaryForLoop curTh : runnableList){
-            if(curTh != null){
-                if(curTh.getState().equals(SecondaryForLoop.STATE_PAUSED)){
-                    curTh.resume(mainLoopHandler);
-                }
-            }
-        }
-    }
-
-    public void stopAllThreads() {
-        Log.d(TAG,"At start of Killing all threads");
-        if(runnableList != null){
-            if(runnableList.size() > 1){
-                for (SecondaryForLoop curTh : runnableList){
-                    if(curTh != null){
-                        //will call a function that will gracefully kill the thread
-                        //not really kill more like let the run method goto exit
-                        curTh.gracefulExit();
-                    }
-                }
-            }
-            //set the runnable list to null
-            //this intern will call the garbage collector for all the those threads inside of said list
-            runnableList = null;
-        }
-    }
 }

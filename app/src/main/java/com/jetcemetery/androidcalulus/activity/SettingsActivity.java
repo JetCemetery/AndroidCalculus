@@ -28,7 +28,6 @@ public class SettingsActivity extends AppCompatActivity {
     private OperationValues dataObj;
     private TextView txt_start, txt_end;
 
-
     private int numberPicker_setMinValue = 1;
     private int numberPicker_setMaxValue = 1000000;
     private int numberPicker_SetValueStart = 1;
@@ -70,6 +69,12 @@ public class SettingsActivity extends AppCompatActivity {
                     dataObj = tempObj;
                     Log.d(TAG, "Intent has sent a tempObj!");
                 }
+
+//                MainForLoopThread tempNextThread = (MainForLoopThread) bundle.getSerializable(MainForLoopThread.DATA_OBJ_NAME);
+//                if(tempNextThread != null){
+//                    myThread_local = tempNextThread;
+//                    Log.d(TAG, "Intent has sent a MainForLoopOperation!");
+//                }
             }
         }
 
@@ -84,7 +89,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void init() {
-        Log.d(TAG, "Inside");
+        Log.d(TAG, "Inside init");
         //this function will initialize all of the user buttons/function/action listeners
         //Number Pickers
         setStartIntegral(integral1_start);
@@ -209,17 +214,18 @@ public class SettingsActivity extends AppCompatActivity {
         Bundle bundle;
         switch (item.getItemId()){
             case R.id.menu_help:
-                intent = new Intent(getApplicationContext(), AboutActivity.class);
-                bundle = new Bundle();
-                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, returnCurrentStateAsDataObj());
-                intent.putExtras(bundle);
-                startActivity(intent);
+//                intent = new Intent(getApplicationContext(), AboutActivity.class);
+//                bundle = new Bundle();
+//                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, returnCurrentStateAsDataObj());
+//                intent.putExtras(bundle);
+//                startActivity(intent);
                 break;
             case R.id.menu_home:
                 Log.d(TAG, "Inside menu home");
                 intent = new Intent(getApplicationContext(), MainActivity.class);
                 bundle = new Bundle();
-                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, returnCurrentStateAsDataObj());
+                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
+//                bundle.putSerializable(MainForLoopThread.DATA_OBJ_NAME, myThread_local);
                 Log.d(TAG, "dataObj has been packed and sent to main activity");
                 intent.putExtras(bundle);
                 startActivity(intent);
@@ -231,7 +237,7 @@ public class SettingsActivity extends AppCompatActivity {
         return true;
     }
 
-    private OperationValues returnCurrentStateAsDataObj() {
+    private void returnCurrentStateAsDataObj() {
         //this function shall update the current OperationValues, and update any of the fields as needed
         int start1 = integral1_start.getValue();
         int start2 = integral2_start.getValue();
@@ -246,6 +252,6 @@ public class SettingsActivity extends AppCompatActivity {
         dataObj.updateTotalExpectedOperations();
 
         Log.d(TAG, "inside returnCurrentStateAsDataObj, enum == " + dataObj.getCPU_OptionsEnum());
-        return dataObj;
+//        return dataObj;
     }
 }

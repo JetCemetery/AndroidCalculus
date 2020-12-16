@@ -20,10 +20,53 @@ public class OperationValues implements Serializable {
     private int cpuToUse;
     private float expectedOperations;
 
+//    private MainForLoopThread tranistionThread;
+    private long transitionCurOperationsCompleted;
+    private String transitionTotOperationExpected;
+    private String transitionTextArea;
+
     public void tempDebugPrint() {
         //temp debugger
         Log.d(TAG, "inside temp debugger");
         Log.d(TAG, "stopOnFirstSuccess == " + stopOnFirstSuccess);
+    }
+
+//    public void setThread(MainForLoopThread myThread) {
+//        if(myThread != null){
+//            tranistionThread = myThread;
+//        }
+//    }
+
+    public void setCurrentOpCompleted(long currentOperationsCompleted) {
+        transitionCurOperationsCompleted = currentOperationsCompleted;
+    }
+
+    public void setTotalOpCompleted(String totalOperationExpected) {
+        transitionTotOperationExpected = totalOperationExpected;
+    }
+
+    public void setTextArea(String TextArea) {
+        transitionTextArea = TextArea;
+    }
+//
+    public String getTextArea() {
+        return transitionTextArea;
+    }
+
+    public long getTotalOpCompleted() {
+        return transitionCurOperationsCompleted;
+    }
+
+    public String getCurrentOpCompleted() {
+        return transitionTotOperationExpected;
+    }
+
+//    public MainForLoopThread getThread() {
+//        return tranistionThread;
+//    }
+
+    public String getPhoneNumber() {
+        return rawPhoneNumber;
     }
 
     public enum cpu_use_options {
@@ -97,7 +140,7 @@ public class OperationValues implements Serializable {
         getCPU_Cnt findCPU_cnt = new getCPU_Cnt();
         CPUs_on_device = findCPU_cnt.getCount();
         CPUs_to_use_populate();
-
+        transitionCurOperationsCompleted = 0;
         //expectedOperations = 1;
         //helper function that will figure out how many operation exists for the current settings
         //it's going to be the end of integral 1,2,3 - start of integral 1,2,3
@@ -210,8 +253,8 @@ public class OperationValues implements Serializable {
         valuesSame &= withinRange(srcDataObj.gammaStart(), this.gammaStart(),"gammaStart");
         valuesSame &= withinRange(srcDataObj.gammaEnd(), this.gammaEnd(),"gammaEnd");
 
-        Log.d(TAG, "src  getCPU_OptionsEnum == " + srcDataObj.getCPU_OptionsEnum());
-        Log.d(TAG, "this getCPU_OptionsEnum == " + this.getCPU_OptionsEnum());
+//        Log.d(TAG, "src  getCPU_OptionsEnum == " + srcDataObj.getCPU_OptionsEnum());
+//        Log.d(TAG, "this getCPU_OptionsEnum == " + this.getCPU_OptionsEnum());
         if(!srcDataObj.getCPU_OptionsEnum().equals(this.getCPU_OptionsEnum())){
             valuesSame = false;
         }
