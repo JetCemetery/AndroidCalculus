@@ -24,8 +24,7 @@ public class OperationValues_default {
         integral_1_end = INTEGRAL_END_DEFAULT;
         integral_2_end = INTEGRAL_END_DEFAULT;
         integral_3_end = INTEGRAL_END_DEFAULT;
-        OperationValues returningObj = new OperationValues(un_parsed_phone, integral_1_sta, integral_2_sta, integral_3_sta, integral_1_end, integral_2_end, integral_3_end, stopOnFirstSuccess);
-        return returningObj;
+        return new OperationValues(un_parsed_phone, integral_1_sta, integral_2_sta, integral_3_sta, integral_1_end, integral_2_end, integral_3_end, false);
     }
 
     public static long parsePhoneInput(String un_parsed_phone) {

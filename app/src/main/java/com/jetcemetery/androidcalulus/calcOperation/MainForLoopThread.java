@@ -9,9 +9,9 @@ import java.util.ArrayList;
 public class MainForLoopThread implements Serializable {
     private static final String TAG = "MainForLoopThread";
     public static String DATA_OBJ_NAME = "MainForLoopThread";
-    private OperationValues data;
-    private transient Handler mainLoopHandler;
-    private int[] pointsArray;
+    private final OperationValues data;
+    private final transient Handler mainLoopHandler;
+    private final int[] pointsArray;
     private ArrayList<SecondaryForLoop> runnableList;
 
     public String preventGarbageCollector;

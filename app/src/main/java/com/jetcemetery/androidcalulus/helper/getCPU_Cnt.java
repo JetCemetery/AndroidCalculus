@@ -31,13 +31,15 @@ public class getCPU_Cnt  implements Serializable{
         //http://forums.makingmoneywithandroid.com/android-development/280-%5Bhow-%5D-get-number-cpu-cores-android-device.html
         String TAG = "GetCPU_Cnt";
         try {
-
             //Get directory containing CPU info
             File dir = new File("/sys/devices/system/cpu/");
             //Filter to only list the devices we care about
             File[] files = dir.listFiles(new CpuFilter());
             //Log.d(TAG, "CPU Count: "+files.length);
             //Return the number of cores (virtual CPU devices)
+            if(files == null){
+                return 1;
+            }
             return files.length;
 
         } catch(Exception e) {

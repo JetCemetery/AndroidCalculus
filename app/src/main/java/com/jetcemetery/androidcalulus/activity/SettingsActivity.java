@@ -23,15 +23,15 @@ public class SettingsActivity extends AppCompatActivity {
     public static String TAG = "SettingsActivity";
     private NumberPicker integral1_start, integral2_start, integral3_start;
     private NumberPicker integral1_end, integral2_end, integral3_end;
-    private RadioButton rdgb_cpu_cnt_Single, rdgb_cpu_cnt_half, rdgb_cpu_cnt_all_minus1, rdgb_cpu_cnt_all;
-    private RadioButton rdgb_stopOnSuccess_Yes_2, rdgb_stopOnSuccess_No_2;
+    private RadioButton cpu_cnt_Single, cpu_cnt_half, cpu_cnt_all_minus1, cpu_cnt_all;
+    private RadioButton stopOnSuccess_Yes, stopOnSuccess_No;
     private OperationValues dataObj;
-    private TextView txt_start, txt_end;
+//    private TextView txt_start, txt_end;
 
-    private int numberPicker_setMinValue = 1;
-    private int numberPicker_setMaxValue = 1000000;
-    private int numberPicker_SetValueStart = 1;
-    private int numberPicker_SetValueEnd = 10000;
+    private final int numberPicker_setMinValue = 1;
+    private final int numberPicker_setMaxValue = 1000000;
+    private final int numberPicker_SetValueStart = 1;
+    private final int numberPicker_SetValueEnd = 10000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,17 +46,17 @@ public class SettingsActivity extends AppCompatActivity {
         integral2_end = findViewById(R.id.integral2_end_2);
         integral3_end = findViewById(R.id.integral3_end_2);
         //CPU Count
-        rdgb_cpu_cnt_Single = findViewById(R.id.rbt_cpu_cnt_Single);
-        rdgb_cpu_cnt_half = findViewById(R.id.rbt_cpu_cnt_half);
-        rdgb_cpu_cnt_all_minus1 = findViewById(R.id.rbt_cpu_cnt_all_minus1);
-        rdgb_cpu_cnt_all = findViewById(R.id.rbt_cpu_cnt_all);
+        cpu_cnt_Single = findViewById(R.id.cpu_cnt_Single);
+        cpu_cnt_half = findViewById(R.id.cpu_cnt_half);
+        cpu_cnt_all_minus1 = findViewById(R.id.cpu_cnt_all_minus1);
+        cpu_cnt_all = findViewById(R.id.cpu_cnt_all);
         //Stop on first success
-        rdgb_stopOnSuccess_Yes_2 = findViewById(R.id.rdgb_stopOnSuccess_Yes_2);
-        rdgb_stopOnSuccess_No_2 = findViewById(R.id.rdgb_stopOnSuccess_No_2);
+        stopOnSuccess_Yes = findViewById(R.id.stopOnSuccess_Yes);
+        stopOnSuccess_No = findViewById(R.id.stopOnSuccess_No);
 
         //the label text start/end
-        txt_start = findViewById(R.id.lbl_start2);
-        txt_end = findViewById(R.id.lbl_end2);
+//        txt_start = findViewById(R.id.lbl_start2);
+//        txt_end = findViewById(R.id.lbl_end2);
 
         Intent intent = this.getIntent();
         if(intent != null){
@@ -91,36 +91,34 @@ public class SettingsActivity extends AppCompatActivity {
         setEndIntegral(integral3_end);
         switch (dataObj.getCPU_OptionsEnum()){
             case CPU_HALF:
-                rdgb_cpu_cnt_half.setChecked(true);
+                cpu_cnt_half.setChecked(true);
                 break;
             case CPU_ALL_MINUS_1:
-                rdgb_cpu_cnt_all_minus1.setChecked(true);
+                cpu_cnt_all_minus1.setChecked(true);
                 break;
             case CPU_ALL:
-                rdgb_cpu_cnt_all.setChecked(true);
+                cpu_cnt_all.setChecked(true);
                 break;
             case CPU_SINGLE:
             default:
-                rdgb_cpu_cnt_Single.setChecked(true);
+                cpu_cnt_Single.setChecked(true);
                 break;
         }
 
         if(dataObj.getStopOnFirstSuccess()){
-            rdgb_stopOnSuccess_Yes_2.setChecked(true);
+            stopOnSuccess_Yes.setChecked(true);
         }else{
-            rdgb_stopOnSuccess_No_2.setChecked(true);
+            stopOnSuccess_No.setChecked(true);
         }
 
-        //CPU radio group
-        //TODO finish coding the cpu choices and let user truly select cpu usage
-        rdgb_cpu_cnt_Single.setOnClickListener(init_cpuSingle());
-        rdgb_cpu_cnt_half.setOnClickListener(init_cpuHalf());
-        rdgb_cpu_cnt_all_minus1.setOnClickListener(init_cpuMinus1());
-        rdgb_cpu_cnt_all.setOnClickListener(init_cpuAll());
+        cpu_cnt_Single.setOnClickListener(init_cpuSingle());
+        cpu_cnt_half.setOnClickListener(init_cpuHalf());
+        cpu_cnt_all_minus1.setOnClickListener(init_cpuMinus1());
+        cpu_cnt_all.setOnClickListener(init_cpuAll());
 
         //Stop on Success Group
-        rdgb_stopOnSuccess_Yes_2.setOnClickListener(init_stopOnSuccess_Yes());
-        rdgb_stopOnSuccess_No_2.setOnClickListener(init_stopOnSuccess_No());
+        stopOnSuccess_Yes.setOnClickListener(init_stopOnSuccess_Yes());
+        stopOnSuccess_No.setOnClickListener(init_stopOnSuccess_No());
 
         //set values from the local data object
         integral1_start.setValue(dataObj.alphaStart());
@@ -171,9 +169,7 @@ public class SettingsActivity extends AppCompatActivity {
         srcIntegral.setMinValue(numberPicker_setMinValue);
         srcIntegral.setMaxValue(numberPicker_setMaxValue);
         srcIntegral.setValue(numberPicker_SetValueEnd);
-        srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> {
-            dataObj.changesMade();
-        });
+        srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> dataObj.changesMade());
     }
 
     @Override
@@ -224,7 +220,6 @@ public class SettingsActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-
         return true;
     }
 
@@ -239,10 +234,6 @@ public class SettingsActivity extends AppCompatActivity {
         int end3 = integral3_end.getValue();
 
         dataObj.setIntegralRanges(start1, start2 , start3, end1, end2, end3);
-//        dataObj.setStopOnSuccess(rdgb_stopOnSuccess_Yes_2.isSelected());
         dataObj.updateTotalExpectedOperations();
-
-//        Log.d(TAG, "inside returnCurrentStateAsDataObj, enum == " + dataObj.getCPU_OptionsEnum());
-//        return dataObj;
     }
 }

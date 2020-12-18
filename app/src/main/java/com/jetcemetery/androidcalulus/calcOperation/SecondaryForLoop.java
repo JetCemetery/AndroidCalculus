@@ -99,6 +99,7 @@ public class SecondaryForLoop implements Runnable {
 
                             String phoneNumberTxt = PrintCalc.PrintCalcObjPass(movingLowerLimit, movingUpperLimit, movingValue, movingBeta, movingGamma, targetNumber, dividend);
                             Log.d(TAG,"****SUCCESS*********" + phoneNumberTxt);
+
                             postMessage(phoneNumberTxt + "\n");
                             if(userInput.getStopOnFirstSuccess()){
                                 SignalStop();
@@ -146,6 +147,9 @@ public class SecondaryForLoop implements Runnable {
         }
     }
     private void postCompleteOperationSingle() {
+        if(stopProcess){
+            return;
+        }
         //there was an issue with the main UI thread
         //calling this update UI function a few thousand times per second broke the UI thread
         //so now we must Make with call as Batch!
@@ -155,6 +159,9 @@ public class SecondaryForLoop implements Runnable {
     }
 
     private void postCompleteOperationBatch(boolean forceSend) {
+        if(stopProcess){
+            return;
+        }
         //this method was WAY to taxing on the main thread
         //need to do this stuff in a batch kind of mode, see new method
         //include a boolean called forced send
@@ -185,6 +192,9 @@ public class SecondaryForLoop implements Runnable {
 
     private void postMessage(String msgStr) {
         //normal post message operation
+        if(stopProcess){
+            return;
+        }
         Message msg = handler.obtainMessage();
         msg.what = MainActivity.POST_MESSAGE_IN_RESULTS;
         Bundle bundle = new Bundle();

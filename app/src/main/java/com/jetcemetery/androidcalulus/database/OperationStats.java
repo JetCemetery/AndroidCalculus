@@ -8,8 +8,8 @@ public class OperationStats {
     public static final String COLUMN_SUCCESS = "success";
 
     private long id;
-    private long timeElapsed;
-    private boolean success;
+    private final long timeElapsed;
+    private final boolean success;
 
     // Create table SQL query
     public static final String CREATE_TABLE =

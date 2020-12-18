@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -42,10 +41,14 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtError, txtResults, txt_progressBar2;
     private Button btnStart;
     private View btnPauseStopLayout;
-    private Button btnPause, btnStop;
+    private Button btnPause_Resume, btnStop;
     private ProgressBar prbBar_progressBar;
     private Handler updateUIHandler;
     private boolean blockUpdates;
+
+    private final String ResumeStr = "Resume";
+    private final String PauseStr = "Pause";
+//    private boolean blockPostMessagesUpdating;
 
     private String totalOperationExpected;
     private long currentOperationsCompleted;
@@ -63,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         txtError = findViewById(id.errorText);
         btnStart = findViewById(id.btn_start);
 
-        btnPause = findViewById(id.btn_pause2);
+        btnPause_Resume = findViewById(id.btn_pause2);
         btnStop = findViewById(id.btn_stop2);
         btnPauseStopLayout = findViewById(id.layout_pause_stop);
 
@@ -71,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         txt_progressBar2 = findViewById(id.txt_progress);
         txtResults = findViewById(id.txt_results);
         blockUpdates = false;
-
+//        blockPostMessagesUpdating = false;
         if(defaultInitRequired()){
             Log.d(TAG, "The default Init IS required");
             String un_parsed_phone = String.valueOf(txtPhone.getText());
@@ -89,9 +92,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "Calling onResume");
+//        blockUpdates = false;
+//        blockPostMessagesUpdating = false;
         if(singleton_Thread == null){
             singleton_Thread = Singleton_MainLoop.getInstance();
-            Log.d(TAG, "singleton_Thread was null, so I initalized it kinda");
+            Log.d(TAG, "singleton_Thread was null, so I initialized it kinda");
         }
 
         //by default we must always check to see if an object was passed through an activity
@@ -144,9 +149,10 @@ public class MainActivity extends AppCompatActivity {
         currentOperationsCompleted = dataObj.getTotalOpCompleted();
         totalOperationExpected = dataObj.getTotalOperationExpected();
         txt_progressBar2.setText(dataObj.getInitialProgressText());
-        String progressTxt = currentOperationsCompleted + " / " + totalOperationExpected;
+        String progressTxt = "0 / " + totalOperationExpected;
         txt_progressBar2.setText(progressTxt);
         txtResults.setText("");
+        prbBar_progressBar.setProgress(dataObj.operationForProgressBar(currentOperationsCompleted));
     }
 
     private OperationValues getPassedDataObject(){
@@ -201,10 +207,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
         OperationValues passedDataObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
-        if(passedDataObj == null){
-            return false;
-        }
-        return true;
+        return passedDataObj != null;
     }
 
     private void initView() {
@@ -268,8 +271,23 @@ public class MainActivity extends AppCompatActivity {
                 String rawPhone = String.valueOf(txtPhone.getText());
                 dataObj.setPhoneNumber(rawPhone);
                 resetUIData();
-
             }
+        });
+
+        btnPause_Resume.setOnClickListener(v -> {
+            String btnTxt = btnPause_Resume.getText().toString();
+            if(btnTxt.equalsIgnoreCase(PauseStr)){
+                safePauseAllThreads();
+            }
+            else{
+                safeResumeAllThreads();
+            }
+
+        });
+
+        btnStop.setOnClickListener(v -> {
+            safeStopAllThreads();
+            resetUIData();
         });
     }
 
@@ -289,15 +307,7 @@ public class MainActivity extends AppCompatActivity {
         singleton_Thread.MainForLoopThread(dataObj,updateUIHandler);
         singleton_Thread.StartProcess();
         ShowStart_HidePauseStop(false);
-//        lockUI();
     }
-
-//    private void lockUI() {
-//        //this method shall lock the phone number stuff
-//        //also grey out the phone number
-//        txtPhone.setEnabled(false);
-//        txtPhone.setBackgroundColor(Color.GRAY);
-//    }
 
     private void updateProgressBar_and_Text() {
         if(!blockUpdates){
@@ -314,6 +324,24 @@ public class MainActivity extends AppCompatActivity {
             singleton_Thread = null;
         }
         ShowStart_HidePauseStop(true);
+
+        //I need a 50 m sec delay
+        //This multi thread is a killer, I tell the stuff to stop processing, but it keeps going...
+        //resume / pause isn't much of a problem. Or any problem, I don't care if that process
+        //takes 500 milliseconds to propagate. Only the stop cause an issue...
+        Thread Fifty_MS_delay = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    sleep(50);
+                    resetUIData();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Fifty_MS_delay.start();
     }
 
     private void ShowStart_HidePauseStop(boolean showStart) {
@@ -342,6 +370,7 @@ public class MainActivity extends AppCompatActivity {
         else{
             Log.d(TAG, "singleton_Thread was null");
         }
+        btnPause_Resume.setText(PauseStr);
     }
 
     private void safePauseAllThreads() {
@@ -349,6 +378,7 @@ public class MainActivity extends AppCompatActivity {
         if(singleton_Thread != null){
             singleton_Thread.pauseAllThreads();
         }
+        btnPause_Resume.setText(ResumeStr);
         //no need to hide show UI stuff, this method gets called when we go to the settings stuff
     }
 
@@ -430,6 +460,8 @@ public class MainActivity extends AppCompatActivity {
             {
                 @Override
                 public void handleMessage(Message msg) {
+//                    if(blockPostMessagesUpdating)
+//                        return;
                     // Means the message is sent from child thread.
                     if(msg != null){
                         int messageTypeID = msg.what;
@@ -461,7 +493,7 @@ public class MainActivity extends AppCompatActivity {
                             //Log.d(TAG,"strMSg == " + strMSg);
                             if(strMSg != null){
                                 if(!strMSg.isEmpty()){
-                                    currentOperationsCompleted += Long.valueOf(strMSg);
+                                    currentOperationsCompleted += Long.parseLong(strMSg);
                                     updateProgressBar_and_Text();
                                 }
                             }

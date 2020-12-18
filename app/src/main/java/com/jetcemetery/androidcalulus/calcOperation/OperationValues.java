@@ -6,8 +6,6 @@ import com.jetcemetery.androidcalulus.helper.getCPU_Cnt;
 
 import java.io.Serializable;
 
-import static java.lang.Math.abs;
-
 public class OperationValues implements Serializable {
     private static final String TAG = "OperationValues";
     public static String DATA_OBJ_NAME = "DataObj";
@@ -21,22 +19,9 @@ public class OperationValues implements Serializable {
     private float expectedOperations;
     private boolean changesMade;
 
-//    private MainForLoopThread tranistionThread;
     private long transitionCurOperationsCompleted;
     private String transitionTotOperationExpected;
     private String transitionTextArea;
-
-    public void tempDebugPrint() {
-        //temp debugger
-        Log.d(TAG, "inside temp debugger");
-        Log.d(TAG, "stopOnFirstSuccess == " + stopOnFirstSuccess);
-    }
-
-//    public void setThread(MainForLoopThread myThread) {
-//        if(myThread != null){
-//            tranistionThread = myThread;
-//        }
-//    }
 
     public void setCurrentOpCompleted(long currentOperationsCompleted) {
         transitionCurOperationsCompleted = currentOperationsCompleted;
@@ -58,12 +43,8 @@ public class OperationValues implements Serializable {
         return transitionCurOperationsCompleted;
     }
 
-    public String getCurrentOpCompleted() {
-        return transitionTotOperationExpected;
-    }
-
-//    public MainForLoopThread getThread() {
-//        return tranistionThread;
+//    public String getCurrentOpCompleted() {
+//        return transitionTotOperationExpected;
 //    }
 
     public String getPhoneNumber() {
@@ -210,9 +191,9 @@ public class OperationValues implements Serializable {
         return this.rawPhoneNumber;
     }
 
-    public boolean getMovingLowerLimit() {
-        return true;
-    }
+//    public boolean getMovingLowerLimit() {
+//        return true;
+//    }
 
     public int betaStart() {
         return this.integral_2_sta;
@@ -240,11 +221,11 @@ public class OperationValues implements Serializable {
 
     public String getInitialProgressText() {
         //there's an issue of non whole numbers for the expected text...
-        return "0 / " + String.valueOf(Long.valueOf((long) expectedOperations));
+        return "0 / " + (long) expectedOperations;
     }
 
     public int operationForProgressBar(float completedOperations){
-        float temp = (float) (completedOperations / expectedOperations);
+        float temp = completedOperations / expectedOperations;
         temp = temp * 100;
         return (int) temp;
     }

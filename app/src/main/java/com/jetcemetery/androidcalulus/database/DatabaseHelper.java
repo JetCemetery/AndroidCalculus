@@ -97,18 +97,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String query = "SELECT  * FROM " + OperationStats.TABLE_NAME;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
-        OperationStats operation = null;
+        OperationStats operation;
 
         if (cursor.moveToFirst()) {
             do {
                 long id = Long.parseLong(cursor.getString(0));
-                long timeElap = Long.parseLong(cursor.getString(1));
+                long timeElapsed = Long.parseLong(cursor.getString(1));
                 int tempSuccess = Integer.parseInt(cursor.getString(2));
                 boolean success = false;
                 if(tempSuccess != 0){
                     success = true;
                 }
-                operation = new OperationStats(id, timeElap, success);
+                operation = new OperationStats(id, timeElapsed, success);
                 Operations.add(operation);
             } while (cursor.moveToNext());
         }

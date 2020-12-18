@@ -1,19 +1,19 @@
 package com.jetcemetery.androidcalulus.calcOperation;
 
 import android.os.Handler;
-import android.util.Log;
 
 import java.util.ArrayList;
 
 public class Singleton_MainLoop {
-    private static final String TAG = "Signleton_MainLoop";
-    public static String DATA_OBJ_NAME = "Signleton_MainLoop";
+    private static final String TAG = "Singleton_MainLoop";
+    public static String DATA_OBJ_NAME = "Singleton_MainLoop";
     private static Singleton_MainLoop instance;
 
     private OperationValues data;
     private transient Handler mainLoopHandler;
     private int[] pointsArray;
     private ArrayList<SecondaryForLoop> runnableList;
+    private static volatile boolean stopAllThreadsCalled = false;
 
     public static void initInstance()
     {
@@ -21,6 +21,7 @@ public class Singleton_MainLoop {
         {
             // Create the instance
             instance = new Singleton_MainLoop();
+            stopAllThreadsCalled = false;
         }
     }
 
@@ -72,6 +73,7 @@ public class Singleton_MainLoop {
 
     public void stopAllThreads() {
 //        Log.d(TAG,"At start of Killing all threads");
+        stopAllThreadsCalled = true;
         if(runnableList != null){
             if(runnableList.size() > 1){
                 for (SecondaryForLoop curTh : runnableList){
@@ -82,12 +84,6 @@ public class Singleton_MainLoop {
                     }
                 }
 
-                //next step, now that each thread has a graceful exit request
-                for(int i= runnableList.size()-1; i > 0; i--){
-                    SecondaryForLoop curTh = runnableList.get(i);
-                    //noinspection JoinDeclarationAndAssignmentJava
-                    curTh = null;
-                }
             }
             //set the runnable list to null
             //this intern will call the garbage collector for all the those threads inside of said list
@@ -98,8 +94,6 @@ public class Singleton_MainLoop {
 
     public static Singleton_MainLoop getInstance()
     {
-        // Return the instance
-//        initInstance();
         return instance;
     }
 
@@ -146,7 +140,7 @@ public class Singleton_MainLoop {
                         //AND then we hit a section that posted a successful thing with a integral
                         break;
                     }
-                    else{
+                    else if(!stopAllThreadsCalled){
                         runnableList.add(secondObj);
                         secondObj.run();
                     }
@@ -183,11 +177,11 @@ public class Singleton_MainLoop {
         return returningArr;
     }
 
-    public boolean debug_threadsActive() {
-        if(runnableList == null){
-            return true;
-        }
-        return false;
-    }
+//    public boolean debug_threadsActive() {
+//        if(runnableList == null){
+//            return true;
+//        }
+//        return false;
+//    }
 
 }
