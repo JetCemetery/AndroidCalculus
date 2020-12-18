@@ -5,10 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText txtPhone;
     private TextView txtError, txtResults, txt_progressBar2;
     private Button btnStart;
-    private Button btnPause;
+//    private Button btnPause;
     private ProgressBar prbBar_progressBar;
     private Handler updateUIHandler;
     private boolean blockUpdates;
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private Singleton_MainLoop singleton_Thread;
     private OperationValues dataObj;
 //    private OperationValues dataObj2;
-    private String myThread_STR = "THREAD_OBJECT";
+//    private String myThread_STR = "THREAD_OBJECT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         txtPhone = findViewById(id.txt_phoneID);
         txtError = findViewById(id.errorText);
         btnStart = findViewById(id.btn_start);
-        btnPause = findViewById(id.pauseBtn);
+//        btnPause = findViewById(id.pauseBtn);
         prbBar_progressBar = findViewById(id.pgBar_Progress_bar);
         txt_progressBar2 = findViewById(id.txt_progress);
         txtResults = findViewById(id.txt_results);
@@ -68,155 +71,83 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "The default Init IS required");
             String un_parsed_phone = String.valueOf(txtPhone.getText());
             dataObj = OperationValues_default.getDefaultValues(un_parsed_phone);
-            currentOperationsCompleted = dataObj.getTotalOpCompleted();
-            totalOperationExpected = dataObj.getTotalOperationExpected();
+            resetUIData();
         }
         initView();
         createUpdateUiHandler();
 
-        btnPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String btnTxt = btnPause.getText().toString();
-                String resumeTXT = "Resume";
-                String PauseTXT = "Pause";
-                if(btnTxt.equalsIgnoreCase(PauseTXT)){
-                    //of here, then we need to pause threads, and change the text to say resume
-                    btnPause.setText(resumeTXT);
-                    safePauseAllThreads();
-                }
-                else if(btnTxt.equalsIgnoreCase(resumeTXT)){
-                    btnPause.setText(PauseTXT);
-                    safeResumeAllThreads();
-                }
-            }
-        });
     }
 
-    private void tempDebug() {
-        Log.d(TAG, "tempDebug [start]");
-        if(dataObj == null){
-            Log.d(TAG, "dataObj == null");
-        }
-        if(singleton_Thread != null){
-            if(singleton_Thread.debug_threadsActive()){
-                Log.d(TAG, "tempDebug [end]");
-            }
-        }
-    }
-
+    //the onResume function seems to be called every time
+    //if that's the case, lets init the singleton thread there
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "Calling onResume");
-        //before enabling/disabling button start, and resuming threads
-        //lets check out if a data object was passed, and if it's different from what we have
-        if(DataObjectPassedThoughIntent()){
-            Log.d(TAG, "DataObjectPassedThoughIntent is true path");
-            //if here, then the following happened
-            //we did have intent, and we did have a dataObject
-            //check to see if local data object is different from what was passed
-            if(LocalDB_Object_is_Different_than_passed()){
-                Log.d(TAG, "LocalDB_Object_is_Different_than_passed is true path");
-                //if here, then we must get the passed object, and then update all the UI
-                //to whatever is needed
-                //we must also kill any threads if they were started
-                if(singleton_Thread != null){
-                    //cool, local singleton thread is not null
-                    //kill it, and make it null
-                    singleton_Thread.stopAllThreads();
-                    singleton_Thread = null;
-                }
-                dataObj = getPassedDataObject();
-                updateProgressBar_and_Text();
-//                updateUI_Text();
-            }else{
-                //if here, then we need to update the UI stuff with the local data object
-                //then resume any threads if applicable
-                updateProgressBar_and_Text();
-                if(singleton_Thread != null){
-                    singleton_Thread.resumeAllThreads(updateUIHandler);
-                }
-            }
-
+        if(singleton_Thread == null){
+            singleton_Thread = Singleton_MainLoop.getInstance();
+            Log.d(TAG, "singleton_Thread was null, so I initalized it kinda");
         }
-        else{
-            //if here, then no object was passed through with intent,
-            //you don't need to do anything, except resume threads if applicable
-            if(singleton_Thread == null){
-                //if here, then no thread was started
-                btnStart.setText("START");
-                btnStart.setEnabled(true);
+
+        //by default we must always check to see if an object was passed through an activity
+        //if object was passed, then we need to update all of the local UI stuff
+        if(DataObjectPassedThoughIntent()){
+            Log.d(TAG, "DataObjectPassedThoughIntent has returned true!");
+            //if here, object was passed through activity
+            //let's over-write our local data object, and see if need to reset the UI
+
+            //line below will over-write the local data object (that was easy)
+            dataObj = getPassedDataObject();
+            if(dataObj.wasDataChanged()){
+                Log.d(TAG, "dataObj.wasDataChanged has returned true!");
+                //if here, data was changed, we need to
+                //kill threads if applicable
+                //update the UI
+                safeStopAllThreads();
+                resetUIData();
             }
             else{
-                //if here, then thread WAS started
-                //btnStart.setText("START");
-                btnStart.setEnabled(false);
+                //if here, then we need to resume the thread, if applicable
+                Log.d(TAG, "dataObj.wasDataChanged has returned false, resuming threads!");
+                safeResumeAllThreads();
+            }
+
+        }else{
+            //if here, then no data object was passed through activity
+            //keep the local one, and resume threads if applicable
+            //unless local data object is null, in that case reset the whole kit and caboodle
+            if(dataObj == null){
+                //we should NEVER get here, data object is null
+                //kill all threads, set default data object, update UI
+                safeStopAllThreads();
+                String un_parsed_phone = String.valueOf(txtPhone.getText());
+                dataObj = OperationValues_default.getDefaultValues(un_parsed_phone);
+                resetUIData();
+            }
+            else{
+                //if here, then we can resume the threads, if applicable
                 safeResumeAllThreads();
             }
         }
+    }
 
-//        if(singleton_Thread == null){
-//            singleton_Thread = Singleton_MainLoop.getInstance();
-//            if(singleton_Thread == null){
-//                //if here, then thread operation never started!
-//                Log.d(TAG, "Singleton Thread was never initiated, skip all work");
-//            }
-//            else{
-//                //if here, then we need to restore the threaded operation!
-//                Intent intent = this.getIntent();
-//                verifyDataObject(intent);
-////                safeResumeAllThreads();
-//            }
-//        }
-
-        //Log.d(TAG, "On Resume function! in main");
-        //the resume activity
-        //check to see dataObj that was passed is different from what is saved locally
-
+    private void resetUIData() {
+        //helper function
+        //this function is called when we need to reset the data object counter, and progress bar
+        //data object should have been initialized so we good on that
+        dataObj.setCurrentOpCompleted(0);
+        currentOperationsCompleted = dataObj.getTotalOpCompleted();
+        totalOperationExpected = dataObj.getTotalOperationExpected();
+        txt_progressBar2.setText(dataObj.getInitialProgressText());
+        String progressTxt = currentOperationsCompleted + " / " + totalOperationExpected;
+        txt_progressBar2.setText(progressTxt);
+        txtResults.setText("");
     }
 
     private OperationValues getPassedDataObject(){
         Intent intent = this.getIntent();
         Bundle bundle = intent.getExtras();
         return (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
-    }
-
-    private boolean LocalDB_Object_is_Different_than_passed() {
-        //helper function that shall check to see if passed data object is different from local
-        //if local is null return true
-        //if passed data object is null, return false
-        if(dataObj == null){
-            return true;
-        }
-        Intent intent = this.getIntent();
-        if(intent == null){
-            return false;
-        }
-        Bundle bundle = intent.getExtras();
-        if(bundle == null){
-            return false;
-        }
-        OperationValues passedDataObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
-        if(passedDataObj == null){
-            return false;
-        }
-
-        //if here, we now need to compare the local DB object with what was passed
-        if(objectsAreDifferent(dataObj, passedDataObj)){
-            //if here, then the passed object has changed, and we need to return true
-            return true;
-        }
-
-        //if here then we need to return false
-        return false;
-    }
-
-    private boolean objectsAreDifferent(OperationValues localObj, OperationValues passedObj) {
-        if(passedObj.identicalDataObj(localObj)){
-            return false;
-        }
-        return true;
     }
 
     private boolean defaultInitRequired() {
@@ -243,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         if(passedDataObj == null){
             return true;
         }
-        Log.d(TAG, "In defaultInitRequired function, the default Init is NOT required");
+//        Log.d(TAG, "In defaultInitRequired function, the default Init is NOT required");
         //if here, then when this activity was called, a data object was passed into it
         //lets go ahead and restore the needed data back into the view
         dataObj = passedDataObj;
@@ -271,78 +202,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void verifyDataObject(Intent srcIntent) {
-        Log.d(TAG, "Calling verifyDataObject");
-        //this function shall be called on every single activity change
-        //the goal is simple
-        //check to see if the intent that was invoked into here carries with it a data object
-        //that data object holding all of the settings to run the app
-        //if the intent does hold a new data object, then check to see if the specs match of the current data object
-        //if they are different, then
-        //you must kill and threads that are running in main loop -> secondary loop
-        //update whatever
-        //then save the data object that was passed into the local data object
-
-        boolean resumeThreads_if_applicable = false;
-        if(srcIntent != null && dataObj != null){
-            //intent not null, good start, as well as dataObj not being null and all.
-            Bundle bundle = srcIntent.getExtras();
-            if(bundle != null){
-                //bundle also not null, looking good
-
-                OperationValues passedDataObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
-                if(passedDataObj != null){
-//                    Log.d(TAG, "inside verifyDataObject, passedDataObj enum == " + passedDataObj.getCPU_OptionsEnum());
-//                    Log.d(TAG, "inside verifyDataObject, dataObj enum == " + dataObj.getCPU_OptionsEnum());
-                    //data object was present inside of intent, we are almost there, one more step
-                    if(passedDataObj.identicalDataObj(dataObj)){
-                        //if here, then local data object, has the same settings
-                        //so do nothing!
-                        //except resume threads if applicable
-                        //  note, it okay to attempt to resume the threads even if the start button was never clicked
-                        //  no threads were created, so nothing will happen, and no errors called.
-                        Log.d(TAG, "Function verifyDataObject showed that current data obj and passed are the same");
-                        resumeThreads_if_applicable = true;
-                    }else{
-                        Log.d(TAG, "Function verifyDataObject data object has been updated");
-                        //if here, then we need to do the following
-                        //over-write the local data object, with the passed data object
-                        //kill any threads that are running from previous setting
-                        //reset the progress text
-                        dataObj = passedDataObj;
-                        currentOperationsCompleted = 0;
-                        safeStopAllThreads();
-                    }
-                }
-            }
-        }
-
-        //at this point data object should have been set
-        //and threads killed if applicable
-        //if data object is not set, set to default
-        //then go ahead and call upon the update GUI stuff
-        Log.d(TAG, "Function verifyDataObject Next few steps");
-        if(dataObj == null){
-            Log.d(TAG, "Function verifyDataObject dataObj == null");
-            currentOperationsCompleted = 0;
-            safeStopAllThreads();
-            dataObj = OperationValues_default.getDefaultValues();
-        }
-        else{
-            Log.d(TAG, "Function verifyDataObject dataObj != null");
-            //if here, then data object is all initialized
-            //all that needs to be done is to resume the threads if applicable
-            if(resumeThreads_if_applicable){
-
-                safeResumeAllThreads();
-            }
-
-        }
-
-    }
-
     private void initView() {
-        Log.d(TAG, "Calling initView");
+//        Log.d(TAG, "Calling initView");
         //Section below shall initialize the code need when the start button is clicked
         //IF QC passes inside the code, call the MainForLoopThread2 on a new thread
         //passing the data object and the handler thread
@@ -363,10 +224,6 @@ public class MainActivity extends AppCompatActivity {
                 txtError.setVisibility(TextView.VISIBLE);
                 txtError.setText(helperObj.getMisconstruedIntegralRange_text());
                 Toast.makeText(getApplicationContext(), "Integral range is out of sequence", Toast.LENGTH_SHORT).show();
-                //the next two lines are used to PREVENT the myThread_local from being deleted
-                //that is all
-//                String tempStr = myThread_local.preventGarbageCollector;
-//                Toast.makeText(getApplicationContext(), tempStr, Toast.LENGTH_SHORT).show();
                 return;
             }
             if(helperObj.numberInputValid(txtPhone)){
@@ -382,19 +239,58 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
             }
         });
+
+        txtPhone.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                //do nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //do nothing
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                //if here, then text has changed
+                //check to see if we have any threads running
+                //  if threads are running, kill em
+                //  if no threads are running, do nothing
+                safeStopAllThreads();
+                String rawPhone = String.valueOf(txtPhone.getText());
+                dataObj.setPhoneNumber(rawPhone);
+                resetUIData();
+
+            }
+        });
     }
 
     private void InitiateMainForLoopThread() {
         //this function shall create a new thread, and start the MainForLoopThread2 operation
+        String toastMsg = "Cpu count == " + dataObj.getCPU_count_that_is_used();
+        Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
         txtResults.setText("");
         if(singleton_Thread != null){
+            //if here, well we have other threads a going
+            //kill the threads, and set singleton to null
             singleton_Thread.stopAllThreads();
+            singleton_Thread = null;
         }
         Singleton_MainLoop.initInstance();
         singleton_Thread = Singleton_MainLoop.getInstance();
         singleton_Thread.MainForLoopThread(dataObj,updateUIHandler);
         singleton_Thread.StartProcess();
+//        lockUI();
     }
+
+//    private void lockUI() {
+//        //this method shall lock the phone number stuff
+//        //also grey out the phone number
+//        txtPhone.setEnabled(false);
+//        txtPhone.setBackgroundColor(Color.GRAY);
+//    }
 
     private void updateProgressBar_and_Text() {
         if(!blockUpdates){
@@ -406,10 +302,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void safeStopAllThreads() {
-        if(singleton_Thread == null){
-            singleton_Thread = Singleton_MainLoop.getInstance();
-        }
-
         if(singleton_Thread != null){
             singleton_Thread.stopAllThreads();
             singleton_Thread = null;
@@ -417,11 +309,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void safeResumeAllThreads() {
-//        createUpdateUiHandler();
         Log.d(TAG, "calling safeResumeAllThreads");
-        if(singleton_Thread == null){
-            singleton_Thread = Singleton_MainLoop.getInstance();
-        }
         if(singleton_Thread != null){
             Log.d(TAG, "singleton_Thread was NOT null");
             singleton_Thread.resumeAllThreads(updateUIHandler);
@@ -433,9 +321,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void safePauseAllThreads() {
         Log.d(TAG, "calling safePauseAllThreads");
-        if(singleton_Thread == null){
-            singleton_Thread = Singleton_MainLoop.getInstance();
-        }
         if(singleton_Thread != null){
             singleton_Thread.pauseAllThreads();
         }
@@ -461,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //need to finish this stuff to complete the menu actions
-        tempDebug();
+//        tempDebug();
         Intent intent;
         if(dataObj == null){
             dataObj = OperationValues_default.getDefaultValues();
@@ -482,11 +367,11 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(getApplicationContext(), SettingsActivity.class);
                 bundle = new Bundle();
                 SaveDataObjState();
+                dataObj.movingToSettingsPage();
                 bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
-//                bundle.putSerializable(MainForLoopThread.DATA_OBJ_NAME, myThread_local);
                 intent.putExtras(bundle);
-                Log.d(TAG, "Data object packed and ready to be sent to next activity");
-                tempDebug();
+//                Log.d(TAG, "Data object packed and ready to be sent to next activity");
+//                tempDebug();
                 startActivity(intent);
                 break;
             default:

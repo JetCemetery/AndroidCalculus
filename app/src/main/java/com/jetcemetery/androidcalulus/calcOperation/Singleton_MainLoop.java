@@ -25,28 +25,28 @@ public class Singleton_MainLoop {
     }
 
     public void pauseAllThreads() {
-        Log.d(TAG,"At start of pausing");
+//        Log.d(TAG,"At start of pausing");
         if(NoActiveThreads()){
             return;
         }
         for (SecondaryForLoop curTh : runnableList){
             if(curTh != null){
                 if(curTh.getState().equals(SecondaryForLoop.STATE_RUNNING)){
-                    Log.d(TAG,"A thread was paused as it's state was running");
+//                    Log.d(TAG,"A thread was paused as it's state was running");
                     curTh.pause();
                 }
                 else if(curTh.getState().equals(SecondaryForLoop.STATE_NEW)){
                     //should never get here, but just in case you know
-                    Log.d(TAG,"A thread was paused as it's state was new");
+//                    Log.d(TAG,"A thread was paused as it's state was new");
                     curTh.pause();
                 }
             }
         }
-        Log.d(TAG,"All threads pausing completed");
+//        Log.d(TAG,"All threads pausing completed");
     }
 
     public void resumeAllThreads(Handler updateUIHandler) {
-        Log.d(TAG,"At start of resuming");
+//        Log.d(TAG,"At start of resuming");
         this.mainLoopHandler = updateUIHandler;
         if(NoActiveThreads()){
             return;
@@ -71,7 +71,7 @@ public class Singleton_MainLoop {
     }
 
     public void stopAllThreads() {
-        Log.d(TAG,"At start of Killing all threads");
+//        Log.d(TAG,"At start of Killing all threads");
         if(runnableList != null){
             if(runnableList.size() > 1){
                 for (SecondaryForLoop curTh : runnableList){
@@ -80,6 +80,13 @@ public class Singleton_MainLoop {
                         //not really kill more like let the run method goto exit
                         curTh.gracefulExit();
                     }
+                }
+
+                //next step, now that each thread has a graceful exit request
+                for(int i= runnableList.size()-1; i > 0; i--){
+                    SecondaryForLoop curTh = runnableList.get(i);
+                    //noinspection JoinDeclarationAndAssignmentJava
+                    curTh = null;
                 }
             }
             //set the runnable list to null

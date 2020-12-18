@@ -37,7 +37,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        Log.d(TAG, "Start of onCreate");
+//        Log.d(TAG, "Start of onCreate");
         integral1_start = findViewById(R.id.integral1_start_2);
         integral2_start = findViewById(R.id.integral2_start_2);
         integral3_start = findViewById(R.id.integral3_start_2);
@@ -58,8 +58,6 @@ public class SettingsActivity extends AppCompatActivity {
         txt_start = findViewById(R.id.lbl_start2);
         txt_end = findViewById(R.id.lbl_end2);
 
-        //on create we need to get
-//        Log.d(TAG, "Before starting getting intent");
         Intent intent = this.getIntent();
         if(intent != null){
             Bundle bundle = intent.getExtras();
@@ -67,18 +65,11 @@ public class SettingsActivity extends AppCompatActivity {
                 OperationValues tempObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
                 if(tempObj != null){
                     dataObj = tempObj;
-                    Log.d(TAG, "Intent has sent a tempObj!");
                 }
-
-//                MainForLoopThread tempNextThread = (MainForLoopThread) bundle.getSerializable(MainForLoopThread.DATA_OBJ_NAME);
-//                if(tempNextThread != null){
-//                    myThread_local = tempNextThread;
-//                    Log.d(TAG, "Intent has sent a MainForLoopOperation!");
-//                }
             }
         }
 
-        Log.d(TAG, "checking data object is not null");
+//        Log.d(TAG, "checking data object is not null");
         if(dataObj == null){
             //if here, then for some reason Data object was not initialised
             //this is bad, very bad, so for now set the values to default
@@ -89,7 +80,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void init() {
-        Log.d(TAG, "Inside init");
+//        Log.d(TAG, "Inside init");
         //this function will initialize all of the user buttons/function/action listeners
         //Number Pickers
         setStartIntegral(integral1_start);
@@ -141,13 +132,6 @@ public class SettingsActivity extends AppCompatActivity {
         integral3_end.setValue(dataObj.gammaEnd());
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //the resume activity
-        //check to see dataObj that was passed is different from what is saved locally
-    }
-
     private View.OnClickListener init_cpuSingle() {
         return v -> dataObj.setCpu_single();
     }
@@ -176,12 +160,20 @@ public class SettingsActivity extends AppCompatActivity {
         srcIntegral.setMinValue(numberPicker_setMinValue);
         srcIntegral.setMaxValue(numberPicker_setMaxValue);
         srcIntegral.setValue(numberPicker_SetValueStart);
+        srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> {
+            //if here, then value has changed, so we need to trip the data object indicating so
+//            Log.d(TAG, "A value change has been detected in the number picker!");
+            dataObj.changesMade();
+        });
     }
 
     private void setEndIntegral(NumberPicker srcIntegral) {
         srcIntegral.setMinValue(numberPicker_setMinValue);
         srcIntegral.setMaxValue(numberPicker_setMaxValue);
         srcIntegral.setValue(numberPicker_SetValueEnd);
+        srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> {
+            dataObj.changesMade();
+        });
     }
 
     @Override
@@ -204,10 +196,10 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //need to finish this stuff to complete the menu actions
-        Log.d(TAG, "Start of onOptionsItemSelected");
+//        Log.d(TAG, "Start of onOptionsItemSelected");
         Intent intent;
         if(dataObj == null){
-            Log.d(TAG, "dataObj was null, so I'm going to go ahead and set it to default...");
+//            Log.d(TAG, "dataObj was null, so I'm going to go ahead and set it to default...");
             dataObj = OperationValues_default.getDefaultValues();
         }
 
@@ -221,12 +213,11 @@ public class SettingsActivity extends AppCompatActivity {
 //                startActivity(intent);
                 break;
             case R.id.menu_home:
-                Log.d(TAG, "Inside menu home");
+//                Log.d(TAG, "Inside menu home");
                 intent = new Intent(getApplicationContext(), MainActivity.class);
                 bundle = new Bundle();
+                SaveDataObjState();
                 bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
-//                bundle.putSerializable(MainForLoopThread.DATA_OBJ_NAME, myThread_local);
-                Log.d(TAG, "dataObj has been packed and sent to main activity");
                 intent.putExtras(bundle);
                 startActivity(intent);
                 break;
@@ -237,7 +228,7 @@ public class SettingsActivity extends AppCompatActivity {
         return true;
     }
 
-    private void returnCurrentStateAsDataObj() {
+    private void SaveDataObjState() {
         //this function shall update the current OperationValues, and update any of the fields as needed
         int start1 = integral1_start.getValue();
         int start2 = integral2_start.getValue();
@@ -251,7 +242,7 @@ public class SettingsActivity extends AppCompatActivity {
 //        dataObj.setStopOnSuccess(rdgb_stopOnSuccess_Yes_2.isSelected());
         dataObj.updateTotalExpectedOperations();
 
-        Log.d(TAG, "inside returnCurrentStateAsDataObj, enum == " + dataObj.getCPU_OptionsEnum());
+//        Log.d(TAG, "inside returnCurrentStateAsDataObj, enum == " + dataObj.getCPU_OptionsEnum());
 //        return dataObj;
     }
 }

@@ -19,6 +19,7 @@ public class OperationValues implements Serializable {
     private int CPUs_on_device;
     private int cpuToUse;
     private float expectedOperations;
+    private boolean changesMade;
 
 //    private MainForLoopThread tranistionThread;
     private long transitionCurOperationsCompleted;
@@ -69,6 +70,26 @@ public class OperationValues implements Serializable {
         return rawPhoneNumber;
     }
 
+    public void movingToSettingsPage() {
+        //if here, lets set the local variable changesMade to false
+        //we are re-setting the latched signal
+        changesMade = false;
+    }
+
+    public void changesMade() {
+        //if here, then we are latching the signal changesMade to true
+        Log.d(TAG, "changesMade tripped");
+        changesMade = true;
+    }
+
+    public boolean wasDataChanged() {
+        return changesMade;
+    }
+
+    public String getCPU_count_that_is_used() {
+        return String.valueOf(cpuToUse);
+    }
+
     public enum cpu_use_options {
         CPU_SINGLE,
         CPU_HALF,
@@ -103,6 +124,7 @@ public class OperationValues implements Serializable {
     }
 
     public void setCpu_single() {
+
         cpu_options = cpu_use_options.CPU_SINGLE;
         CPUs_to_use_populate();
     }
@@ -152,6 +174,9 @@ public class OperationValues implements Serializable {
         //self setting function
         //depending on how many CPUs this phone has (based on getCPU_Cnt function), and what the
         //state of cpu_options enum is set, set the count for the variable cpuToUse
+
+        //at same time, if this is called, then we need to indicate a change was made in the settings page
+        changesMade();
         switch(cpu_options){
             case CPU_HALF:
                 cpuToUse = CPUs_on_device / 2;
@@ -178,7 +203,7 @@ public class OperationValues implements Serializable {
     }
 
     public int getThreadNum() {
-        return 2;
+        return cpuToUse;
     }
 
     public String getNumber() {
@@ -231,6 +256,8 @@ public class OperationValues implements Serializable {
     }
 
     public void setStopOnSuccess(boolean value) {
+        //at same time, if this is called, then we need to indicate a change was made in the settings page
+        changesMade();
         stopOnFirstSuccess = value;
     }
 
@@ -238,52 +265,52 @@ public class OperationValues implements Serializable {
         return stopOnFirstSuccess;
     }
 
-    public boolean identicalDataObj(OperationValues srcDataObj) {
-        //helper function that will compare this data object with the one that was passed
-        //you are only looking at the following params
-        //integrals start/end
-        //cpu count
-        //stop on first success
-        boolean valuesSame = true;
-
-        valuesSame &= withinRange(srcDataObj.alphaStart(), this.alphaStart(),"alpha Start");
-        valuesSame &= withinRange(srcDataObj.alphaEnd(), this.alphaEnd(),"alphaEnd");
-        valuesSame &= withinRange(srcDataObj.betaStart(), this.betaStart(),"betaStart");
-        valuesSame &= withinRange(srcDataObj.betaEnd(), this.betaEnd(),"betaEnd");
-        valuesSame &= withinRange(srcDataObj.gammaStart(), this.gammaStart(),"gammaStart");
-        valuesSame &= withinRange(srcDataObj.gammaEnd(), this.gammaEnd(),"gammaEnd");
-
-//        Log.d(TAG, "src  getCPU_OptionsEnum == " + srcDataObj.getCPU_OptionsEnum());
-//        Log.d(TAG, "this getCPU_OptionsEnum == " + this.getCPU_OptionsEnum());
-        if(!srcDataObj.getCPU_OptionsEnum().equals(this.getCPU_OptionsEnum())){
-            valuesSame = false;
-        }
-
-        if(srcDataObj.getStopOnFirstSuccess() != this.getStopOnFirstSuccess()){
-            valuesSame = false;
-        }
-
-        if(!valuesSame){
-            String buildingStr = "identicalDataObj this one is off somewhere\n";
-            buildingStr+=srcDataObj.alphaStart()+ " == " + this.alphaStart() + "\n";
-            buildingStr+=srcDataObj.alphaEnd()+ " == " + this.alphaEnd()+ "\n";
-            buildingStr+=srcDataObj.betaStart()+ " == " + this.betaStart()+ "\n";
-            buildingStr+=srcDataObj.betaEnd()+ " == " + this.betaEnd()+ "\n";
-            buildingStr+=srcDataObj.gammaStart()+ " == " + this.gammaStart()+ "\n";
-            buildingStr+=srcDataObj.gammaEnd()+ " == " + this.gammaEnd()+ "\n";
-            buildingStr+=srcDataObj.getCPU_OptionsEnum()+ " == " + this.getCPU_OptionsEnum()+ "\n";
-            buildingStr+=srcDataObj.getStopOnFirstSuccess()+ " == " + this.getStopOnFirstSuccess()+ "\n";
-            Log.d(TAG,buildingStr);
-        }
-        return valuesSame;
-    }
-
-    private boolean withinRange(int srcValue, int srcThisValue, String msg) {
-        if(abs(srcValue - srcThisValue) > 1){
-            return false;
-        }
-        return true;
-    }
+//    public boolean identicalDataObj(OperationValues srcDataObj) {
+//        //helper function that will compare this data object with the one that was passed
+//        //you are only looking at the following params
+//        //integrals start/end
+//        //cpu count
+//        //stop on first success
+//        boolean valuesSame = true;
+//
+//        valuesSame &= withinRange(srcDataObj.alphaStart(), this.alphaStart(),"alpha Start");
+//        valuesSame &= withinRange(srcDataObj.alphaEnd(), this.alphaEnd(),"alphaEnd");
+//        valuesSame &= withinRange(srcDataObj.betaStart(), this.betaStart(),"betaStart");
+//        valuesSame &= withinRange(srcDataObj.betaEnd(), this.betaEnd(),"betaEnd");
+//        valuesSame &= withinRange(srcDataObj.gammaStart(), this.gammaStart(),"gammaStart");
+//        valuesSame &= withinRange(srcDataObj.gammaEnd(), this.gammaEnd(),"gammaEnd");
+//
+////        Log.d(TAG, "src  getCPU_OptionsEnum == " + srcDataObj.getCPU_OptionsEnum());
+////        Log.d(TAG, "this getCPU_OptionsEnum == " + this.getCPU_OptionsEnum());
+//        if(!srcDataObj.getCPU_OptionsEnum().equals(this.getCPU_OptionsEnum())){
+//            valuesSame = false;
+//        }
+//
+//        if(srcDataObj.getStopOnFirstSuccess() != this.getStopOnFirstSuccess()){
+//            valuesSame = false;
+//        }
+//
+//        if(!valuesSame){
+//            String buildingStr = "identicalDataObj this one is off somewhere\n";
+//            buildingStr+=srcDataObj.alphaStart()+ " == " + this.alphaStart() + "\n";
+//            buildingStr+=srcDataObj.alphaEnd()+ " == " + this.alphaEnd()+ "\n";
+//            buildingStr+=srcDataObj.betaStart()+ " == " + this.betaStart()+ "\n";
+//            buildingStr+=srcDataObj.betaEnd()+ " == " + this.betaEnd()+ "\n";
+//            buildingStr+=srcDataObj.gammaStart()+ " == " + this.gammaStart()+ "\n";
+//            buildingStr+=srcDataObj.gammaEnd()+ " == " + this.gammaEnd()+ "\n";
+//            buildingStr+=srcDataObj.getCPU_OptionsEnum()+ " == " + this.getCPU_OptionsEnum()+ "\n";
+//            buildingStr+=srcDataObj.getStopOnFirstSuccess()+ " == " + this.getStopOnFirstSuccess()+ "\n";
+//            Log.d(TAG,buildingStr);
+//        }
+//        return valuesSame;
+//    }
+//
+//    private boolean withinRange(int srcValue, int srcThisValue, String msg) {
+//        if(abs(srcValue - srcThisValue) > 1){
+//            return false;
+//        }
+//        return true;
+//    }
 
     public cpu_use_options getCPU_OptionsEnum() {
         return cpu_options;

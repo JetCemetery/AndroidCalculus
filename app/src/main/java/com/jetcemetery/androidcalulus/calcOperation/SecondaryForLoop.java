@@ -14,7 +14,6 @@ public class SecondaryForLoop implements Runnable {
     //--------------
     private volatile boolean pauseWork = false;
     private volatile String state = STATE_NEW;
-    private Thread workerThread;
     //--------------
     private static final String TAG = "SecondaryForLoop";
     public static String STATE_NEW = "New";
@@ -71,8 +70,10 @@ public class SecondaryForLoop implements Runnable {
                             //noinspection BusyWait
                             Thread.sleep(1000); //stop for 1000ms increments
                             //use to kill thread process gracefully
-                            if(stopProcess)
+                            if(stopProcess){
+                                gracefulExit_kill_thread();
                                 return;
+                            }
                         } catch (InterruptedException ie)
                         {
                             Log.e(TAG,"Interrupt on secondary for loop!");
@@ -104,8 +105,11 @@ public class SecondaryForLoop implements Runnable {
                             }
                         }
                         //use to kill thread process gracefully
-                        if(stopProcess)
+                        if(stopProcess){
+                            gracefulExit_kill_thread();
                             return;
+                        }
+
                     }
                     postCompleteOperation();
                 }
@@ -194,7 +198,6 @@ public class SecondaryForLoop implements Runnable {
     //--------------
     //taken from
     //https://coderanch.com/t/436108/java/Pause-Resume-Thread
-
     public void pause()
     {
         this.pauseWork = true;
@@ -204,8 +207,6 @@ public class SecondaryForLoop implements Runnable {
     {
         this.handler = mainLoopHandler;
         this.pauseWork = false;
-        if (workerThread != null)
-            workerThread.interrupt(); //wakeup if sleeping
     }
 
     private void setState(String state)
@@ -218,16 +219,12 @@ public class SecondaryForLoop implements Runnable {
         return this.state;
     }
 
-    /** startImmediately = true to begin work right away, false = start Work in paused state, call resume() to do work */
-    public void start(boolean startImmediately)
-    {
-        this.pauseWork = !startImmediately;
-        workerThread = new Thread(this);
-        workerThread.start();
-    }
-
     public void gracefulExit(){
         stopProcess = true;
+    }
+
+    private void gracefulExit_kill_thread(){
+        this.handler = null;
     }
 
 }
