@@ -41,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private EditText txtPhone;
     private TextView txtError, txtResults, txt_progressBar2;
     private Button btnStart;
-//    private Button btnPause;
+    private View btnPauseStopLayout;
+    private Button btnPause, btnStop;
     private ProgressBar prbBar_progressBar;
     private Handler updateUIHandler;
     private boolean blockUpdates;
@@ -61,7 +62,11 @@ public class MainActivity extends AppCompatActivity {
         txtPhone = findViewById(id.txt_phoneID);
         txtError = findViewById(id.errorText);
         btnStart = findViewById(id.btn_start);
-//        btnPause = findViewById(id.pauseBtn);
+
+        btnPause = findViewById(id.btn_pause2);
+        btnStop = findViewById(id.btn_stop2);
+        btnPauseStopLayout = findViewById(id.layout_pause_stop);
+
         prbBar_progressBar = findViewById(id.pgBar_Progress_bar);
         txt_progressBar2 = findViewById(id.txt_progress);
         txtResults = findViewById(id.txt_results);
@@ -209,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
         //passing the data object and the handler thread
         txtError.setVisibility(TextView.GONE);
         updateProgressBar_and_Text();
+        ShowStart_HidePauseStop(true);
 
         btnStart.setOnClickListener(v -> {
             txtError.setVisibility(TextView.GONE);
@@ -282,6 +288,7 @@ public class MainActivity extends AppCompatActivity {
         singleton_Thread = Singleton_MainLoop.getInstance();
         singleton_Thread.MainForLoopThread(dataObj,updateUIHandler);
         singleton_Thread.StartProcess();
+        ShowStart_HidePauseStop(false);
 //        lockUI();
     }
 
@@ -306,6 +313,23 @@ public class MainActivity extends AppCompatActivity {
             singleton_Thread.stopAllThreads();
             singleton_Thread = null;
         }
+        ShowStart_HidePauseStop(true);
+    }
+
+    private void ShowStart_HidePauseStop(boolean showStart) {
+        //helper function that will take care of setting things visible / invisible
+        //if passing true then
+        //  show the start button, but hide the pause and stop button
+        //if passing false then
+        //  hide the start button, but show the pause and stop button
+        if(showStart){
+            btnPauseStopLayout.setVisibility(View.GONE);
+            btnStart.setVisibility(View.VISIBLE);
+        }else {
+            btnPauseStopLayout.setVisibility(View.VISIBLE);
+            btnStart.setVisibility(View.GONE);
+        }
+
     }
 
     private void safeResumeAllThreads() {
@@ -313,6 +337,7 @@ public class MainActivity extends AppCompatActivity {
         if(singleton_Thread != null){
             Log.d(TAG, "singleton_Thread was NOT null");
             singleton_Thread.resumeAllThreads(updateUIHandler);
+            ShowStart_HidePauseStop(false);
         }
         else{
             Log.d(TAG, "singleton_Thread was null");
@@ -324,6 +349,7 @@ public class MainActivity extends AppCompatActivity {
         if(singleton_Thread != null){
             singleton_Thread.pauseAllThreads();
         }
+        //no need to hide show UI stuff, this method gets called when we go to the settings stuff
     }
 
     @Override
