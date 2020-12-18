@@ -48,20 +48,21 @@ public class MainActivity extends AppCompatActivity {
 
     private final String ResumeStr = "Resume";
     private final String PauseStr = "Pause";
-//    private boolean blockPostMessagesUpdating;
 
     private String totalOperationExpected;
     private long currentOperationsCompleted;
     private Singleton_MainLoop singleton_Thread;
     private OperationValues dataObj;
-//    private OperationValues dataObj2;
-//    private String myThread_STR = "THREAD_OBJECT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(layout.activity_main);
         Log.d(TAG, "Calling onCreate");
+        //TODO - Fill in about the about page
+        //TODO - landscape mode
+        //TODO - find bug in expected values to run & why total operation is short
+
         txtPhone = findViewById(id.txt_phoneID);
         txtError = findViewById(id.errorText);
         btnStart = findViewById(id.btn_start);

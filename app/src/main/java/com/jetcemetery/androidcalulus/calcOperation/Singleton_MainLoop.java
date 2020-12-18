@@ -132,7 +132,7 @@ public class Singleton_MainLoop {
             @Override
             public void run()
             {
-                int endVal = end-1;
+                int endVal = end;
                 for(int movingValue = start; movingValue < endVal; movingValue++){
                     SecondaryForLoop secondObj = new SecondaryForLoop(data, movingValue, mainLoopHandler);
                     if(runnableList == null){

@@ -21,11 +21,11 @@
             android:layout_height="wrap_content"
             android:background="@android:color/holo_orange_light"
             android:gravity="center|center_vertical"
-            android:hint="@string/enter_your_phone_number_here"
+            android:hint="(000)000-0000"
             android:importantForAutofill="no"
             android:inputType="phone"
             android:padding="8dp"
-            android:text="@string/defaultPhoneNumber" />
+            android:text=""/>
         <TextView
             android:id="@+id/errorText"
             android:layout_width="fill_parent"

@@ -5,8 +5,8 @@ import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
 import java.util.ArrayList;
 
 public class OperationValues_default {
-    public static int INTEGRAL_START_DEFAULT = 10;
-    public static int INTEGRAL_END_DEFAULT = 30;
+    public static int INTEGRAL_START_DEFAULT = 1;
+    public static int INTEGRAL_END_DEFAULT = 2;
 
     //two constructors, one with a phone number provided, the other makes up the phone number
     public static OperationValues getDefaultValues(){

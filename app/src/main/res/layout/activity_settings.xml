@@ -137,7 +137,7 @@
                         android:padding="5dp">
 
                         <NumberPicker
-                            android:id="@+id/integral1_start_2"
+                            android:id="@+id/integral1_start"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@drawable/rounded_corner"
@@ -154,7 +154,7 @@
                         android:padding="5dp">
 
                         <NumberPicker
-                            android:id="@+id/integral2_start_2"
+                            android:id="@+id/integral2_start"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@drawable/rounded_corner"
@@ -173,7 +173,7 @@
                         android:padding="5dp">
 
                         <NumberPicker
-                            android:id="@+id/integral3_start_2"
+                            android:id="@+id/integral3_start"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@drawable/rounded_corner"
@@ -219,7 +219,7 @@
 
 
                         <NumberPicker
-                            android:id="@+id/integral1_end_2"
+                            android:id="@+id/integral1_end"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:padding="5dp"
@@ -238,7 +238,7 @@
                         android:padding="5dp">
 
                         <NumberPicker
-                            android:id="@+id/integral2_end_2"
+                            android:id="@+id/integral2_end"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:padding="5dp"
@@ -256,7 +256,7 @@
                         android:layout_weight="1"
                         android:padding="5dp">
                         <NumberPicker
-                            android:id="@+id/integral3_end_2"
+                            android:id="@+id/integral3_end"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:padding="5dp"

@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
-import android.widget.TextView;
 
 import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
 import com.jetcemetery.androidcalulus.R;
@@ -26,25 +25,24 @@ public class SettingsActivity extends AppCompatActivity {
     private RadioButton cpu_cnt_Single, cpu_cnt_half, cpu_cnt_all_minus1, cpu_cnt_all;
     private RadioButton stopOnSuccess_Yes, stopOnSuccess_No;
     private OperationValues dataObj;
-//    private TextView txt_start, txt_end;
 
     private final int numberPicker_setMinValue = 1;
     private final int numberPicker_setMaxValue = 1000000;
-    private final int numberPicker_SetValueStart = 1;
-    private final int numberPicker_SetValueEnd = 10000;
+//    private final int numberPicker_SetValueStart = 1;
+//    private final int numberPicker_SetValueEnd = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 //        Log.d(TAG, "Start of onCreate");
-        integral1_start = findViewById(R.id.integral1_start_2);
-        integral2_start = findViewById(R.id.integral2_start_2);
-        integral3_start = findViewById(R.id.integral3_start_2);
+        integral1_start = findViewById(R.id.integral1_start);
+        integral2_start = findViewById(R.id.integral2_start);
+        integral3_start = findViewById(R.id.integral3_start);
 
-        integral1_end = findViewById(R.id.integral1_end_2);
-        integral2_end = findViewById(R.id.integral2_end_2);
-        integral3_end = findViewById(R.id.integral3_end_2);
+        integral1_end = findViewById(R.id.integral1_end);
+        integral2_end = findViewById(R.id.integral2_end);
+        integral3_end = findViewById(R.id.integral3_end);
         //CPU Count
         cpu_cnt_Single = findViewById(R.id.cpu_cnt_Single);
         cpu_cnt_half = findViewById(R.id.cpu_cnt_half);
@@ -53,10 +51,6 @@ public class SettingsActivity extends AppCompatActivity {
         //Stop on first success
         stopOnSuccess_Yes = findViewById(R.id.stopOnSuccess_Yes);
         stopOnSuccess_No = findViewById(R.id.stopOnSuccess_No);
-
-        //the label text start/end
-//        txt_start = findViewById(R.id.lbl_start2);
-//        txt_end = findViewById(R.id.lbl_end2);
 
         Intent intent = this.getIntent();
         if(intent != null){
@@ -69,7 +63,6 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }
 
-//        Log.d(TAG, "checking data object is not null");
         if(dataObj == null){
             //if here, then for some reason Data object was not initialised
             //this is bad, very bad, so for now set the values to default
@@ -157,7 +150,7 @@ public class SettingsActivity extends AppCompatActivity {
     private void setStartIntegral(NumberPicker srcIntegral) {
         srcIntegral.setMinValue(numberPicker_setMinValue);
         srcIntegral.setMaxValue(numberPicker_setMaxValue);
-        srcIntegral.setValue(numberPicker_SetValueStart);
+//        srcIntegral.setValue(numberPicker_SetValueStart);
         srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> {
             //if here, then value has changed, so we need to trip the data object indicating so
 //            Log.d(TAG, "A value change has been detected in the number picker!");
@@ -168,7 +161,7 @@ public class SettingsActivity extends AppCompatActivity {
     private void setEndIntegral(NumberPicker srcIntegral) {
         srcIntegral.setMinValue(numberPicker_setMinValue);
         srcIntegral.setMaxValue(numberPicker_setMaxValue);
-        srcIntegral.setValue(numberPicker_SetValueEnd);
+//        srcIntegral.setValue(numberPicker_SetValueEnd);
         srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> dataObj.changesMade());
     }
 
