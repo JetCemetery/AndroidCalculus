@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.AboutActivity">
+    tools:context=".activity.AboutActivity"
+    android:background="@android:color/holo_orange_light">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -12,15 +13,53 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="5dp"
+            android:background="@android:color/holo_orange_light">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Hi">
+                android:gravity="center"
+                android:text="About"
+                android:textSize="18sp"
+                android:textStyle="italic" />
 
-            </TextView>
+            <EditText
+                android:id="@+id/txt_What"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start|top"
+                android:inputType="textMultiLine"
+                android:text="What: Enter a valid number and brute force to find an integral that, when solved, will produce "/>
 
+            <EditText
+                android:id="@+id/txt_Why"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start|top"
+                android:inputType="textMultiLine"
+                android:text="Why: I like writing code"/>
 
+            <EditText
+                android:id="@+id/txt_How"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start|top"
+                android:inputType="textMultiLine"
+                android:text="How: The program iterates on four loops, the first one breaks the first integral into parts based on CPUs. The second and third loop iterate over the values based on the second and third integral. Once the first, second and third integral ranges are set, the app will do the derivative, and see if your phone number is a match"/>
+
+            <EditText
+                android:id="@+id/txt_Setting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start|top"
+                android:inputType="textMultiLine"
+                android:text="Setting: Lets you control the range of the three integrals, CPU count &amp; to stop the calculations on first success"/>
         </LinearLayout>
 
 
