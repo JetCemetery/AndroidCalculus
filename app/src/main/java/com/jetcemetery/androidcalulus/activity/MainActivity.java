@@ -59,8 +59,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(layout.activity_main);
         Log.d(TAG, "Calling onCreate");
-        //TODO - Fill in about the about page
-        //TODO - landscape mode
+        //TODO - fix the issue about changing from landscpae into other mode
         //TODO - find bug in expected values to run & why total operation is short
 
         txtPhone = findViewById(id.txt_phoneID);
@@ -75,16 +74,8 @@ public class MainActivity extends AppCompatActivity {
         txt_progressBar2 = findViewById(id.txt_progress);
         txtResults = findViewById(id.txt_results);
         blockUpdates = false;
-//        blockPostMessagesUpdating = false;
-        if(defaultInitRequired()){
-            Log.d(TAG, "The default Init IS required");
-            String un_parsed_phone = String.valueOf(txtPhone.getText());
-            dataObj = OperationValues_default.getDefaultValues(un_parsed_phone);
-            resetUIData();
-        }
         initView();
         createUpdateUiHandler();
-
     }
 
     //the onResume function seems to be called every time
@@ -93,8 +84,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "Calling onResume");
-//        blockUpdates = false;
-//        blockPostMessagesUpdating = false;
         if(singleton_Thread == null){
             singleton_Thread = Singleton_MainLoop.getInstance();
             Log.d(TAG, "singleton_Thread was null, so I initialized it kinda");
@@ -116,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 //update the UI
                 safeStopAllThreads();
                 resetUIData();
+                dataObj.clearChangesMadeLatch();
             }
             else{
                 //if here, then we need to resume the thread, if applicable
@@ -143,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void resetUIData() {
+        Log.d(TAG, "Calling resetUIData");
         //helper function
         //this function is called when we need to reset the data object counter, and progress bar
         //data object should have been initialized so we good on that
@@ -176,14 +167,17 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = this.getIntent();
         if(intent == null){
+            Log.d(TAG, "\tdefaultInitRequired - intent == nul");
             return true;
         }
         Bundle bundle = intent.getExtras();
         if(bundle == null){
+            Log.d(TAG, "\tdefaultInitRequired - bundle == nul");
             return true;
         }
         OperationValues passedDataObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
         if(passedDataObj == null){
+            Log.d(TAG, "\tdefaultInitRequired - passedDataObj == nul");
             return true;
         }
 //        Log.d(TAG, "In defaultInitRequired function, the default Init is NOT required");
@@ -194,11 +188,11 @@ public class MainActivity extends AppCompatActivity {
         totalOperationExpected = dataObj.getTotalOperationExpected();
         txtPhone.setText(dataObj.getPhoneNumber());
         txtResults.setText(dataObj.getTextArea());
-//        safeResumeAllThreads();
         return false;
     }
 
     private boolean DataObjectPassedThoughIntent(){
+        Log.d(TAG, "Calling DataObjectPassedThoughIntent");
         Intent intent = this.getIntent();
         if(intent == null){
             return false;
@@ -212,12 +206,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-//        Log.d(TAG, "Calling initView");
+        Log.d(TAG, "Calling initView");
         //Section below shall initialize the code need when the start button is clicked
         //IF QC passes inside the code, call the MainForLoopThread2 on a new thread
         //passing the data object and the handler thread
         txtError.setVisibility(TextView.GONE);
-        updateProgressBar_and_Text();
         ShowStart_HidePauseStop(true);
 
         btnStart.setOnClickListener(v -> {
@@ -276,14 +269,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnPause_Resume.setOnClickListener(v -> {
-            String btnTxt = btnPause_Resume.getText().toString();
-            if(btnTxt.equalsIgnoreCase(PauseStr)){
-                safePauseAllThreads();
-            }
-            else{
-                safeResumeAllThreads();
-            }
-
+            safePauseAllThreads();
         });
 
         btnStop.setOnClickListener(v -> {
@@ -293,9 +279,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void InitiateMainForLoopThread() {
+        Log.d(TAG, "Calling InitiateMainForLoopThread");
         //this function shall create a new thread, and start the MainForLoopThread2 operation
-        String toastMsg = "Cpu count == " + dataObj.getCPU_count_that_is_used();
-        Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
+//        String toastMsg = "Cpu count == " + dataObj.getCPU_count_that_is_used();
+//        Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
         txtResults.setText("");
         if(singleton_Thread != null){
             //if here, well we have other threads a going
@@ -311,6 +298,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateProgressBar_and_Text() {
+//        Log.d(TAG, "Calling updateProgressBar_and_Text");
         if(!blockUpdates){
             prbBar_progressBar.setProgress(dataObj.operationForProgressBar(currentOperationsCompleted));
         }
@@ -320,6 +308,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void safeStopAllThreads() {
+        Log.d(TAG, "Calling safeStopAllThreads");
         if(singleton_Thread != null){
             singleton_Thread.stopAllThreads();
             singleton_Thread = null;
@@ -346,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void ShowStart_HidePauseStop(boolean showStart) {
+        Log.d(TAG, "Calling ShowStart_HidePauseStop");
         //helper function that will take care of setting things visible / invisible
         //if passing true then
         //  show the start button, but hide the pause and stop button
@@ -364,12 +354,10 @@ public class MainActivity extends AppCompatActivity {
     private void safeResumeAllThreads() {
         Log.d(TAG, "calling safeResumeAllThreads");
         if(singleton_Thread != null){
-            Log.d(TAG, "singleton_Thread was NOT null");
             singleton_Thread.resumeAllThreads(updateUIHandler);
             ShowStart_HidePauseStop(false);
         }
         else{
-            Log.d(TAG, "singleton_Thread was null");
         }
         btnPause_Resume.setText(PauseStr);
     }
@@ -379,8 +367,31 @@ public class MainActivity extends AppCompatActivity {
         if(singleton_Thread != null){
             singleton_Thread.pauseAllThreads();
         }
-        btnPause_Resume.setText(ResumeStr);
-        //no need to hide show UI stuff, this method gets called when we go to the settings stuff
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        Log.d(TAG, "calling onSaveInstanceState");
+        super.onSaveInstanceState(savedInstanceState);
+        // Save UI state changes to the savedInstanceState.
+        // This bundle will be passed to onCreate if the process is
+        Log.d(TAG, "\tonSaveInstanceState - calling safe pause");
+        safePauseAllThreads();
+        Log.d(TAG, "\tonSaveInstanceState - calling SaveDataObjState");
+        SaveDataObjState();
+        savedInstanceState.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
+        Log.d(TAG, "\tonSaveInstanceState - Post put serializable");
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.d(TAG, "calling onRestoreInstanceState");
+        super.onRestoreInstanceState(savedInstanceState);
+        // Restore UI state from the savedInstanceState.
+        // This bundle has also been passed to onCreate.
+        dataObj = (OperationValues) savedInstanceState.getSerializable(OperationValues.DATA_OBJ_NAME);
+        updateProgressBar_and_Text();
+        safeResumeAllThreads();
     }
 
     @Override
@@ -410,27 +421,27 @@ public class MainActivity extends AppCompatActivity {
         }
         Bundle bundle;
         switch (item.getItemId()){
-            case id.menu_help:
-//                intent = new Intent(getApplicationContext(), AboutActivity.class);
-//                bundle = new Bundle();
-//                SaveDataObjState();
-//                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
-//                intent.putExtras(bundle);
-//                safePauseAllThreads();
-//                startActivity(intent);
-                break;
             case id.menu_settings:
-                Log.d(TAG, "Inside onOptionsItemSelected about to pack data object");
+                Log.d(TAG, "Menu button hit, going to menu_settings");
                 intent = new Intent(getApplicationContext(), SettingsActivity.class);
                 bundle = new Bundle();
                 SaveDataObjState();
-                dataObj.movingToSettingsPage();
+                dataObj.clearChangesMadeLatch();
                 bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
                 intent.putExtras(bundle);
-//                Log.d(TAG, "Data object packed and ready to be sent to next activity");
-//                tempDebug();
                 startActivity(intent);
                 break;
+            case id.menu_about:
+                Log.d(TAG, "Menu button hit, going to menu_about");
+                intent = new Intent(getApplicationContext(), AboutActivity.class);
+                bundle = new Bundle();
+                SaveDataObjState();
+                dataObj.clearChangesMadeLatch();
+                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                break;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -440,10 +451,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void SaveDataObjState() {
         //this function shall update the current OperationValues, and update any of the fields as needed
-        safePauseAllThreads();
+//        safePauseAllThreads();
         String rawPhone = String.valueOf(txtPhone.getText());
         dataObj.setPhoneNumber(rawPhone);
-//        dataObj.setThread(myThread);
         dataObj.setCurrentOpCompleted(currentOperationsCompleted);
         dataObj.setTotalOpCompleted(totalOperationExpected);
         dataObj.setTextArea(txtResults.getText().toString());
@@ -461,9 +471,6 @@ public class MainActivity extends AppCompatActivity {
             {
                 @Override
                 public void handleMessage(Message msg) {
-//                    if(blockPostMessagesUpdating)
-//                        return;
-                    // Means the message is sent from child thread.
                     if(msg != null){
                         int messageTypeID = msg.what;
                         if(messageTypeID == POST_MESSAGE_IN_RESULTS){
@@ -506,7 +513,6 @@ public class MainActivity extends AppCompatActivity {
                             blockUpdates = true;
                             prbBar_progressBar.setProgress(100);
                             singleton_Thread = null;
-                            Toast.makeText(getApplicationContext(), "All threads were stopped because of option selected", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }

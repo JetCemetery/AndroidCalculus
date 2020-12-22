@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class OperationValues_default {
     public static int INTEGRAL_START_DEFAULT = 1;
-    public static int INTEGRAL_END_DEFAULT = 2;
+    public static int INTEGRAL_END_DEFAULT = 20;
 
     //two constructors, one with a phone number provided, the other makes up the phone number
     public static OperationValues getDefaultValues(){

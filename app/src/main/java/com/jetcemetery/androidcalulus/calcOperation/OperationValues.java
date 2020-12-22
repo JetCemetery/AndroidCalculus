@@ -51,7 +51,7 @@ public class OperationValues implements Serializable {
         return rawPhoneNumber;
     }
 
-    public void movingToSettingsPage() {
+    public void clearChangesMadeLatch() {
         //if here, lets set the local variable changesMade to false
         //we are re-setting the latched signal
         changesMade = false;

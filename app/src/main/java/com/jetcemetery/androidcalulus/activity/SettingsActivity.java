@@ -185,7 +185,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //need to finish this stuff to complete the menu actions
-//        Log.d(TAG, "Start of onOptionsItemSelected");
+        Log.d(TAG, "Start of onOptionsItemSelected");
         Intent intent;
         if(dataObj == null){
 //            Log.d(TAG, "dataObj was null, so I'm going to go ahead and set it to default...");
@@ -194,15 +194,17 @@ public class SettingsActivity extends AppCompatActivity {
 
         Bundle bundle;
         switch (item.getItemId()){
-            case R.id.menu_help:
-//                intent = new Intent(getApplicationContext(), AboutActivity.class);
-//                bundle = new Bundle();
-//                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, returnCurrentStateAsDataObj());
-//                intent.putExtras(bundle);
-//                startActivity(intent);
+            case R.id.menu_about:
+                Log.d(TAG, "Menu button hit, going to menu_home");
+                intent = new Intent(getApplicationContext(), AboutActivity.class);
+                bundle = new Bundle();
+                SaveDataObjState();
+                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
+                intent.putExtras(bundle);
+                startActivity(intent);
                 break;
             case R.id.menu_home:
-//                Log.d(TAG, "Inside menu home");
+                Log.d(TAG, "Menu button hit, going to menu_home");
                 intent = new Intent(getApplicationContext(), MainActivity.class);
                 bundle = new Bundle();
                 SaveDataObjState();

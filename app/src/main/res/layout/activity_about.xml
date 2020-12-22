@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.AboutActivity"
-    android:background="@android:color/holo_orange_light">
+    android:background="@color/Background">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -14,16 +14,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="5dp"
-            android:background="@android:color/holo_orange_light">
+            android:padding="5dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="About"
-                android:textSize="18sp"
-                android:textStyle="italic" />
+                android:textSize="24sp"
+                android:textStyle="italic"
+                />
 
             <EditText
                 android:id="@+id/txt_What"
