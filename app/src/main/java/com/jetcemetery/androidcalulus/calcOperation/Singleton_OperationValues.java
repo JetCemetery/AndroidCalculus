@@ -18,7 +18,7 @@ public class Singleton_OperationValues {
     private int CPUs_on_device;
     private int cpuToUse;
     private float expectedOperations;
-    private boolean changesMade;
+    private boolean changesMade = false;
 
     private long tempProgressCount;
     private String transitionTotOperationExpected;
@@ -196,10 +196,7 @@ public class Singleton_OperationValues {
         CPUs_on_device = findCPU_cnt.getCount();
         CPUs_to_use_populate();
         tempProgressCount = 0;
-        //expectedOperations = 1;
-        //helper function that will figure out how many operation exists for the current settings
-        //it's going to be the end of integral 1,2,3 - start of integral 1,2,3
-        //as a permutation format
+        changesMade = false;
         updateTotalExpectedOperations();
     }
 

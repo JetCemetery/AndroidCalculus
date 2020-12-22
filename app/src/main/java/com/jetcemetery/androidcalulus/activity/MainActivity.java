@@ -50,8 +50,8 @@ public class MainActivity extends AppCompatActivity {
     private final String ResumeStr = "Resume";
     private final String PauseStr = "Pause";
 
-    private String totalOperationExpected;
-    private long currentOperationsCompleted;
+//    private String totalOperationExpected;
+    private long local_currentOperationsCompleted;
     private Singleton_MainLoop singleton_Thread;
     private Singleton_OperationValues localDataObj;
 
@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         btnStart = findViewById(id.btn_start);
 
         btnPause_Resume = findViewById(id.btn_pause2);
+        btnPause_Resume.setText(PauseStr);
         btnStop = findViewById(id.btn_stop2);
         btnPauseStopLayout = findViewById(id.layout_pause_stop);
 
@@ -83,39 +84,28 @@ public class MainActivity extends AppCompatActivity {
 
     private void setUIData() {
         //this method shall update the needed UI elements
-        currentOperationsCompleted = 0;
-        localDataObj.setProgressCount(0);
-        totalOperationExpected = localDataObj.getTotalOperationExpected();
+        local_currentOperationsCompleted = localDataObj.getCurrentProgressCount();
         txt_progressBar2.setText(localDataObj.getInitialProgressText());
-        prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(currentOperationsCompleted));
-//        String progressTxt = "0 / " + totalOperationExpected;
-//        txt_progressBar2.setText(progressTxt);
-//        localDataObj.setProgressCount(currentOperationsCompleted);
-//        int progressBar_value = localDataObj.operationForProgressBar();
-
-
-//        localDataObj.setProgressCount(0);
-//        currentOperationsCompleted = localDataObj.getCurrentProgressCount();
-//        totalOperationExpected = localDataObj.getTotalOperationExpected();
-//        txt_progressBar2.setText(localDataObj.getInitialProgressText());
-//        String progressTxt = "0 / " + totalOperationExpected;
-//        txt_progressBar2.setText(progressTxt);
-//        txtResults.setText("");
-//        prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(currentOperationsCompleted));
-
+        prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(local_currentOperationsCompleted));
     }
 
     private void initDataObjectSingleton() {
-        if(localDataObj == null){
-            Singleton_OperationValues.initInstance();
-            localDataObj = Singleton_OperationValues.getInstance();
+        Log.d(TAG, "Inside initDataObjectSingleton");
+        Singleton_OperationValues.initInstance();
+        localDataObj = Singleton_OperationValues.getInstance();
+
+        if(localDataObj.wasDataChanged()){
+            safeStopAllThreads();
+            resetDataObj();
+            localDataObj.clearChangesMadeLatch();
         }
     }
 
     private void initSingleton_Thread() {
-        if(singleton_Thread == null){
-            singleton_Thread = Singleton_MainLoop.getInstance();
-            Log.d(TAG, "singleton_Thread was null, so I initialized it kinda");
+        singleton_Thread = Singleton_MainLoop.getInstance();
+
+        if(singleton_Thread != null){
+            safeResumeAllThreads();
         }
     }
 
@@ -130,19 +120,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void resetUIData() {
+    private void resetDataObj() {
         Log.d(TAG, "Calling resetUIData");
         //helper function
         //this function is called when we need to reset the data object counter, and progress bar
         //data object should have been initialized so we good on that
+        String rawPhone = String.valueOf(txtPhone.getText());
+        localDataObj.setPhoneNumber(rawPhone);
+
         localDataObj.setProgressCount(0);
-        currentOperationsCompleted = localDataObj.getCurrentProgressCount();
-        totalOperationExpected = localDataObj.getTotalOperationExpected();
+        local_currentOperationsCompleted = localDataObj.getCurrentProgressCount();
         txt_progressBar2.setText(localDataObj.getInitialProgressText());
-        String progressTxt = "0 / " + totalOperationExpected;
+        String progressTxt = "0 / " + localDataObj.getCurrentProgressCount();
         txt_progressBar2.setText(progressTxt);
         txtResults.setText("");
-        prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(currentOperationsCompleted));
+        prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(local_currentOperationsCompleted));
     }
 
     private void initView() {
@@ -202,19 +194,25 @@ public class MainActivity extends AppCompatActivity {
                 //  if threads are running, kill em
                 //  if no threads are running, do nothing
                 safeStopAllThreads();
-                String rawPhone = String.valueOf(txtPhone.getText());
-                localDataObj.setPhoneNumber(rawPhone);
-                resetUIData();
+                resetDataObj();
             }
         });
 
         btnPause_Resume.setOnClickListener(v -> {
-            safePauseAllThreads();
+            String currentTxt = btnPause_Resume.getText().toString();
+            if(currentTxt.equalsIgnoreCase(PauseStr)){
+                btnPause_Resume.setText(ResumeStr);
+                safePauseAllThreads();
+            }else{
+                btnPause_Resume.setText(ResumeStr);
+                safeResumeAllThreads();
+            }
+
         });
 
         btnStop.setOnClickListener(v -> {
             safeStopAllThreads();
-            resetUIData();
+            resetDataObj();
         });
     }
 
@@ -238,10 +236,10 @@ public class MainActivity extends AppCompatActivity {
     private void updateProgressBar_and_Text() {
 //        Log.d(TAG, "Calling updateProgressBar_and_Text");
         if(!blockUpdates){
-            prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(currentOperationsCompleted));
+            prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(local_currentOperationsCompleted));
         }
         txt_progressBar2.setText(localDataObj.getInitialProgressText());
-        String progressTxt = currentOperationsCompleted + " / " + totalOperationExpected;
+        String progressTxt = local_currentOperationsCompleted + " / " + localDataObj.getTotalOperationExpected();
         txt_progressBar2.setText(progressTxt);
     }
 
@@ -250,6 +248,8 @@ public class MainActivity extends AppCompatActivity {
         if(singleton_Thread != null){
             singleton_Thread.stopAllThreads();
             singleton_Thread = null;
+            //if we killed the thread, lets set the button text...
+            btnPause_Resume.setText(PauseStr);
         }
         ShowStart_HidePauseStop(true);
 
@@ -262,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
                     sleep(50);
-                    resetUIData();
+                    resetDataObj();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -295,8 +295,6 @@ public class MainActivity extends AppCompatActivity {
             singleton_Thread.resumeAllThreads(updateUIHandler);
             ShowStart_HidePauseStop(false);
         }
-        else{
-        }
         btnPause_Resume.setText(PauseStr);
     }
 
@@ -304,7 +302,9 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "calling safePauseAllThreads");
         if(singleton_Thread != null){
             singleton_Thread.pauseAllThreads();
+
         }
+        btnPause_Resume.setText(ResumeStr);
     }
 
     @Override
@@ -370,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
         //this function shall update the current OperationValues, and update any of the fields as needed
         String rawPhone = String.valueOf(txtPhone.getText());
         localDataObj.setPhoneNumber(rawPhone);
-        localDataObj.setProgressCount(currentOperationsCompleted);
+        localDataObj.setProgressCount(local_currentOperationsCompleted);
         localDataObj.setTextArea(txtResults.getText().toString());
     }
 
@@ -404,7 +404,7 @@ public class MainActivity extends AppCompatActivity {
                             //if here, then we are going to update the progress bar
                             //and update the text saying how many operation are completed
                             //vs how many more to go
-                            currentOperationsCompleted++;
+                            local_currentOperationsCompleted++;
                             updateProgressBar_and_Text();
 
                         }else if(messageTypeID == ONE_CALCULATION_COMPLETED_BATCH){
@@ -417,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
                             //Log.d(TAG,"strMSg == " + strMSg);
                             if(strMSg != null){
                                 if(!strMSg.isEmpty()){
-                                    currentOperationsCompleted += Long.parseLong(strMSg);
+                                    local_currentOperationsCompleted += Long.parseLong(strMSg);
                                     updateProgressBar_and_Text();
                                 }
                             }

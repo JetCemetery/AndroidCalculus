@@ -36,7 +36,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-//        Log.d(TAG, "Start of onCreate");
+        Log.d(TAG, "Start of onCreate");
         integral1_start = findViewById(R.id.integral1_start);
         integral2_start = findViewById(R.id.integral2_start);
         integral3_start = findViewById(R.id.integral3_start);
@@ -53,32 +53,13 @@ public class SettingsActivity extends AppCompatActivity {
         stopOnSuccess_Yes = findViewById(R.id.stopOnSuccess_Yes);
         stopOnSuccess_No = findViewById(R.id.stopOnSuccess_No);
 
-//        Intent intent = this.getIntent();
-//        if(intent != null){
-//            Bundle bundle = intent.getExtras();
-//            if(bundle != null){
-//                OperationValues tempObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
-//                if(tempObj != null){
-//                    dataObj = tempObj;
-//                }
-//            }
-//        }
-//
-//        if(dataObj == null){
-//            //if here, then for some reason Data object was not initialised
-//            //this is bad, very bad, so for now set the values to default
-//            dataObj = OperationValues_default.getDefaultValues();
-//            Log.d(TAG, "data object set to default values");
-//        }
         initDataObjectSingleton();
         init();
     }
 
     private void initDataObjectSingleton() {
-        if(localDataObj == null){
-            Singleton_OperationValues.initInstance();
-            localDataObj = Singleton_OperationValues.getInstance();
-        }
+        Singleton_OperationValues.initInstance();
+        localDataObj = Singleton_OperationValues.getInstance();
     }
     private void init() {
 //        Log.d(TAG, "Inside init");
@@ -158,10 +139,7 @@ public class SettingsActivity extends AppCompatActivity {
     private void setStartIntegral(NumberPicker srcIntegral) {
         srcIntegral.setMinValue(numberPicker_setMinValue);
         srcIntegral.setMaxValue(numberPicker_setMaxValue);
-//        srcIntegral.setValue(numberPicker_SetValueStart);
         srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> {
-            //if here, then value has changed, so we need to trip the data object indicating so
-//            Log.d(TAG, "A value change has been detected in the number picker!");
             localDataObj.changesMade();
         });
     }
@@ -169,7 +147,6 @@ public class SettingsActivity extends AppCompatActivity {
     private void setEndIntegral(NumberPicker srcIntegral) {
         srcIntegral.setMinValue(numberPicker_setMinValue);
         srcIntegral.setMaxValue(numberPicker_setMaxValue);
-//        srcIntegral.setValue(numberPicker_SetValueEnd);
         srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> localDataObj.changesMade());
     }
 
@@ -214,10 +191,7 @@ public class SettingsActivity extends AppCompatActivity {
             case R.id.menu_home:
                 Log.d(TAG, "Menu button hit, going to menu_home");
                 intent = new Intent(getApplicationContext(), MainActivity.class);
-//                bundle = new Bundle();
                 SaveDataObjState();
-//                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, localDataObj);
-//                intent.putExtras(bundle);
                 startActivity(intent);
                 break;
             default:
@@ -228,6 +202,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void SaveDataObjState() {
         //this function shall update the current OperationValues, and update any of the fields as needed
+        Log.d(TAG, "Inside SaveDataObjState");
         int start1 = integral1_start.getValue();
         int start2 = integral2_start.getValue();
         int start3 = integral3_start.getValue();
