@@ -9,7 +9,7 @@ public class Singleton_MainLoop {
     public static String DATA_OBJ_NAME = "Singleton_MainLoop";
     private static Singleton_MainLoop instance;
 
-    private OperationValues data;
+//    private OperationValues data;
     private transient Handler mainLoopHandler;
     private int[] pointsArray;
     private ArrayList<SecondaryForLoop> runnableList;
@@ -102,26 +102,26 @@ public class Singleton_MainLoop {
         // Constructor hidden because this is a singleton
     }
 
-    public void MainForLoopThread(OperationValues data, Handler handler){
+    public void MainForLoopThread(Singleton_OperationValues data, Handler handler){
         //this is going to be the main loop caller
         //the soul purpose of this function is to take in the number of available CPUs
         //get the total number of
-        this.data = data;
+//        this.data = data;
         this.mainLoopHandler = handler;
         pointsArray = createPointsArray(data);
     }
 
-    public void StartProcess(){
+    public void StartProcess(Singleton_OperationValues data){
         // Log.d(TAG, "StartProcess called, total loop should be " + (pointsArray.length-1));
         runnableList = new ArrayList<>();
         for(int opCount=0; opCount < pointsArray.length-1; opCount++){
             //the goal plan for this is to create a new thread that passes the start/end values
             //run the START of that for loop, and make sure what executed in THAT loop is NOT run in thread mode
-            createThread(pointsArray[opCount],pointsArray[opCount+1]);
+            createThread(pointsArray[opCount],pointsArray[opCount+1], data);
         }
     }
 
-    private void createThread(int start, int end) {
+    private void createThread(int start, int end, Singleton_OperationValues data) {
         //the objective of this thread loop is to create as many small tasks as possible
         //however start them only when there is room available
         //hence if this operation needs to create 500 operations but there are only 8 threads
@@ -152,7 +152,7 @@ public class Singleton_MainLoop {
         //Log.d(TAG,"Stand alone thread has started");
     }
 
-    private int[] createPointsArray(OperationValues data) {
+    private int[] createPointsArray(Singleton_OperationValues data) {
         //this method shall break down the first integral by number of CPUs allocated
         //IE if there are 1000 operations and four cores, break the operation into
         //[1] 1 - 250
@@ -176,12 +176,5 @@ public class Singleton_MainLoop {
         returningArr[coresToUse] = data.alphaEnd();
         return returningArr;
     }
-
-//    public boolean debug_threadsActive() {
-//        if(runnableList == null){
-//            return true;
-//        }
-//        return false;
-//    }
 
 }

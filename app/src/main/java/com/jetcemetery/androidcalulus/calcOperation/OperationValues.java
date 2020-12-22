@@ -43,10 +43,6 @@ public class OperationValues implements Serializable {
         return transitionCurOperationsCompleted;
     }
 
-//    public String getCurrentOpCompleted() {
-//        return transitionTotOperationExpected;
-//    }
-
     public String getPhoneNumber() {
         return rawPhoneNumber;
     }

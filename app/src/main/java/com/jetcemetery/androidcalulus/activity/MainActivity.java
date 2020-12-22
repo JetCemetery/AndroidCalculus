@@ -25,7 +25,8 @@ import android.widget.Toast;
 import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
 import com.jetcemetery.androidcalulus.R;
 import com.jetcemetery.androidcalulus.calcOperation.Singleton_MainLoop;
-import com.jetcemetery.androidcalulus.helper.OperationValues_default;
+import com.jetcemetery.androidcalulus.calcOperation.Singleton_OperationValues;
+//import com.jetcemetery.androidcalulus.helper.OperationValues_default;
 import com.jetcemetery.androidcalulus.helper.StartOperationHelper;
 
 import static com.jetcemetery.androidcalulus.R.*;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private String totalOperationExpected;
     private long currentOperationsCompleted;
     private Singleton_MainLoop singleton_Thread;
-    private OperationValues dataObj;
+    private Singleton_OperationValues localDataObj;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +75,48 @@ public class MainActivity extends AppCompatActivity {
         txt_progressBar2 = findViewById(id.txt_progress);
         txtResults = findViewById(id.txt_results);
         blockUpdates = false;
+        initDataObjectSingleton();
         initView();
         createUpdateUiHandler();
+        setUIData();
+    }
+
+    private void setUIData() {
+        //this method shall update the needed UI elements
+        currentOperationsCompleted = 0;
+        localDataObj.setProgressCount(0);
+        totalOperationExpected = localDataObj.getTotalOperationExpected();
+        txt_progressBar2.setText(localDataObj.getInitialProgressText());
+        prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(currentOperationsCompleted));
+//        String progressTxt = "0 / " + totalOperationExpected;
+//        txt_progressBar2.setText(progressTxt);
+//        localDataObj.setProgressCount(currentOperationsCompleted);
+//        int progressBar_value = localDataObj.operationForProgressBar();
+
+
+//        localDataObj.setProgressCount(0);
+//        currentOperationsCompleted = localDataObj.getCurrentProgressCount();
+//        totalOperationExpected = localDataObj.getTotalOperationExpected();
+//        txt_progressBar2.setText(localDataObj.getInitialProgressText());
+//        String progressTxt = "0 / " + totalOperationExpected;
+//        txt_progressBar2.setText(progressTxt);
+//        txtResults.setText("");
+//        prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(currentOperationsCompleted));
+
+    }
+
+    private void initDataObjectSingleton() {
+        if(localDataObj == null){
+            Singleton_OperationValues.initInstance();
+            localDataObj = Singleton_OperationValues.getInstance();
+        }
+    }
+
+    private void initSingleton_Thread() {
+        if(singleton_Thread == null){
+            singleton_Thread = Singleton_MainLoop.getInstance();
+            Log.d(TAG, "singleton_Thread was null, so I initialized it kinda");
+        }
     }
 
     //the onResume function seems to be called every time
@@ -84,125 +125,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "Calling onResume");
-        if(singleton_Thread == null){
-            singleton_Thread = Singleton_MainLoop.getInstance();
-            Log.d(TAG, "singleton_Thread was null, so I initialized it kinda");
-        }
-
-        //by default we must always check to see if an object was passed through an activity
-        //if object was passed, then we need to update all of the local UI stuff
-        if(DataObjectPassedThoughIntent()){
-            Log.d(TAG, "DataObjectPassedThoughIntent has returned true!");
-            //if here, object was passed through activity
-            //let's over-write our local data object, and see if need to reset the UI
-
-            //line below will over-write the local data object (that was easy)
-            dataObj = getPassedDataObject();
-            if(dataObj.wasDataChanged()){
-                Log.d(TAG, "dataObj.wasDataChanged has returned true!");
-                //if here, data was changed, we need to
-                //kill threads if applicable
-                //update the UI
-                safeStopAllThreads();
-                resetUIData();
-                dataObj.clearChangesMadeLatch();
-            }
-            else{
-                //if here, then we need to resume the thread, if applicable
-                Log.d(TAG, "dataObj.wasDataChanged has returned false, resuming threads!");
-                safeResumeAllThreads();
-            }
-
-        }else{
-            //if here, then no data object was passed through activity
-            //keep the local one, and resume threads if applicable
-            //unless local data object is null, in that case reset the whole kit and caboodle
-            if(dataObj == null){
-                //we should NEVER get here, data object is null
-                //kill all threads, set default data object, update UI
-                safeStopAllThreads();
-                String un_parsed_phone = String.valueOf(txtPhone.getText());
-                dataObj = OperationValues_default.getDefaultValues(un_parsed_phone);
-                resetUIData();
-            }
-            else{
-                //if here, then we can resume the threads, if applicable
-                safeResumeAllThreads();
-            }
-        }
+        initDataObjectSingleton();
+        initSingleton_Thread();
     }
+
 
     private void resetUIData() {
         Log.d(TAG, "Calling resetUIData");
         //helper function
         //this function is called when we need to reset the data object counter, and progress bar
         //data object should have been initialized so we good on that
-        dataObj.setCurrentOpCompleted(0);
-        currentOperationsCompleted = dataObj.getTotalOpCompleted();
-        totalOperationExpected = dataObj.getTotalOperationExpected();
-        txt_progressBar2.setText(dataObj.getInitialProgressText());
+        localDataObj.setProgressCount(0);
+        currentOperationsCompleted = localDataObj.getCurrentProgressCount();
+        totalOperationExpected = localDataObj.getTotalOperationExpected();
+        txt_progressBar2.setText(localDataObj.getInitialProgressText());
         String progressTxt = "0 / " + totalOperationExpected;
         txt_progressBar2.setText(progressTxt);
         txtResults.setText("");
-        prbBar_progressBar.setProgress(dataObj.operationForProgressBar(currentOperationsCompleted));
-    }
-
-    private OperationValues getPassedDataObject(){
-        Intent intent = this.getIntent();
-        Bundle bundle = intent.getExtras();
-        return (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
-    }
-
-    private boolean defaultInitRequired() {
-        Log.d(TAG, "Calling defaultInitRequired");
-        //this function shall have two features
-        //  1 - Return true if no data object was passed, return false otherwise
-        //  2 - if an data object was passed, then check if current data object is null
-        //        if local data object is not null, compare to local
-        //              if the two are different,
-        //                assume the object passed, is going to be the new settings
-        //                stop all previous threads if applicable
-        //                redraw UI elements
-        //
-
-        Intent intent = this.getIntent();
-        if(intent == null){
-            Log.d(TAG, "\tdefaultInitRequired - intent == nul");
-            return true;
-        }
-        Bundle bundle = intent.getExtras();
-        if(bundle == null){
-            Log.d(TAG, "\tdefaultInitRequired - bundle == nul");
-            return true;
-        }
-        OperationValues passedDataObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
-        if(passedDataObj == null){
-            Log.d(TAG, "\tdefaultInitRequired - passedDataObj == nul");
-            return true;
-        }
-//        Log.d(TAG, "In defaultInitRequired function, the default Init is NOT required");
-        //if here, then when this activity was called, a data object was passed into it
-        //lets go ahead and restore the needed data back into the view
-        dataObj = passedDataObj;
-        currentOperationsCompleted = dataObj.getTotalOpCompleted();
-        totalOperationExpected = dataObj.getTotalOperationExpected();
-        txtPhone.setText(dataObj.getPhoneNumber());
-        txtResults.setText(dataObj.getTextArea());
-        return false;
-    }
-
-    private boolean DataObjectPassedThoughIntent(){
-        Log.d(TAG, "Calling DataObjectPassedThoughIntent");
-        Intent intent = this.getIntent();
-        if(intent == null){
-            return false;
-        }
-        Bundle bundle = intent.getExtras();
-        if(bundle == null){
-            return false;
-        }
-        OperationValues passedDataObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
-        return passedDataObj != null;
+        prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(currentOperationsCompleted));
     }
 
     private void initView() {
@@ -215,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnStart.setOnClickListener(v -> {
             txtError.setVisibility(TextView.GONE);
-            StartOperationHelper helperObj = new StartOperationHelper(dataObj);
+            StartOperationHelper helperObj = new StartOperationHelper(localDataObj);
             if(singleton_Thread != null){
                 Log.d(TAG, "Preventing action");
                 Toast.makeText(getApplicationContext(), "Preventing action", Toast.LENGTH_SHORT).show();
@@ -232,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
             if(helperObj.numberInputValid(txtPhone)){
                 txtError.setVisibility(View.GONE);
                 String rawPhone = String.valueOf(txtPhone.getText());
-                dataObj.setPhoneNumber(rawPhone);
+                localDataObj.setPhoneNumber(rawPhone);
                 InitiateMainForLoopThread();
             }
             else{
@@ -263,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
                 //  if no threads are running, do nothing
                 safeStopAllThreads();
                 String rawPhone = String.valueOf(txtPhone.getText());
-                dataObj.setPhoneNumber(rawPhone);
+                localDataObj.setPhoneNumber(rawPhone);
                 resetUIData();
             }
         });
@@ -281,8 +221,6 @@ public class MainActivity extends AppCompatActivity {
     private void InitiateMainForLoopThread() {
         Log.d(TAG, "Calling InitiateMainForLoopThread");
         //this function shall create a new thread, and start the MainForLoopThread2 operation
-//        String toastMsg = "Cpu count == " + dataObj.getCPU_count_that_is_used();
-//        Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
         txtResults.setText("");
         if(singleton_Thread != null){
             //if here, well we have other threads a going
@@ -292,17 +230,17 @@ public class MainActivity extends AppCompatActivity {
         }
         Singleton_MainLoop.initInstance();
         singleton_Thread = Singleton_MainLoop.getInstance();
-        singleton_Thread.MainForLoopThread(dataObj,updateUIHandler);
-        singleton_Thread.StartProcess();
+        singleton_Thread.MainForLoopThread(localDataObj, updateUIHandler);
+        singleton_Thread.StartProcess(localDataObj);
         ShowStart_HidePauseStop(false);
     }
 
     private void updateProgressBar_and_Text() {
 //        Log.d(TAG, "Calling updateProgressBar_and_Text");
         if(!blockUpdates){
-            prbBar_progressBar.setProgress(dataObj.operationForProgressBar(currentOperationsCompleted));
+            prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(currentOperationsCompleted));
         }
-        txt_progressBar2.setText(dataObj.getInitialProgressText());
+        txt_progressBar2.setText(localDataObj.getInitialProgressText());
         String progressTxt = currentOperationsCompleted + " / " + totalOperationExpected;
         txt_progressBar2.setText(progressTxt);
     }
@@ -373,23 +311,15 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "calling onSaveInstanceState");
         super.onSaveInstanceState(savedInstanceState);
-        // Save UI state changes to the savedInstanceState.
-        // This bundle will be passed to onCreate if the process is
         Log.d(TAG, "\tonSaveInstanceState - calling safe pause");
         safePauseAllThreads();
-        Log.d(TAG, "\tonSaveInstanceState - calling SaveDataObjState");
         SaveDataObjState();
-        savedInstanceState.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
-        Log.d(TAG, "\tonSaveInstanceState - Post put serializable");
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "calling onRestoreInstanceState");
         super.onRestoreInstanceState(savedInstanceState);
-        // Restore UI state from the savedInstanceState.
-        // This bundle has also been passed to onCreate.
-        dataObj = (OperationValues) savedInstanceState.getSerializable(OperationValues.DATA_OBJ_NAME);
         updateProgressBar_and_Text();
         safeResumeAllThreads();
     }
@@ -414,31 +344,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //need to finish this stuff to complete the menu actions
-//        tempDebug();
         Intent intent;
-        if(dataObj == null){
-            dataObj = OperationValues_default.getDefaultValues();
-        }
-        Bundle bundle;
         switch (item.getItemId()){
             case id.menu_settings:
                 Log.d(TAG, "Menu button hit, going to menu_settings");
                 intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                bundle = new Bundle();
                 SaveDataObjState();
-                dataObj.clearChangesMadeLatch();
-                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
-                intent.putExtras(bundle);
                 startActivity(intent);
                 break;
             case id.menu_about:
                 Log.d(TAG, "Menu button hit, going to menu_about");
                 intent = new Intent(getApplicationContext(), AboutActivity.class);
-                bundle = new Bundle();
                 SaveDataObjState();
-                dataObj.clearChangesMadeLatch();
-                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
-                intent.putExtras(bundle);
                 startActivity(intent);
                 break;
 
@@ -451,13 +368,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void SaveDataObjState() {
         //this function shall update the current OperationValues, and update any of the fields as needed
-//        safePauseAllThreads();
         String rawPhone = String.valueOf(txtPhone.getText());
-        dataObj.setPhoneNumber(rawPhone);
-        dataObj.setCurrentOpCompleted(currentOperationsCompleted);
-        dataObj.setTotalOpCompleted(totalOperationExpected);
-        dataObj.setTextArea(txtResults.getText().toString());
+        localDataObj.setPhoneNumber(rawPhone);
+        localDataObj.setProgressCount(currentOperationsCompleted);
+        localDataObj.setTextArea(txtResults.getText().toString());
     }
+
     /*
         This section of code shall initialize the threaded handler.
         It will contain the code that will process incoming messages.

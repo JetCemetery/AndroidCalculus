@@ -20,7 +20,7 @@ public class SecondaryForLoop implements Runnable {
     public static String STATE_PAUSED = "Paused";
     public static String STATE_RUNNING = "Running";
     public static String STATE_FINISHED = "Finished";
-    private final OperationValues userInput;
+    private final Singleton_OperationValues userInput;
     private final int movingValue;
     private Handler handler;
     private final long targetNumber;
@@ -30,11 +30,12 @@ public class SecondaryForLoop implements Runnable {
     private int currentBatchAmount;
     private volatile boolean stopProcess;// = false;
 
-    public SecondaryForLoop(OperationValues data, int movingValue, Handler handler) {
+    public SecondaryForLoop(Singleton_OperationValues data, int movingValue, Handler handler) {
         this.userInput = data;
         this.movingValue = movingValue;
         this.handler = handler;
-        this.targetNumber = OperationValues_default.parsePhoneInput(data.getNumber());
+        this.targetNumber = data.getParsedPhoneNumber();
+//        this.targetNumber = OperationValues_default.parsePhoneInput(data.getNumber());
         this.range = 1000;
         currentBatchAmount = 0;
         currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(100, 1000);

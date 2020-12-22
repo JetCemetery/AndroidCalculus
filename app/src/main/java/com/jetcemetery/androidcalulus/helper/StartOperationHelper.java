@@ -3,11 +3,12 @@ package com.jetcemetery.androidcalulus.helper;
 import android.widget.EditText;
 
 import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
+import com.jetcemetery.androidcalulus.calcOperation.Singleton_OperationValues;
 
 public class StartOperationHelper {
-    private final OperationValues dataObj;
+    private final Singleton_OperationValues dataObj;
     private String mis_configuredIntegralRange_txt;
-    public StartOperationHelper(OperationValues dataObj) {
+    public StartOperationHelper(Singleton_OperationValues dataObj) {
         this.dataObj = dataObj;
         mis_configuredIntegralRange_txt = "";
     }

@@ -69,29 +69,29 @@ public class AboutActivity extends AppCompatActivity {
         //need to finish this stuff to complete the menu actions
 //        tempDebug();
         Intent intent;
-        if(dataObj == null){
-            dataObj = OperationValues_default.getDefaultValues();
-        }
+//        if(dataObj == null){
+//            dataObj = OperationValues_default.getDefaultValues();
+//        }
         Bundle bundle;
         switch (item.getItemId()){
             case R.id.menu_home:
                 Log.d(TAG, "Menu button hit, going to menu_home");
                 intent = new Intent(getApplicationContext(), MainActivity.class);
                 bundle = new Bundle();
-                if(dataObj != null){
-                    bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
-                    intent.putExtras(bundle);
-                }
+//                if(dataObj != null){
+//                    bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
+//                    intent.putExtras(bundle);
+//                }
                 startActivity(intent);
                 break;
             case R.id.menu_settings:
                 Log.d(TAG, "Menu button hit, going to menu_settings");
                 intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                bundle = new Bundle();
-                if(dataObj != null){
-                    bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
-                    intent.putExtras(bundle);
-                }
+//                bundle = new Bundle();
+//                if(dataObj != null){
+//                    bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
+//                    intent.putExtras(bundle);
+//                }
                 startActivity(intent);
                 break;
 

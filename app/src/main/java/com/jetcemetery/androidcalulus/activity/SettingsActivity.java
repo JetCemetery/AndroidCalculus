@@ -16,6 +16,7 @@ import android.widget.RadioButton;
 
 import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
 import com.jetcemetery.androidcalulus.R;
+import com.jetcemetery.androidcalulus.calcOperation.Singleton_OperationValues;
 import com.jetcemetery.androidcalulus.helper.OperationValues_default;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -24,7 +25,7 @@ public class SettingsActivity extends AppCompatActivity {
     private NumberPicker integral1_end, integral2_end, integral3_end;
     private RadioButton cpu_cnt_Single, cpu_cnt_half, cpu_cnt_all_minus1, cpu_cnt_all;
     private RadioButton stopOnSuccess_Yes, stopOnSuccess_No;
-    private OperationValues dataObj;
+    private Singleton_OperationValues localDataObj;
 
     private final int numberPicker_setMinValue = 1;
     private final int numberPicker_setMaxValue = 1000000;
@@ -52,26 +53,33 @@ public class SettingsActivity extends AppCompatActivity {
         stopOnSuccess_Yes = findViewById(R.id.stopOnSuccess_Yes);
         stopOnSuccess_No = findViewById(R.id.stopOnSuccess_No);
 
-        Intent intent = this.getIntent();
-        if(intent != null){
-            Bundle bundle = intent.getExtras();
-            if(bundle != null){
-                OperationValues tempObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
-                if(tempObj != null){
-                    dataObj = tempObj;
-                }
-            }
-        }
-
-        if(dataObj == null){
-            //if here, then for some reason Data object was not initialised
-            //this is bad, very bad, so for now set the values to default
-            dataObj = OperationValues_default.getDefaultValues();
-            Log.d(TAG, "data object set to default values");
-        }
+//        Intent intent = this.getIntent();
+//        if(intent != null){
+//            Bundle bundle = intent.getExtras();
+//            if(bundle != null){
+//                OperationValues tempObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
+//                if(tempObj != null){
+//                    dataObj = tempObj;
+//                }
+//            }
+//        }
+//
+//        if(dataObj == null){
+//            //if here, then for some reason Data object was not initialised
+//            //this is bad, very bad, so for now set the values to default
+//            dataObj = OperationValues_default.getDefaultValues();
+//            Log.d(TAG, "data object set to default values");
+//        }
+        initDataObjectSingleton();
         init();
     }
 
+    private void initDataObjectSingleton() {
+        if(localDataObj == null){
+            Singleton_OperationValues.initInstance();
+            localDataObj = Singleton_OperationValues.getInstance();
+        }
+    }
     private void init() {
 //        Log.d(TAG, "Inside init");
         //this function will initialize all of the user buttons/function/action listeners
@@ -82,7 +90,7 @@ public class SettingsActivity extends AppCompatActivity {
         setEndIntegral(integral1_end);
         setEndIntegral(integral2_end);
         setEndIntegral(integral3_end);
-        switch (dataObj.getCPU_OptionsEnum()){
+        switch (localDataObj.getCPU_OptionsEnum()){
             case CPU_HALF:
                 cpu_cnt_half.setChecked(true);
                 break;
@@ -98,7 +106,7 @@ public class SettingsActivity extends AppCompatActivity {
                 break;
         }
 
-        if(dataObj.getStopOnFirstSuccess()){
+        if(localDataObj.getStopOnFirstSuccess()){
             stopOnSuccess_Yes.setChecked(true);
         }else{
             stopOnSuccess_No.setChecked(true);
@@ -114,37 +122,37 @@ public class SettingsActivity extends AppCompatActivity {
         stopOnSuccess_No.setOnClickListener(init_stopOnSuccess_No());
 
         //set values from the local data object
-        integral1_start.setValue(dataObj.alphaStart());
-        integral2_start.setValue(dataObj.betaStart());
-        integral3_start.setValue(dataObj.gammaStart());
+        integral1_start.setValue(localDataObj.alphaStart());
+        integral2_start.setValue(localDataObj.betaStart());
+        integral3_start.setValue(localDataObj.gammaStart());
 
-        integral1_end.setValue(dataObj.alphaEnd());
-        integral2_end.setValue(dataObj.betaEnd());
-        integral3_end.setValue(dataObj.gammaEnd());
+        integral1_end.setValue(localDataObj.alphaEnd());
+        integral2_end.setValue(localDataObj.betaEnd());
+        integral3_end.setValue(localDataObj.gammaEnd());
     }
 
     private View.OnClickListener init_cpuSingle() {
-        return v -> dataObj.setCpu_single();
+        return v -> localDataObj.setCpu_single();
     }
 
     private View.OnClickListener init_cpuHalf() {
-        return v -> dataObj.setCpu_half();
+        return v -> localDataObj.setCpu_half();
     }
 
     private View.OnClickListener init_cpuMinus1() {
-        return v -> dataObj.setCpu_all_m_1();
+        return v -> localDataObj.setCpu_all_m_1();
     }
 
     private View.OnClickListener init_cpuAll() {
-        return v -> dataObj.setCpu_all();
+        return v -> localDataObj.setCpu_all();
     }
 
     private View.OnClickListener init_stopOnSuccess_Yes() {
-        return v -> dataObj.setStopOnSuccess(true);
+        return v -> localDataObj.setStopOnSuccess(true);
     }
 
     private View.OnClickListener init_stopOnSuccess_No() {
-        return v -> dataObj.setStopOnSuccess(false);
+        return v -> localDataObj.setStopOnSuccess(false);
     }
 
     private void setStartIntegral(NumberPicker srcIntegral) {
@@ -154,7 +162,7 @@ public class SettingsActivity extends AppCompatActivity {
         srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> {
             //if here, then value has changed, so we need to trip the data object indicating so
 //            Log.d(TAG, "A value change has been detected in the number picker!");
-            dataObj.changesMade();
+            localDataObj.changesMade();
         });
     }
 
@@ -162,7 +170,7 @@ public class SettingsActivity extends AppCompatActivity {
         srcIntegral.setMinValue(numberPicker_setMinValue);
         srcIntegral.setMaxValue(numberPicker_setMaxValue);
 //        srcIntegral.setValue(numberPicker_SetValueEnd);
-        srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> dataObj.changesMade());
+        srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> localDataObj.changesMade());
     }
 
     @Override
@@ -187,29 +195,29 @@ public class SettingsActivity extends AppCompatActivity {
         //need to finish this stuff to complete the menu actions
         Log.d(TAG, "Start of onOptionsItemSelected");
         Intent intent;
-        if(dataObj == null){
-//            Log.d(TAG, "dataObj was null, so I'm going to go ahead and set it to default...");
-            dataObj = OperationValues_default.getDefaultValues();
-        }
+//        if(localDataObj == null){
+////            Log.d(TAG, "dataObj was null, so I'm going to go ahead and set it to default...");
+//            localDataObj = OperationValues_default.getDefaultValues();
+//        }
 
         Bundle bundle;
         switch (item.getItemId()){
             case R.id.menu_about:
                 Log.d(TAG, "Menu button hit, going to menu_home");
                 intent = new Intent(getApplicationContext(), AboutActivity.class);
-                bundle = new Bundle();
+//                bundle = new Bundle();
                 SaveDataObjState();
-                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
-                intent.putExtras(bundle);
+//                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
+//                intent.putExtras(bundle);
                 startActivity(intent);
                 break;
             case R.id.menu_home:
                 Log.d(TAG, "Menu button hit, going to menu_home");
                 intent = new Intent(getApplicationContext(), MainActivity.class);
-                bundle = new Bundle();
+//                bundle = new Bundle();
                 SaveDataObjState();
-                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
-                intent.putExtras(bundle);
+//                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, localDataObj);
+//                intent.putExtras(bundle);
                 startActivity(intent);
                 break;
             default:
@@ -228,7 +236,7 @@ public class SettingsActivity extends AppCompatActivity {
         int end2 = integral2_end.getValue();
         int end3 = integral3_end.getValue();
 
-        dataObj.setIntegralRanges(start1, start2 , start3, end1, end2, end3);
-        dataObj.updateTotalExpectedOperations();
+        localDataObj.setIntegralRanges(start1, start2 , start3, end1, end2, end3);
+        localDataObj.updateTotalExpectedOperations();
     }
 }
