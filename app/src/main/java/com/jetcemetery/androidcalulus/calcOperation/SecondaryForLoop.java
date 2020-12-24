@@ -184,7 +184,7 @@ public class SecondaryForLoop implements Runnable {
             //to mimic authenticity, set the range amount to some random number
             //it's faking it I know, but that's okay, at least app does not crash anymore.
             currentBatchAmount = 0;
-            currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(500, 5000);
+            currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(100, 1000);
         }
 
     }

@@ -23,4 +23,8 @@
     <string name="error_msg">ERROR!</string>
     <string name="_initialText">100 / 100</string>
     <string name="results">Results</string>
+    <string name="what_enter_a_valid_number_and_brute_force_to_find_an_integral_that_when_solved_will_produce">What: Enter a valid number and brute force to find an integral that, when solved, will produce</string>
+    <string name="why_i_like_writing_code">Why: I like writing code</string>
+    <string name="how_the_program_iterates_on_four_loops_the_first_one_breaks_the_first_integral_into_parts_based_on_cpus_the_second_and_third_loop_iterate_over_the_values_based_on_the_second_and_third_integral_once_the_first_second_and_third_integral_ranges_are_set_the_app_will_do_the_derivative_and_see_if_your_phone_number_is_a_match">How: The program iterates on four loops, the first one breaks the first integral into parts based on CPUs. The second and third loop iterate over the values based on the second and third integral. Once the first, second and third integral ranges are set, the app will do the derivative, and see if your phone number is a match</string>
+    <string name="setting_lets_you_control_the_range_of_the_three_integrals_cpu_count_amp_to_stop_the_calculations_on_first_success"><![CDATA[Setting: Lets you control the range of the three integrals, CPU count & to stop the calculations on first success]]></string>
 </resources>
