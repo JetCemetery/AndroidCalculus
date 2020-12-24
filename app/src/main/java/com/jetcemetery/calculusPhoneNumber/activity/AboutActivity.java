@@ -1,4 +1,4 @@
-package com.jetcemetery.androidcalulus.activity;
+package com.jetcemetery.calculusPhoneNumber.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

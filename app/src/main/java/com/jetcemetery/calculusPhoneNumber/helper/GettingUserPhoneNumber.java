@@ -1,4 +1,4 @@
-package com.jetcemetery.androidcalulus.helper;
+package com.jetcemetery.calculusPhoneNumber.helper;
 
 import android.Manifest;
 import android.annotation.SuppressLint;

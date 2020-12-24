@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.MainActivity"
+    tools:context="com.jetcemetery.calculusPhoneNumber.activity.MainActivity"
     android:padding="8dp"
     android:orientation="vertical"
     android:background="@color/Background">

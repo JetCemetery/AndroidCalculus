@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.AboutActivity"
+    tools:context="com.jetcemetery.calculusPhoneNumber.activity.AboutActivity"
     android:background="@color/Background">
 
     <ScrollView

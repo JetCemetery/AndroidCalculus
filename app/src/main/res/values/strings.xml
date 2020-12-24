@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AndroidCalculus</string>
+    <string name="app_name">Calculus Phone Number</string>
     <string name="error_in_number_entered">Error in number entered</string>
     <string name="start">Start</string>
     <string name="integral_1">Integral 1</string>

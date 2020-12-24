@@ -1,4 +1,4 @@
-package com.jetcemetery.androidcalulus.activity;
+package com.jetcemetery.calculusPhoneNumber.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,9 +25,9 @@ import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.jetcemetery.androidcalulus.R;
-import com.jetcemetery.androidcalulus.calcOperation.Singleton_MainLoop;
-import com.jetcemetery.androidcalulus.calcOperation.Singleton_OperationValues;
-import com.jetcemetery.androidcalulus.helper.StartOperationHelper;
+import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_MainLoop;
+import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_OperationValues;
+import com.jetcemetery.calculusPhoneNumber.helper.StartOperationHelper;
 
 import static com.jetcemetery.androidcalulus.R.*;
 
@@ -272,6 +272,7 @@ public class MainActivity extends AppCompatActivity {
             singleton_Thread.stopAllThreads();
             singleton_Thread = null;
         }
+        localDataObj.setPhoneNumber(txtPhone4.getText().toString());
         Singleton_MainLoop.initInstance();
         singleton_Thread = Singleton_MainLoop.getInstance();
         singleton_Thread.MainForLoopThread(localDataObj, updateUIHandler);

@@ -1,4 +1,4 @@
-package com.jetcemetery.androidcalulus.activity;
+package com.jetcemetery.calculusPhoneNumber.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,7 +16,7 @@ import android.widget.NumberPicker;
 import android.widget.RadioButton;
 
 import com.jetcemetery.androidcalulus.R;
-import com.jetcemetery.androidcalulus.calcOperation.Singleton_OperationValues;
+import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_OperationValues;
 
 public class SettingsActivity extends AppCompatActivity {
     public static String TAG = "SettingsActivity";

@@ -1,12 +1,12 @@
-package com.jetcemetery.androidcalulus.calcOperation;
+package com.jetcemetery.calculusPhoneNumber.calcOperation;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.jetcemetery.androidcalulus.activity.MainActivity;
-import com.jetcemetery.androidcalulus.helper.getRandomInRange;
+import com.jetcemetery.calculusPhoneNumber.activity.MainActivity;
+import com.jetcemetery.calculusPhoneNumber.helper.getRandomInRange;
 
 public class SecondaryForLoop implements Runnable {
     //for enabling pause resume section

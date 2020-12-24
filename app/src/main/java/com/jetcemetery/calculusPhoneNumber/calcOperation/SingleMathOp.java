@@ -1,4 +1,4 @@
-package com.jetcemetery.androidcalulus.calcOperation;
+package com.jetcemetery.calculusPhoneNumber.calcOperation;
 
 public class SingleMathOp {
     private final int integrateOn;

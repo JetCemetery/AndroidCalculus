@@ -1,9 +1,9 @@
-package com.jetcemetery.androidcalulus.calcOperation;
+package com.jetcemetery.calculusPhoneNumber.calcOperation;
 
 import android.util.Log;
 
-import com.jetcemetery.androidcalulus.helper.GettingUserPhoneNumber;
-import com.jetcemetery.androidcalulus.helper.getCPU_Cnt;
+import com.jetcemetery.calculusPhoneNumber.helper.GettingUserPhoneNumber;
+import com.jetcemetery.calculusPhoneNumber.helper.getCPU_Cnt;
 
 import java.util.ArrayList;
 
