@@ -162,18 +162,18 @@ public class Singleton_MainLoop {
         //in case the division isn't the best, let the last core have the most or least, it doesn't really matter
 
         int coresToUse = data.getThreadNum();
-        int totalIterationRange = data.alphaEnd() - data.alphaStart();
+        int totalIterationRange = data.integral_1_End() - data.integral_1_Start();
         int incrementCount = totalIterationRange / coresToUse;
         //the array size should be cores to use + 1
         //the plus one is used to record last iteration point
         int [] returningArr = new int[coresToUse+1];
-        int tempIntegralStartPoint = data.alphaStart();
+        int tempIntegralStartPoint = data.integral_1_Start();
         returningArr[0] = tempIntegralStartPoint;
         for(int i=1; i < coresToUse; i++){
             tempIntegralStartPoint += incrementCount;
             returningArr[i] = tempIntegralStartPoint;
         }
-        returningArr[coresToUse] = data.alphaEnd();
+        returningArr[coresToUse] = data.integral_1_End();
         return returningArr;
     }
 

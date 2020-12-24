@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -22,7 +23,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
 import com.jetcemetery.androidcalulus.R;
 import com.jetcemetery.androidcalulus.calcOperation.Singleton_MainLoop;
 import com.jetcemetery.androidcalulus.calcOperation.Singleton_OperationValues;
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     public static int ONE_CALCULATION_COMPLETED = 557;
     public static int SUCCESSFUL_OPERATION = 558;
     public final static String MESSAGE_NAME_ID ="My_data_msg";
-    private EditText txtPhone;
+    private EditText txtPhone4;
     private TextView txtError, txtResults, txt_progressBar2;
     private Button btnStart;
     private View btnPauseStopLayout;
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private final String ResumeStr = "Resume";
     private final String PauseStr = "Pause";
 
-//    private String totalOperationExpected;
+    private String local_TotalExpected;
     private long local_currentOperationsCompleted;
     private Singleton_MainLoop singleton_Thread;
     private Singleton_OperationValues localDataObj;
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         //TODO - fix the issue about changing from landscpae into other mode
         //TODO - find bug in expected values to run & why total operation is short
 
-        txtPhone = findViewById(id.txt_phoneID);
+        txtPhone4 = findViewById(id.txt_phoneID);
         txtError = findViewById(id.errorText);
         btnStart = findViewById(id.btn_start);
 
@@ -76,65 +76,22 @@ public class MainActivity extends AppCompatActivity {
         txt_progressBar2 = findViewById(id.txt_progress);
         txtResults = findViewById(id.txt_results);
         blockUpdates = false;
-        initDataObjectSingleton();
+
+        init_BothSingleTons();
         initView();
         createUpdateUiHandler();
         setUIData();
+        safeResumeAllThreads();
+//        addTextAreaListener();
     }
 
-    private void setUIData() {
-        //this method shall update the needed UI elements
-        local_currentOperationsCompleted = localDataObj.getCurrentProgressCount();
-        txt_progressBar2.setText(localDataObj.getInitialProgressText());
-        prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(local_currentOperationsCompleted));
-    }
-
-    private void initDataObjectSingleton() {
-        Log.d(TAG, "Inside initDataObjectSingleton");
+    private void init_BothSingleTons() {
+        Log.d(TAG, "Inside init_BothSingleTons");
         Singleton_OperationValues.initInstance();
         localDataObj = Singleton_OperationValues.getInstance();
-
-        if(localDataObj.wasDataChanged()){
-            safeStopAllThreads();
-            resetDataObj();
-            localDataObj.clearChangesMadeLatch();
-        }
-    }
-
-    private void initSingleton_Thread() {
         singleton_Thread = Singleton_MainLoop.getInstance();
 
-        if(singleton_Thread != null){
-            safeResumeAllThreads();
-        }
-    }
-
-    //the onResume function seems to be called every time
-    //if that's the case, lets init the singleton thread there
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "Calling onResume");
-        initDataObjectSingleton();
-        initSingleton_Thread();
-    }
-
-
-    private void resetDataObj() {
-        Log.d(TAG, "Calling resetUIData");
-        //helper function
-        //this function is called when we need to reset the data object counter, and progress bar
-        //data object should have been initialized so we good on that
-        String rawPhone = String.valueOf(txtPhone.getText());
-        localDataObj.setPhoneNumber(rawPhone);
-
-        localDataObj.setProgressCount(0);
-        local_currentOperationsCompleted = localDataObj.getCurrentProgressCount();
-        txt_progressBar2.setText(localDataObj.getInitialProgressText());
-        String progressTxt = "0 / " + localDataObj.getCurrentProgressCount();
-        txt_progressBar2.setText(progressTxt);
-        txtResults.setText("");
-        prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(local_currentOperationsCompleted));
+        txtPhone4.setText(localDataObj.getPhoneNumber());
     }
 
     private void initView() {
@@ -161,40 +118,16 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Integral range is out of sequence", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if(helperObj.numberInputValid(txtPhone)){
+            if(helperObj.numberInputValid(txtPhone4)){
                 txtError.setVisibility(View.GONE);
-                String rawPhone = String.valueOf(txtPhone.getText());
-                localDataObj.setPhoneNumber(rawPhone);
                 InitiateMainForLoopThread();
+                LockStartButton();
             }
             else{
                 //if here, then number is NOT valid
                 txtError.setVisibility(View.VISIBLE);
                 txtError.setText(string.error_msg);
                 Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        txtPhone.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                //do nothing
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //do nothing
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                //if here, then text has changed
-                //check to see if we have any threads running
-                //  if threads are running, kill em
-                //  if no threads are running, do nothing
-                safeStopAllThreads();
-                resetDataObj();
             }
         });
 
@@ -211,10 +144,122 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnStop.setOnClickListener(v -> {
+            Log.d(TAG, "about to call stop all threads because btnStop.setOnClickListener");
             safeStopAllThreads();
             resetDataObj();
         });
     }
+
+    private void LockStartButton() {
+        //helper method that will do the following:
+        //set the phone number.editable to false
+        //grey out the phone number color
+        txtPhone4.setEnabled(false);
+        txtPhone4.setBackgroundColor(Color.GRAY);
+    }
+
+    private void UnlockStartButton() {
+        //helper method that will do the following:
+        //set the phone number.editable to false
+        //grey out the phone number color
+        txtPhone4.setEnabled(true);
+        int myColor = (Color.parseColor("#B7B773"));
+        txtPhone4.setBackgroundColor(myColor);
+    }
+
+    private void setUIData() {
+        //this method shall have two parts to it,
+        //Part 1, local counter, local totalExpected
+        //  set the local counter to localDataObj counter, set total expected from localDataObj as well
+        //Part 2, UI objects
+        //  set progress bar, progress text, and result text
+        //Part 3, set the localDataObj phone to whatever the current UI has
+
+        //HOWEVER, we also need to take care if data was changed (IE we called this from another activity
+
+        if(localDataObj.wasDataChanged()){
+            //if here, then data was changed
+            //a call to stop all threads must be made
+            //then a clear change made latch
+            //When function was data changed is called, it should update total expected operations
+            //also reset the progress operations completed
+
+            //issue was found that the safe stop all threads wont work here
+            //we need to instantiate the singleton thread...
+            Log.d(TAG, "about to call stop all threads because localDataObj.wasDataChanged()");
+            safeStopAllThreads();
+            localDataObj.clearChangesMadeLatch();
+        }
+        //part 1 - set local signals to date FROM localDataObj
+
+        local_TotalExpected = localDataObj.getTotalOperationExpected();
+        local_currentOperationsCompleted = localDataObj.getCurrentProgressCount();
+
+        //part 2 set progress bar, progress text, and result text
+        prbBar_progressBar.setProgress(localDataObj.operationForProgressBar());
+        String progressText = local_currentOperationsCompleted + " / " + local_TotalExpected;
+        txt_progressBar2.setText(progressText);
+        txtResults.setText(localDataObj.getTextArea());
+
+    }
+
+    private void resetDataObj() {
+        Log.d(TAG, "Calling resetUIData");
+        //Reset function will have three parts to it
+        //Part 1, localDataObj
+        //  reset the counter, reset the text area, and update the phone number as well
+        //Part 2, local counter, local totalExpected
+        //  set the local counter to zero, reset total expected from localDataObj
+        //Part 3, UI objects
+        //  set progress bar, progress text, and result text
+
+
+        //Part 1, dealing with the localDataObj
+        localDataObj.setProgressCount(0);
+        localDataObj.setTextArea("");
+
+        //Part 2, local counter, local totalExpected
+        local_TotalExpected = localDataObj.getTotalOperationExpected();
+        local_currentOperationsCompleted = 0;
+
+        //Part 3, dealing with the UI elements
+        prbBar_progressBar.setProgress(0);
+        String progressText = "0 / " + local_TotalExpected;
+        txt_progressBar2.setText(progressText);
+//        if(txtResults != null){
+//            //random crash issue here...
+//            txtResults.setText("");
+//        }
+
+    }
+
+
+//
+//    protected TextWatcher setTextWatcher() {
+//        return new TextWatcher() {
+//
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//                //do nothing
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                //do nothing
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                //if here, then text has changed
+//                //check to see if we have any threads running
+//                //  if threads are running, kill em
+//                //  if no threads are running, do nothing
+//                Log.d(TAG, "about to call stop all threads because afterTextChanged");
+//                safeStopAllThreads();
+//                resetDataObj();
+//            }
+//        };
+//    }
 
     private void InitiateMainForLoopThread() {
         Log.d(TAG, "Calling InitiateMainForLoopThread");
@@ -238,8 +283,7 @@ public class MainActivity extends AppCompatActivity {
         if(!blockUpdates){
             prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(local_currentOperationsCompleted));
         }
-        txt_progressBar2.setText(localDataObj.getInitialProgressText());
-        String progressTxt = local_currentOperationsCompleted + " / " + localDataObj.getTotalOperationExpected();
+        String progressTxt = local_currentOperationsCompleted + " / " + local_TotalExpected;
         txt_progressBar2.setText(progressTxt);
     }
 
@@ -250,26 +294,29 @@ public class MainActivity extends AppCompatActivity {
             singleton_Thread = null;
             //if we killed the thread, lets set the button text...
             btnPause_Resume.setText(PauseStr);
-        }
-        ShowStart_HidePauseStop(true);
+            ShowStart_HidePauseStop(true);
 
-        //I need a 50 m sec delay
-        //This multi thread is a killer, I tell the stuff to stop processing, but it keeps going...
-        //resume / pause isn't much of a problem. Or any problem, I don't care if that process
-        //takes 500 milliseconds to propagate. Only the stop cause an issue...
-        Thread Fifty_MS_delay = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    sleep(50);
-                    resetDataObj();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            //last step, reset data object
+
+            //I need a 50 m sec delay
+            //This multi thread is a killer, I tell the stuff to stop processing, but it keeps going...
+            //resume / pause isn't much of a problem. Or any problem, I don't care if that process
+            //takes 500 milliseconds to propagate. Only the stop cause an issue...
+            Thread Fifty_MS_delay = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        sleep(50);
+                        resetDataObj();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        };
+            };
 
-        Fifty_MS_delay.start();
+            Fifty_MS_delay.start();
+        }
+        UnlockStartButton();
     }
 
     private void ShowStart_HidePauseStop(boolean showStart) {
@@ -286,7 +333,6 @@ public class MainActivity extends AppCompatActivity {
             btnPauseStopLayout.setVisibility(View.VISIBLE);
             btnStart.setVisibility(View.GONE);
         }
-
     }
 
     private void safeResumeAllThreads() {
@@ -294,6 +340,7 @@ public class MainActivity extends AppCompatActivity {
         if(singleton_Thread != null){
             singleton_Thread.resumeAllThreads(updateUIHandler);
             ShowStart_HidePauseStop(false);
+            LockStartButton();
         }
         btnPause_Resume.setText(PauseStr);
     }
@@ -311,6 +358,7 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "calling onSaveInstanceState");
         super.onSaveInstanceState(savedInstanceState);
+//        removeTextAreaListener();
         Log.d(TAG, "\tonSaveInstanceState - calling safe pause");
         safePauseAllThreads();
         SaveDataObjState();
@@ -319,9 +367,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "calling onRestoreInstanceState");
+        String temptxt = localDataObj.getTextArea();
+        Log.d(TAG, "calling BEFORE super");
         super.onRestoreInstanceState(savedInstanceState);
+        Log.d(TAG, "calling POST onRestoreInstanceState");
+        //if here, then there was a chance that the text was removed from the result area
+        //cause, change from landscape to portrait or vice versa...
+//        String temptxt = localDataObj.getTextArea();
+        if(temptxt != null && !temptxt.isEmpty()){
+            txtResults.setText(temptxt);
+        }
         updateProgressBar_and_Text();
         safeResumeAllThreads();
+//        addTextAreaListener();
     }
 
     @Override
@@ -367,11 +425,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void SaveDataObjState() {
-        //this function shall update the current OperationValues, and update any of the fields as needed
-        String rawPhone = String.valueOf(txtPhone.getText());
-        localDataObj.setPhoneNumber(rawPhone);
+        Log.d(TAG, "calling SaveDataObjState");
+        //This function is called just before moving into a new activity
+        //There will be two parts, part 1
+        //update localDataObj
+        //  update the current counter, and update the textarea only
+        //Part 2, remove text watcher
+        //There is an issue on the resume function, as the text gets update from the localDataObj
+        //the reset function is tripped....
+
+        //part 1, save the data
         localDataObj.setProgressCount(local_currentOperationsCompleted);
         localDataObj.setTextArea(txtResults.getText().toString());
+
+        //part 2, remove text change listener
+//        removeTextAreaListener();
+
+        String rawPhone = String.valueOf(txtPhone4.getText());
+        localDataObj.setPhoneNumber(rawPhone);
     }
 
     /*
@@ -425,6 +496,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "messageTypeID == SUCCESSFUL_OPERATION");
                             //if here, then user wanted to stop on first successful operation
                             //kill all threads and set progress to 100;
+                            Log.d(TAG, "about to call stop all threads because of messageTypeID == SUCCESSFUL_OPERATION");
                             safeStopAllThreads();
                             blockUpdates = true;
                             prbBar_progressBar.setProgress(100);
@@ -435,4 +507,12 @@ public class MainActivity extends AppCompatActivity {
             };
         }
     }
+
+//    private void addTextAreaListener() {
+////        txtPhone4.addTextChangedListener(setTextWatcher());
+//    }
+//
+//    private void removeTextAreaListener() {
+//        txtPhone4.removeTextChangedListener(setTextWatcher());
+//    }
 }

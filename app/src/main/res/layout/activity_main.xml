@@ -27,7 +27,7 @@
             android:importantForAutofill="no"
             android:inputType="phone"
             android:padding="8dp"
-            android:text="555555555" />
+            android:text="" />
         <TextView
             android:id="@+id/errorText"
             android:layout_width="fill_parent"

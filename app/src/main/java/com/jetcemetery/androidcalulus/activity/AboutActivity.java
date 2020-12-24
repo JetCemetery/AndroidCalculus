@@ -12,39 +12,37 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.jetcemetery.androidcalulus.R;
-import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
-import com.jetcemetery.androidcalulus.helper.OperationValues_default;
 
 public class AboutActivity extends AppCompatActivity {
     private static final String TAG = "AboutActivity";
     //the sending object, and ideally returning object
-    private OperationValues dataObj;
+//    private OperationValues dataObj;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-        SetDataObjIntent();
+//        SetDataObjIntent();
     }
 
-    private void SetDataObjIntent() {
-        Intent intent = this.getIntent();
-        if(intent != null){
-            Bundle bundle = intent.getExtras();
-            if(bundle != null){
-                OperationValues TempObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
-                if(TempObj != null){
-                    dataObj = TempObj;
-                }
-            }
-        }
-    }
+//    private void SetDataObjIntent() {
+////        Intent intent = this.getIntent();
+////        if(intent != null){
+////            Bundle bundle = intent.getExtras();
+////            if(bundle != null){
+////                OperationValues TempObj = (OperationValues) bundle.getSerializable(OperationValues.DATA_OBJ_NAME);
+////                if(TempObj != null){
+////                    dataObj = TempObj;
+////                }
+////            }
+////        }
+//    }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "Calling onResume");
-        SetDataObjIntent();
+//        SetDataObjIntent();
     }
 
     @Override

@@ -14,10 +14,8 @@ import android.view.View;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 
-import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
 import com.jetcemetery.androidcalulus.R;
 import com.jetcemetery.androidcalulus.calcOperation.Singleton_OperationValues;
-import com.jetcemetery.androidcalulus.helper.OperationValues_default;
 
 public class SettingsActivity extends AppCompatActivity {
     public static String TAG = "SettingsActivity";
@@ -58,9 +56,11 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void initDataObjectSingleton() {
+        //we should NOT need to init the singleton, but just in case....
         Singleton_OperationValues.initInstance();
         localDataObj = Singleton_OperationValues.getInstance();
     }
+
     private void init() {
 //        Log.d(TAG, "Inside init");
         //this function will initialize all of the user buttons/function/action listeners
@@ -103,13 +103,13 @@ public class SettingsActivity extends AppCompatActivity {
         stopOnSuccess_No.setOnClickListener(init_stopOnSuccess_No());
 
         //set values from the local data object
-        integral1_start.setValue(localDataObj.alphaStart());
-        integral2_start.setValue(localDataObj.betaStart());
-        integral3_start.setValue(localDataObj.gammaStart());
+        integral1_start.setValue(localDataObj.integral_1_Start());
+        integral2_start.setValue(localDataObj.integral_2_Start());
+        integral3_start.setValue(localDataObj.integral_3_Start());
 
-        integral1_end.setValue(localDataObj.alphaEnd());
-        integral2_end.setValue(localDataObj.betaEnd());
-        integral3_end.setValue(localDataObj.gammaEnd());
+        integral1_end.setValue(localDataObj.integral_1_End());
+        integral2_end.setValue(localDataObj.integral_2_End());
+        integral3_end.setValue(localDataObj.integral_3_End());
     }
 
     private View.OnClickListener init_cpuSingle() {
@@ -172,20 +172,13 @@ public class SettingsActivity extends AppCompatActivity {
         //need to finish this stuff to complete the menu actions
         Log.d(TAG, "Start of onOptionsItemSelected");
         Intent intent;
-//        if(localDataObj == null){
-////            Log.d(TAG, "dataObj was null, so I'm going to go ahead and set it to default...");
-//            localDataObj = OperationValues_default.getDefaultValues();
-//        }
 
         Bundle bundle;
         switch (item.getItemId()){
             case R.id.menu_about:
-                Log.d(TAG, "Menu button hit, going to menu_home");
+                Log.d(TAG, "Menu button hit, going to menu_about");
                 intent = new Intent(getApplicationContext(), AboutActivity.class);
-//                bundle = new Bundle();
                 SaveDataObjState();
-//                bundle.putSerializable(OperationValues.DATA_OBJ_NAME, dataObj);
-//                intent.putExtras(bundle);
                 startActivity(intent);
                 break;
             case R.id.menu_home:

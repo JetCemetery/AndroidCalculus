@@ -2,7 +2,6 @@ package com.jetcemetery.androidcalulus.helper;
 
 import android.widget.EditText;
 
-import com.jetcemetery.androidcalulus.calcOperation.OperationValues;
 import com.jetcemetery.androidcalulus.calcOperation.Singleton_OperationValues;
 
 public class StartOperationHelper {
@@ -16,15 +15,15 @@ public class StartOperationHelper {
     public boolean misconstruedIntegralRange() {
         boolean returningVal = false;
         mis_configuredIntegralRange_txt = "";
-        if(dataObj.alphaEnd() < dataObj.alphaStart()){
+        if(dataObj.integral_1_End() < dataObj.integral_1_Start()){
             mis_configuredIntegralRange_txt = "Integral 1 end value is less then initial!";
             returningVal = true;
         }
-        else if(dataObj.betaEnd() < dataObj.betaStart()){
+        else if(dataObj.integral_2_End() < dataObj.integral_2_Start()){
             mis_configuredIntegralRange_txt = "Integral 2 end value is less then initial!";
             returningVal = true;
         }
-        else if(dataObj.gammaEnd() < dataObj.gammaStart()){
+        else if(dataObj.integral_3_End() < dataObj.integral_3_Start()){
             mis_configuredIntegralRange_txt = "Integral 3 end value is less then initial!";
             returningVal = true;
         }

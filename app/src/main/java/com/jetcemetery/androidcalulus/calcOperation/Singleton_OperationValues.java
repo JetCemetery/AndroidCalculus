@@ -2,6 +2,7 @@ package com.jetcemetery.androidcalulus.calcOperation;
 
 import android.util.Log;
 
+import com.jetcemetery.androidcalulus.helper.GettingUserPhoneNumber;
 import com.jetcemetery.androidcalulus.helper.getCPU_Cnt;
 
 import java.util.ArrayList;
@@ -14,28 +15,37 @@ public class Singleton_OperationValues {
     private int integral_1_sta, integral_2_sta, integral_3_sta;
     private int integral_1_end, integral_2_end, integral_3_end;
     private boolean stopOnFirstSuccess;
-    private OperationValues.cpu_use_options cpu_options;
+    private Singleton_OperationValues.cpu_use_options cpu_options;
     private int CPUs_on_device;
     private int cpuToUse;
     private float expectedOperations;
     private boolean changesMade = false;
 
-    private long tempProgressCount;
+    private long local_ProgressOperationsCompleted;
     private String transitionTotOperationExpected;
-    private String transitionTextArea;
+    private String ResultsTextArea;
 
 
-    public static void initInstance()
-    {
-        if (instance == null)
-        {
+    public static void initInstance() {
+        if (instance == null) {
             // Create the instance
             int INTEGRAL_START_DEFAULT = 1;
             int INTEGRAL_END_DEFAULT = 20;
-            String defaultPhoneNumber = "555-555-5555";
+            String PhoneNumber = "555-555-5555";
+            try {
+                GettingUserPhoneNumber phoneHelper = new GettingUserPhoneNumber();
+                PhoneNumber = phoneHelper.getUserNumber();
+                if(PhoneNumber == null){
+                    PhoneNumber = "555-555-5555";
+                }else if(PhoneNumber.length() <= 1){
+                    PhoneNumber = "555-555-5555";
+                }
+            } catch (Exception e) {
+                PhoneNumber = "555-555-5555";
+            }
+
             int integral_1_sta, integral_2_sta, integral_3_sta;
             int integral_1_end, integral_2_end, integral_3_end;
-            boolean stopOnFirstSuccess = false;
             integral_1_sta = INTEGRAL_START_DEFAULT;
             integral_2_sta = INTEGRAL_START_DEFAULT;
             integral_3_sta = INTEGRAL_START_DEFAULT;
@@ -44,31 +54,32 @@ public class Singleton_OperationValues {
             integral_2_end = INTEGRAL_END_DEFAULT;
             integral_3_end = INTEGRAL_END_DEFAULT;
 
-            instance = new Singleton_OperationValues(defaultPhoneNumber, integral_1_sta, integral_2_sta, integral_3_sta, integral_1_end, integral_2_end, integral_3_end, false);
+            instance = new Singleton_OperationValues(PhoneNumber,
+                    integral_1_sta,
+                    integral_2_sta,
+                    integral_3_sta,
+                    integral_1_end,
+                    integral_2_end,
+                    integral_3_end,
+                    false);
         }
     }
 
-    public static Singleton_OperationValues getInstance()
-    {
+    public static Singleton_OperationValues getInstance() {
         return instance;
     }
-
-//    public void setCurrentOpCompleted(long currentOperationsCompleted) {
-//        transitionCurOperationsCompleted = currentOperationsCompleted;
-//    }
 
     public void setTotalOpCompleted(String totalOperationExpected) {
         transitionTotOperationExpected = totalOperationExpected;
     }
 
-
-
     public void setTextArea(String TextArea) {
-        transitionTextArea = TextArea;
+        Log.d(TAG, "calling setTextArea, passed [" + TextArea + "]");
+        ResultsTextArea = TextArea;
     }
     //
     public String getTextArea() {
-        return transitionTextArea;
+        return ResultsTextArea;
     }
 
 //    public long getTotalOpCompleted() {
@@ -92,12 +103,23 @@ public class Singleton_OperationValues {
     }
 
     public boolean wasDataChanged() {
+        //two part function
+        //if changes were made, AND this function was called
+        //we need to go ahead and reprocess total expected operation
+        //AND we need to set local counter to zero
+        //AND finally cleat the results text area
+        if(changesMade){
+            updateTotalExpectedOperations();
+            local_ProgressOperationsCompleted = 0;
+            setTextArea("");
+        }
+
         return changesMade;
     }
 
-    public String getCPU_count_that_is_used() {
-        return String.valueOf(cpuToUse);
-    }
+//    public String getCPU_count_that_is_used() {
+//        return String.valueOf(cpuToUse);
+//    }
 
     public long getParsedPhoneNumber() {
         //helper method that will take care of parsing the raw phone number into type long
@@ -116,11 +138,11 @@ public class Singleton_OperationValues {
     }
 
     public void setProgressCount(long currentOperationsCompleted) {
-        this.tempProgressCount = currentOperationsCompleted;
+        this.local_ProgressOperationsCompleted = currentOperationsCompleted;
     }
 
     public long getCurrentProgressCount(){
-        return this.tempProgressCount;
+        return this.local_ProgressOperationsCompleted;
     }
 
     public enum cpu_use_options {
@@ -152,28 +174,28 @@ public class Singleton_OperationValues {
         this.integral_3_end = end3;
     }
 
-    public void setPhoneNumber(String srcPhoneNum){
+    public synchronized void setPhoneNumber(String srcPhoneNum){
         rawPhoneNumber = srcPhoneNum;
     }
 
     public void setCpu_single() {
 
-        cpu_options = OperationValues.cpu_use_options.CPU_SINGLE;
+        cpu_options = Singleton_OperationValues.cpu_use_options.CPU_SINGLE;
         CPUs_to_use_populate();
     }
 
     public void setCpu_half() {
-        cpu_options = OperationValues.cpu_use_options.CPU_HALF;
+        cpu_options = Singleton_OperationValues.cpu_use_options.CPU_HALF;
         CPUs_to_use_populate();
     }
 
     public void setCpu_all_m_1() {
-        cpu_options = OperationValues.cpu_use_options.CPU_ALL_MINUS_1;
+        cpu_options = Singleton_OperationValues.cpu_use_options.CPU_ALL_MINUS_1;
         CPUs_to_use_populate();
     }
 
     public void setCpu_all() {
-        cpu_options = OperationValues.cpu_use_options.CPU_ALL;
+        cpu_options = Singleton_OperationValues.cpu_use_options.CPU_ALL;
         CPUs_to_use_populate();
     }
 
@@ -191,11 +213,11 @@ public class Singleton_OperationValues {
     }
 
     private void init() {
-        cpu_options =  OperationValues.cpu_use_options.CPU_HALF;
+        cpu_options =  Singleton_OperationValues.cpu_use_options.CPU_HALF;
         getCPU_Cnt findCPU_cnt = new getCPU_Cnt();
         CPUs_on_device = findCPU_cnt.getCount();
         CPUs_to_use_populate();
-        tempProgressCount = 0;
+        local_ProgressOperationsCompleted = 0;
         changesMade = false;
         updateTotalExpectedOperations();
     }
@@ -224,14 +246,6 @@ public class Singleton_OperationValues {
         }
     }
 
-    public int alphaStart() {
-        return this.integral_1_sta;
-    }
-
-    public Integer alphaEnd() {
-        return this.integral_1_end;
-    }
-
     public int getThreadNum() {
         return cpuToUse;
     }
@@ -240,23 +254,27 @@ public class Singleton_OperationValues {
         return this.rawPhoneNumber;
     }
 
-//    public boolean getMovingLowerLimit() {
-//        return true;
-//    }
+    public int integral_1_Start() {
+        return this.integral_1_sta;
+    }
 
-    public int betaStart() {
+    public Integer integral_1_End() {
+        return this.integral_1_end;
+    }
+
+    public int integral_2_Start() {
         return this.integral_2_sta;
     }
 
-    public int betaEnd() {
+    public int integral_2_End() {
         return this.integral_2_end;
     }
 
-    public int gammaStart() {
+    public int integral_3_Start() {
         return this.integral_3_sta;
     }
 
-    public int gammaEnd() {
+    public int integral_3_End() {
         return this.integral_3_end;
     }
 
@@ -268,13 +286,13 @@ public class Singleton_OperationValues {
         return 1000;
     }
 
-    public String getInitialProgressText() {
-        //there's an issue of non whole numbers for the expected text...
-        return "0 / " + (long) expectedOperations;
-    }
+//    public String getInitialProgressText() {
+//        //there's an issue of non whole numbers for the expected text...
+//        return "0 / " + (long) expectedOperations;
+//    }
 
     public int operationForProgressBar(){
-        return operationForProgressBar(tempProgressCount);
+        return operationForProgressBar(local_ProgressOperationsCompleted);
     }
 
     public int operationForProgressBar(float completedOperations){
@@ -346,7 +364,7 @@ public class Singleton_OperationValues {
 //        return true;
 //    }
 
-    public OperationValues.cpu_use_options getCPU_OptionsEnum() {
+    public Singleton_OperationValues.cpu_use_options getCPU_OptionsEnum() {
         return cpu_options;
     }
 
