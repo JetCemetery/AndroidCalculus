@@ -22,16 +22,16 @@ public class Singleton_OperationValues {
     private boolean changesMade = false;
 
     private long local_ProgressOperationsCompleted;
-    private String transitionTotOperationExpected;
     private String ResultsTextArea;
 
+    private int gl_lastPart = 1000;
 
     public static void initInstance() {
         if (instance == null) {
             // Create the instance
             int INTEGRAL_START_DEFAULT = 1;
-            int INTEGRAL_END_DEFAULT = 20;
-            String PhoneNumber = "555-555-5555";
+            int INTEGRAL_END_DEFAULT = 4;
+            String PhoneNumber;
             try {
                 GettingUserPhoneNumber phoneHelper = new GettingUserPhoneNumber();
                 PhoneNumber = phoneHelper.getUserNumber();
@@ -69,22 +69,13 @@ public class Singleton_OperationValues {
         return instance;
     }
 
-    public void setTotalOpCompleted(String totalOperationExpected) {
-        transitionTotOperationExpected = totalOperationExpected;
-    }
-
     public void setTextArea(String TextArea) {
         Log.d(TAG, "calling setTextArea, passed [" + TextArea + "]");
         ResultsTextArea = TextArea;
     }
-    //
     public String getTextArea() {
         return ResultsTextArea;
     }
-
-//    public long getTotalOpCompleted() {
-//        return transitionCurOperationsCompleted;
-//    }
 
     public String getPhoneNumber() {
         return rawPhoneNumber;
@@ -116,10 +107,6 @@ public class Singleton_OperationValues {
 
         return changesMade;
     }
-
-//    public String getCPU_count_that_is_used() {
-//        return String.valueOf(cpuToUse);
-//    }
 
     public long getParsedPhoneNumber() {
         //helper method that will take care of parsing the raw phone number into type long
@@ -204,7 +191,7 @@ public class Singleton_OperationValues {
         int int1 = integral_1_end - integral_1_sta;
         int int2 = integral_2_end - integral_2_sta;
         int int3 = integral_3_end - integral_3_sta;
-        int lastPart = 1000;
+        int lastPart = gl_lastPart;
         tempVal = tempVal * int1;
         tempVal = tempVal * int2;
         tempVal = tempVal * int3;
@@ -213,7 +200,7 @@ public class Singleton_OperationValues {
     }
 
     private void init() {
-        cpu_options =  Singleton_OperationValues.cpu_use_options.CPU_HALF;
+        cpu_options =  cpu_use_options.CPU_SINGLE;
         getCPU_Cnt findCPU_cnt = new getCPU_Cnt();
         CPUs_on_device = findCPU_cnt.getCount();
         CPUs_to_use_populate();
@@ -250,10 +237,6 @@ public class Singleton_OperationValues {
         return cpuToUse;
     }
 
-    public String getNumber() {
-        return this.rawPhoneNumber;
-    }
-
     public int integral_1_Start() {
         return this.integral_1_sta;
     }
@@ -286,11 +269,6 @@ public class Singleton_OperationValues {
         return 1000;
     }
 
-//    public String getInitialProgressText() {
-//        //there's an issue of non whole numbers for the expected text...
-//        return "0 / " + (long) expectedOperations;
-//    }
-
     public int operationForProgressBar(){
         return operationForProgressBar(local_ProgressOperationsCompleted);
     }
@@ -316,53 +294,6 @@ public class Singleton_OperationValues {
     public boolean getStopOnFirstSuccess(){
         return stopOnFirstSuccess;
     }
-
-//    public boolean identicalDataObj(OperationValues srcDataObj) {
-//        //helper function that will compare this data object with the one that was passed
-//        //you are only looking at the following params
-//        //integrals start/end
-//        //cpu count
-//        //stop on first success
-//        boolean valuesSame = true;
-//
-//        valuesSame &= withinRange(srcDataObj.alphaStart(), this.alphaStart(),"alpha Start");
-//        valuesSame &= withinRange(srcDataObj.alphaEnd(), this.alphaEnd(),"alphaEnd");
-//        valuesSame &= withinRange(srcDataObj.betaStart(), this.betaStart(),"betaStart");
-//        valuesSame &= withinRange(srcDataObj.betaEnd(), this.betaEnd(),"betaEnd");
-//        valuesSame &= withinRange(srcDataObj.gammaStart(), this.gammaStart(),"gammaStart");
-//        valuesSame &= withinRange(srcDataObj.gammaEnd(), this.gammaEnd(),"gammaEnd");
-//
-////        Log.d(TAG, "src  getCPU_OptionsEnum == " + srcDataObj.getCPU_OptionsEnum());
-////        Log.d(TAG, "this getCPU_OptionsEnum == " + this.getCPU_OptionsEnum());
-//        if(!srcDataObj.getCPU_OptionsEnum().equals(this.getCPU_OptionsEnum())){
-//            valuesSame = false;
-//        }
-//
-//        if(srcDataObj.getStopOnFirstSuccess() != this.getStopOnFirstSuccess()){
-//            valuesSame = false;
-//        }
-//
-//        if(!valuesSame){
-//            String buildingStr = "identicalDataObj this one is off somewhere\n";
-//            buildingStr+=srcDataObj.alphaStart()+ " == " + this.alphaStart() + "\n";
-//            buildingStr+=srcDataObj.alphaEnd()+ " == " + this.alphaEnd()+ "\n";
-//            buildingStr+=srcDataObj.betaStart()+ " == " + this.betaStart()+ "\n";
-//            buildingStr+=srcDataObj.betaEnd()+ " == " + this.betaEnd()+ "\n";
-//            buildingStr+=srcDataObj.gammaStart()+ " == " + this.gammaStart()+ "\n";
-//            buildingStr+=srcDataObj.gammaEnd()+ " == " + this.gammaEnd()+ "\n";
-//            buildingStr+=srcDataObj.getCPU_OptionsEnum()+ " == " + this.getCPU_OptionsEnum()+ "\n";
-//            buildingStr+=srcDataObj.getStopOnFirstSuccess()+ " == " + this.getStopOnFirstSuccess()+ "\n";
-//            Log.d(TAG,buildingStr);
-//        }
-//        return valuesSame;
-//    }
-//
-//    private boolean withinRange(int srcValue, int srcThisValue, String msg) {
-//        if(abs(srcValue - srcThisValue) > 1){
-//            return false;
-//        }
-//        return true;
-//    }
 
     public Singleton_OperationValues.cpu_use_options getCPU_OptionsEnum() {
         return cpu_options;

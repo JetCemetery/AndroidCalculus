@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(layout.activity_main);
         Log.d(TAG, "Calling onCreate");
-        //TODO - find bug in expected values to run & why total operation is short
         //TODO - Add adapter to the result so you can copy the thing
         //TODO - make sure app doesn't crash from any pages
         //TODO - Add clipart stuff to the Start Pause/Resume and stop buttons

@@ -2,27 +2,27 @@ package com.jetcemetery.androidcalulus.calcOperation;
 
 public class SingleMathOp {
     private final int integrateOn;
-    private final int alpha;
-    private final int beta;
-    private final int gamma;
-    private long mathOpResults;
+    private final int integral_1;
+    private final int integral_2;
+    private final int integral_3;
+    private long mathOpResults = 0;
 
     public SingleMathOp(int xVal, int srcAlpha, int srcBeta, int srcGamma) {
         //constructor
         //sets up all the needed numbers
         integrateOn = xVal;
-        alpha = srcAlpha;
-        beta = srcBeta;
-        gamma = srcGamma;
-        mathOpResults = 1L;
+        integral_1 = srcAlpha;
+        integral_2 = srcBeta;
+        integral_3 = srcGamma;
+        runMath();
     }
 
 
     public void runMath(){
         //the math operation will see if that value is within the accepted range
-        long al = mathOp(alpha,4);
-        long be = mathOp(beta,3);
-        long ga = mathOp(gamma,2);
+        long al = mathOp(integral_1,4);
+        long be = mathOp(integral_2,3);
+        long ga = mathOp(integral_3,2);
         mathOpResults = (al+be+ga);
     }
 

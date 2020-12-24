@@ -8,8 +8,6 @@ public class Singleton_MainLoop {
     private static final String TAG = "Singleton_MainLoop";
     public static String DATA_OBJ_NAME = "Singleton_MainLoop";
     private static Singleton_MainLoop instance;
-
-//    private OperationValues data;
     private transient Handler mainLoopHandler;
     private int[] pointsArray;
     private ArrayList<SecondaryForLoop> runnableList;
@@ -106,7 +104,6 @@ public class Singleton_MainLoop {
         //this is going to be the main loop caller
         //the soul purpose of this function is to take in the number of available CPUs
         //get the total number of
-//        this.data = data;
         this.mainLoopHandler = handler;
         pointsArray = createPointsArray(data);
     }
@@ -133,8 +130,8 @@ public class Singleton_MainLoop {
             public void run()
             {
                 int endVal = end;
-                for(int movingValue = start; movingValue < endVal; movingValue++){
-                    SecondaryForLoop secondObj = new SecondaryForLoop(data, movingValue, mainLoopHandler);
+                for(int first_integral_value = start; first_integral_value < endVal; first_integral_value++){
+                    SecondaryForLoop secondObj = new SecondaryForLoop(data, first_integral_value, mainLoopHandler);
                     if(runnableList == null){
                         //if here, then we PROBABLY set the stop on first success
                         //AND then we hit a section that posted a successful thing with a integral

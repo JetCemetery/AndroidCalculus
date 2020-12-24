@@ -20,7 +20,7 @@ public class SecondaryForLoop implements Runnable {
     public static String STATE_RUNNING = "Running";
     public static String STATE_FINISHED = "Finished";
     private final Singleton_OperationValues userInput;
-    private final int movingValue;
+    private int first_integral_value;
     private Handler handler;
     private final long targetNumber;
     private final int range;
@@ -29,9 +29,9 @@ public class SecondaryForLoop implements Runnable {
     private int currentBatchAmount;
     private volatile boolean stopProcess;// = false;
 
-    public SecondaryForLoop(Singleton_OperationValues data, int movingValue, Handler handler) {
+    public SecondaryForLoop(Singleton_OperationValues data, int first_integral_value, Handler handler) {
         this.userInput = data;
-        this.movingValue = movingValue;
+        this.first_integral_value = first_integral_value;
         this.handler = handler;
         this.targetNumber = data.getParsedPhoneNumber();
         this.range = 1000;
@@ -53,12 +53,12 @@ public class SecondaryForLoop implements Runnable {
         int rangeStart = (short) userInput.xStart();
         int rangeEnd = (short) userInput.xEnd();
 
-        for(int movingBeta = movingIntegral_2; movingBeta<end_Integral_2; movingBeta++){
+        for(int second_integral_value = movingIntegral_2; second_integral_value<end_Integral_2; second_integral_value++){
             //use to kill thread process gracefully
-            Log.d(TAG,"At outer moving for loop beta == " + movingBeta);
-            for(int movingGamma = movingIntegral_3; movingGamma<end_Integral_3; movingGamma++) {
+//            Log.d(TAG,"At outer moving for loop beta == " + second_integral_value);
+            for(int third_integral_value = movingIntegral_3; third_integral_value<end_Integral_3; third_integral_value++) {
                 //use to kill thread process gracefully
-                for (int movingLowerLimit = rangeStart; movingLowerLimit < rangeEnd - 1; movingLowerLimit++) {
+                for (int movingLowerLimit = rangeStart; movingLowerLimit < rangeEnd; movingLowerLimit++) {
                     //for enabling pause resume section
                     //--------------
                     while(pauseWork)
@@ -83,21 +83,17 @@ public class SecondaryForLoop implements Runnable {
                     setState(STATE_RUNNING);
                     //--------------
 
-                    SingleMathOp lowerLimitCalc = new SingleMathOp(movingLowerLimit, movingValue, movingBeta, movingGamma);
-                    lowerLimitCalc.runMath();
+                    SingleMathOp lowerLimitCalc = new SingleMathOp(movingLowerLimit, first_integral_value, second_integral_value, third_integral_value);
                     long lowerLimitValue = lowerLimitCalc.getDerivative();
-                    for (int movingUpperLimit = (movingLowerLimit + 1); movingUpperLimit < rangeEnd; movingUpperLimit++) {
-                        SingleMathOp mathOp = new SingleMathOp(movingUpperLimit, movingValue, movingBeta, movingGamma);
-                        mathOp.runMath();
+                    for (int movingUpperLimit = (movingLowerLimit + 1); movingUpperLimit <= rangeEnd; movingUpperLimit++) {
+                        SingleMathOp mathOp = new SingleMathOp(movingUpperLimit, first_integral_value, second_integral_value, third_integral_value);
                         long upperLimitValue = mathOp.getDerivative();
                         long diff = upperLimitValue - lowerLimitValue;
                         if (Math.abs(targetNumber - diff) < range) {
                             //if here then number is within range!
-
                             long dividend = targetNumber - diff;
-
-                            String phoneNumberTxt = PrintCalc.PrintCalcObjPass(movingLowerLimit, movingUpperLimit, movingValue, movingBeta, movingGamma, targetNumber, dividend);
-                            Log.d(TAG,"****SUCCESS*********" + phoneNumberTxt);
+                            String phoneNumberTxt = PrintCalc.PrintCalcObjPass(movingLowerLimit, movingUpperLimit, first_integral_value, second_integral_value, third_integral_value, targetNumber, dividend);
+//                            Log.d(TAG,"****SUCCESS*********" + phoneNumberTxt);
 
                             postMessage(phoneNumberTxt + "\n");
                             if(userInput.getStopOnFirstSuccess()){
@@ -113,7 +109,11 @@ public class SecondaryForLoop implements Runnable {
                     }
                     postCompleteOperation();
                 }
+                //need to increment current batch here
+                //cause, the loop math logic, so leave it be.
+                currentBatchAmount++;
             }
+
         }
 
 
