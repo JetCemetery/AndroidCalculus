@@ -37,7 +37,7 @@
                 android:inputType="textMultiLine"
                 android:labelFor="@+id/aboutLayoutID"
                 android:singleLine="true"
-                android:text="@string/setting_what"
+                android:text="@string/about_what"
                 android:textIsSelectable="false"
                 android:autofillHints="" />
 
@@ -52,7 +52,7 @@
                 android:importantForAutofill="no"
                 android:inputType="textMultiLine"
                 android:labelFor="@+id/aboutLayoutID"
-                android:text="@string/why_i_like_writing_code"
+                android:text="@string/about_why"
                 android:textIsSelectable="false" />
 
             <EditText
@@ -66,7 +66,7 @@
                 android:importantForAutofill="no"
                 android:inputType="textMultiLine"
                 android:labelFor="@+id/aboutLayoutID"
-                android:text="@string/cpu_txt_about"
+                android:text="@string/about_how"
                 android:textIsSelectable="false" />
 
             <EditText
@@ -80,7 +80,7 @@
                 android:importantForAutofill="no"
                 android:inputType="textMultiLine"
                 android:labelFor="@+id/aboutLayoutID"
-                android:text="@string/setting_lets_you_control_the_range_of_the_three_integrals_cpu_count_amp_to_stop_the_calculations_on_first_success"
+                android:text="@string/setting_stopOnSuccess"
                 android:textIsSelectable="false" />
         </LinearLayout>
 

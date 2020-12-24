@@ -59,7 +59,7 @@
             android:id="@+id/layout_pause_stop">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_pause2"
+                android:id="@+id/btn_PauseResume"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:icon="@drawable/ic_pause"

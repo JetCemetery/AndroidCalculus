@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         txtError = findViewById(id.errorText);
         btnStart = findViewById(id.btn_start);
 
-        btnPause_Resume = findViewById(id.btn_pause2);
+        btnPause_Resume = findViewById(id.btn_PauseResume);
         btnPause_Resume.setText(PauseStr);
         btnStop = findViewById(id.btn_stop2);
         btnPauseStopLayout = findViewById(id.layout_pause_stop);

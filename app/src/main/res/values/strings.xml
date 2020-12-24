@@ -18,8 +18,8 @@
     <string name="settings">Settings</string>
     <string name="_initialText">100 / 100</string>
     <string name="results">Results</string>
-    <string name="setting_what">What: Enter a valid number and brute force to find an integral that, when solved, will produce</string>
-    <string name="why_i_like_writing_code">Why: I like writing code</string>
-    <string name="cpu_txt_about">How: The program iterates on four loops, the first one breaks the first integral into parts based on CPUs. The second and third loop iterate over the values based on the second and third integral. Once the first, second and third integral ranges are set, the app will do the derivative, and see if your phone number is a match</string>
-    <string name="setting_lets_you_control_the_range_of_the_three_integrals_cpu_count_amp_to_stop_the_calculations_on_first_success"><![CDATA[Setting: Lets you control the range of the three integrals, CPU count & to stop the calculations on first success]]></string>
+    <string name="about_what">What: Enter a valid number and brute force to find an integral that, when solved, will produce</string>
+    <string name="about_why">Why: I like writing code</string>
+    <string name="about_how">How: The program iterates on three loops, the first for loop is broken into parts based on thread count on the host hardware. The second and third loop iterate over the values based on the second and third integral. Once the first, second and third integral ranges are set, the app will do the derivative, and see if your phone number is a match. If the derivative is a match, it will the work backwords and create the integral.</string>
+    <string name="setting_stopOnSuccess"><![CDATA[Setting: Lets you control the range of the three integrals, CPU count & to stop the calculations on first success]]></string>
 </resources>

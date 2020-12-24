@@ -285,7 +285,7 @@
                         android:layout_height="wrap_content"
                         android:background="@color/Drawable_buttons"
                         android:gravity="center"
-                        android:text="CPU Count"
+                        android:text="Core Count"
                         android:textSize="28sp" />
 
                 </LinearLayout>
