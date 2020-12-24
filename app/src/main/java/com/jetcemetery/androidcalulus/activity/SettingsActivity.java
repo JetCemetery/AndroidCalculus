@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 
@@ -26,14 +27,13 @@ public class SettingsActivity extends AppCompatActivity {
     private Singleton_OperationValues localDataObj;
 
     private final int numberPicker_setMinValue = 1;
-    private final int numberPicker_setMaxValue = 1000000;
-//    private final int numberPicker_SetValueStart = 1;
-//    private final int numberPicker_SetValueEnd = 3;
+    private final int numberPicker_setMaxValue = 10000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         Log.d(TAG, "Start of onCreate");
         integral1_start = findViewById(R.id.integral1_start);
         integral2_start = findViewById(R.id.integral2_start);
@@ -139,9 +139,7 @@ public class SettingsActivity extends AppCompatActivity {
     private void setStartIntegral(NumberPicker srcIntegral) {
         srcIntegral.setMinValue(numberPicker_setMinValue);
         srcIntegral.setMaxValue(numberPicker_setMaxValue);
-        srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> {
-            localDataObj.changesMade();
-        });
+        srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> localDataObj.changesMade());
     }
 
     private void setEndIntegral(NumberPicker srcIntegral) {
@@ -173,7 +171,6 @@ public class SettingsActivity extends AppCompatActivity {
         Log.d(TAG, "Start of onOptionsItemSelected");
         Intent intent;
 
-        Bundle bundle;
         switch (item.getItemId()){
             case R.id.menu_about:
                 Log.d(TAG, "Menu button hit, going to menu_about");

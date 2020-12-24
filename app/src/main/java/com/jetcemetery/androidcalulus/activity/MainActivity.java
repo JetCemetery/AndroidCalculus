@@ -6,27 +6,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
 import com.jetcemetery.androidcalulus.R;
 import com.jetcemetery.androidcalulus.calcOperation.Singleton_MainLoop;
 import com.jetcemetery.androidcalulus.calcOperation.Singleton_OperationValues;
-//import com.jetcemetery.androidcalulus.helper.OperationValues_default;
 import com.jetcemetery.androidcalulus.helper.StartOperationHelper;
 
 import static com.jetcemetery.androidcalulus.R.*;
@@ -42,7 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtError, txtResults, txt_progressBar2;
     private Button btnStart;
     private View btnPauseStopLayout;
-    private Button btnPause_Resume, btnStop;
+    private MaterialButton btnPause_Resume;
+    private Button btnStop;
     private ProgressBar prbBar_progressBar;
     private Handler updateUIHandler;
     private boolean blockUpdates;
@@ -60,9 +61,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(layout.activity_main);
         Log.d(TAG, "Calling onCreate");
+        //fixed the keyboard issue popping up each time...
+        //https://stackoverflow.com/questions/2496901/android-on-screen-keyboard-auto-popping-up
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         //TODO - Add adapter to the result so you can copy the thing
-        //TODO - make sure app doesn't crash from any pages
-        //TODO - Add clipart stuff to the Start Pause/Resume and stop buttons
 
         txtPhone4 = findViewById(id.txt_phoneID);
         txtError = findViewById(id.errorText);
@@ -106,9 +108,10 @@ public class MainActivity extends AppCompatActivity {
             txtError.setVisibility(TextView.GONE);
             StartOperationHelper helperObj = new StartOperationHelper(localDataObj);
             if(singleton_Thread != null){
-                Log.d(TAG, "Preventing action");
-                Toast.makeText(getApplicationContext(), "Preventing action", Toast.LENGTH_SHORT).show();
-                return;
+                //you should NEVER get here
+                //the singleton thread should always be null
+                //just in case, I'll go ahead and call the stop thread and continue...
+                safeStopAllThreads();
             }
             if(helperObj.misconstruedIntegralRange()){
                 //should never get here
@@ -125,22 +128,52 @@ public class MainActivity extends AppCompatActivity {
             }
             else{
                 //if here, then number is NOT valid
+                //this error should come into two favours
+                //one there is a letter of some kinda
+                //OR there are not enough characters
+                boolean lettersFound = false;
+                boolean numberNotValid = false;
+                int numberCount = 0;
+                String rawNumbStr = txtPhone4.getText().toString();
+                for(char c : rawNumbStr.toCharArray()){
+                    if(Character.isAlphabetic(c)){
+                        lettersFound = true;
+                        break;
+                    }
+                    if(Character.isDigit(c)){
+                        numberCount++;
+                    }
+                }
+                if(numberCount <= 3){
+                    numberNotValid = true;
+                }
+                String errorMsg = "Number Not valid!";
+                if(lettersFound){
+                    errorMsg = "Number should not have any latin characters";
+                }
+                else if(numberNotValid){
+                    errorMsg = "Number is to small to be a valid phone number";
+                }
                 txtError.setVisibility(View.VISIBLE);
-                txtError.setText(string.error_msg);
-                Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                txtError.setText(errorMsg);
+                Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_SHORT).show();
             }
         });
 
         btnPause_Resume.setOnClickListener(v -> {
             String currentTxt = btnPause_Resume.getText().toString();
             if(currentTxt.equalsIgnoreCase(PauseStr)){
+                @SuppressLint("UseCompatLoadingForDrawables") Drawable myIcon = getResources().getDrawable( R.drawable.ic_resume );
                 btnPause_Resume.setText(ResumeStr);
+                btnPause_Resume.setIcon(myIcon);
                 safePauseAllThreads();
             }else{
-                btnPause_Resume.setText(ResumeStr);
+
+                @SuppressLint("UseCompatLoadingForDrawables") Drawable myIcon = getResources().getDrawable( drawable.ic_pause );
+                btnPause_Resume.setText(PauseStr);
+                btnPause_Resume.setIcon(myIcon);
                 safeResumeAllThreads();
             }
-
         });
 
         btnStop.setOnClickListener(v -> {
@@ -226,40 +259,8 @@ public class MainActivity extends AppCompatActivity {
         prbBar_progressBar.setProgress(0);
         String progressText = "0 / " + local_TotalExpected;
         txt_progressBar2.setText(progressText);
-//        if(txtResults != null){
-//            //random crash issue here...
-//            txtResults.setText("");
-//        }
-
     }
 
-
-//
-//    protected TextWatcher setTextWatcher() {
-//        return new TextWatcher() {
-//
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//                //do nothing
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                //do nothing
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//                //if here, then text has changed
-//                //check to see if we have any threads running
-//                //  if threads are running, kill em
-//                //  if no threads are running, do nothing
-//                Log.d(TAG, "about to call stop all threads because afterTextChanged");
-//                safeStopAllThreads();
-//                resetDataObj();
-//            }
-//        };
-//    }
 
     private void InitiateMainForLoopThread() {
         Log.d(TAG, "Calling InitiateMainForLoopThread");
@@ -285,6 +286,24 @@ public class MainActivity extends AppCompatActivity {
         }
         String progressTxt = local_currentOperationsCompleted + " / " + local_TotalExpected;
         txt_progressBar2.setText(progressTxt);
+    }
+
+
+
+    private void ShowStart_HidePauseStop(boolean showStart) {
+        Log.d(TAG, "Calling ShowStart_HidePauseStop");
+        //helper function that will take care of setting things visible / invisible
+        //if passing true then
+        //  show the start button, but hide the pause and stop button
+        //if passing false then
+        //  hide the start button, but show the pause and stop button
+        if(showStart){
+            btnPauseStopLayout.setVisibility(View.GONE);
+            btnStart.setVisibility(View.VISIBLE);
+        }else {
+            btnPauseStopLayout.setVisibility(View.VISIBLE);
+            btnStart.setVisibility(View.GONE);
+        }
     }
 
     private void safeStopAllThreads() {
@@ -319,22 +338,6 @@ public class MainActivity extends AppCompatActivity {
         UnlockStartButton();
     }
 
-    private void ShowStart_HidePauseStop(boolean showStart) {
-        Log.d(TAG, "Calling ShowStart_HidePauseStop");
-        //helper function that will take care of setting things visible / invisible
-        //if passing true then
-        //  show the start button, but hide the pause and stop button
-        //if passing false then
-        //  hide the start button, but show the pause and stop button
-        if(showStart){
-            btnPauseStopLayout.setVisibility(View.GONE);
-            btnStart.setVisibility(View.VISIBLE);
-        }else {
-            btnPauseStopLayout.setVisibility(View.VISIBLE);
-            btnStart.setVisibility(View.GONE);
-        }
-    }
-
     private void safeResumeAllThreads() {
         Log.d(TAG, "calling safeResumeAllThreads");
         if(singleton_Thread != null){
@@ -355,11 +358,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         Log.d(TAG, "calling onSaveInstanceState");
         super.onSaveInstanceState(savedInstanceState);
-//        removeTextAreaListener();
-        Log.d(TAG, "\tonSaveInstanceState - calling safe pause");
         safePauseAllThreads();
         SaveDataObjState();
     }
@@ -367,19 +368,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "calling onRestoreInstanceState");
-        String temptxt = localDataObj.getTextArea();
-        Log.d(TAG, "calling BEFORE super");
+        String tempTxt = localDataObj.getTextArea();
         super.onRestoreInstanceState(savedInstanceState);
-        Log.d(TAG, "calling POST onRestoreInstanceState");
         //if here, then there was a chance that the text was removed from the result area
         //cause, change from landscape to portrait or vice versa...
-//        String temptxt = localDataObj.getTextArea();
-        if(temptxt != null && !temptxt.isEmpty()){
-            txtResults.setText(temptxt);
+        if(tempTxt != null && !tempTxt.isEmpty()){
+            txtResults.setText(tempTxt);
         }
         updateProgressBar_and_Text();
         safeResumeAllThreads();
-//        addTextAreaListener();
     }
 
     @Override
@@ -429,7 +426,7 @@ public class MainActivity extends AppCompatActivity {
         //This function is called just before moving into a new activity
         //There will be two parts, part 1
         //update localDataObj
-        //  update the current counter, and update the textarea only
+        //  update the current counter, and update the text area only
         //Part 2, remove text watcher
         //There is an issue on the resume function, as the text gets update from the localDataObj
         //the reset function is tripped....
@@ -437,9 +434,6 @@ public class MainActivity extends AppCompatActivity {
         //part 1, save the data
         localDataObj.setProgressCount(local_currentOperationsCompleted);
         localDataObj.setTextArea(txtResults.getText().toString());
-
-        //part 2, remove text change listener
-//        removeTextAreaListener();
 
         String rawPhone = String.valueOf(txtPhone4.getText());
         localDataObj.setPhoneNumber(rawPhone);

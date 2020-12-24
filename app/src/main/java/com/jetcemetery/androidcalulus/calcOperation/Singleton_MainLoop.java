@@ -5,8 +5,8 @@ import android.os.Handler;
 import java.util.ArrayList;
 
 public class Singleton_MainLoop {
-    private static final String TAG = "Singleton_MainLoop";
-    public static String DATA_OBJ_NAME = "Singleton_MainLoop";
+//    private static final String TAG = "Singleton_MainLoop";
+//    public static String DATA_OBJ_NAME = "Singleton_MainLoop";
     private static Singleton_MainLoop instance;
     private transient Handler mainLoopHandler;
     private int[] pointsArray;
@@ -73,7 +73,7 @@ public class Singleton_MainLoop {
 //        Log.d(TAG,"At start of Killing all threads");
         stopAllThreadsCalled = true;
         if(runnableList != null){
-            if(runnableList.size() > 1){
+            if(runnableList.size() > 0){
                 for (SecondaryForLoop curTh : runnableList){
                     if(curTh != null){
                         //will call a function that will gracefully kill the thread

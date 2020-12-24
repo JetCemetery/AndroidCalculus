@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -20,55 +19,69 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="false"
                 android:gravity="center"
                 android:text="@string/about"
+                android:textIsSelectable="false"
                 android:textSize="24sp"
-                android:textStyle="italic"
-                />
+                android:textStyle="italic" />
 
             <EditText
-                android:labelFor="@+id/aboutLayoutID"
                 android:id="@+id/txt_What"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="false"
                 android:ems="10"
+                android:enabled="false"
                 android:gravity="start|top"
                 android:inputType="textMultiLine"
-                android:text="@string/what_enter_a_valid_number_and_brute_force_to_find_an_integral_that_when_solved_will_produce"
-                android:importantForAutofill="no" />
+                android:labelFor="@+id/aboutLayoutID"
+                android:singleLine="true"
+                android:text="@string/setting_what"
+                android:textIsSelectable="false"
+                android:autofillHints="" />
 
             <EditText
-                android:labelFor="@+id/aboutLayoutID"
                 android:id="@+id/txt_Why"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="false"
                 android:ems="10"
+                android:enabled="false"
                 android:gravity="start|top"
+                android:importantForAutofill="no"
                 android:inputType="textMultiLine"
+                android:labelFor="@+id/aboutLayoutID"
                 android:text="@string/why_i_like_writing_code"
-                android:importantForAutofill="no" />
+                android:textIsSelectable="false" />
 
             <EditText
-                android:labelFor="@+id/aboutLayoutID"
                 android:id="@+id/txt_How"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="false"
                 android:ems="10"
+                android:enabled="false"
                 android:gravity="start|top"
+                android:importantForAutofill="no"
                 android:inputType="textMultiLine"
-                android:text="@string/how_the_program_iterates_on_four_loops_the_first_one_breaks_the_first_integral_into_parts_based_on_cpus_the_second_and_third_loop_iterate_over_the_values_based_on_the_second_and_third_integral_once_the_first_second_and_third_integral_ranges_are_set_the_app_will_do_the_derivative_and_see_if_your_phone_number_is_a_match"
-                android:importantForAutofill="no" />
+                android:labelFor="@+id/aboutLayoutID"
+                android:text="@string/cpu_txt_about"
+                android:textIsSelectable="false" />
 
             <EditText
-                android:labelFor="@+id/aboutLayoutID"
                 android:id="@+id/txt_Setting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="false"
                 android:ems="10"
+                android:enabled="false"
                 android:gravity="start|top"
+                android:importantForAutofill="no"
                 android:inputType="textMultiLine"
+                android:labelFor="@+id/aboutLayoutID"
                 android:text="@string/setting_lets_you_control_the_range_of_the_three_integrals_cpu_count_amp_to_stop_the_calculations_on_first_success"
-                android:importantForAutofill="no" />
+                android:textIsSelectable="false" />
         </LinearLayout>
 
 

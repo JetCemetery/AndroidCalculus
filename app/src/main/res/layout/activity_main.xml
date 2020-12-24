@@ -8,9 +8,6 @@
     android:padding="8dp"
     android:orientation="vertical"
     android:background="@color/Background">
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -39,14 +36,21 @@
             android:textColor="#D32F2F"
             android:visibility="visible" />
 
-        <Button
+<!--        Button and image problem solved via-->
+<!--        https://stackoverflow.com/questions/3634191/how-to-center-icon-and-text-in-a-android-button-with-width-set-to-fill-parent/13182353-->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_start"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:icon="@drawable/ic_start"
+            app:iconGravity="textStart"
+            app:iconPadding="10dp"
+            app:iconTint="@color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             android:text="@string/start"
-            android:textColor="#000000"
-            app:backgroundTint="@color/Drawable_buttons">
-        </Button>
+            app:backgroundTint="@color/Drawable_buttons"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,27 +58,40 @@
             android:weightSum="102"
             android:id="@+id/layout_pause_stop">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_pause2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="50"
+                app:icon="@drawable/ic_pause"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp"
+                app:iconTint="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="pause"
                 app:backgroundTint="@color/Drawable_buttons"
-                android:text="Pause"
-                android:id="@+id/btn_pause2"/>
+                android:layout_weight="50"/>
             <Space
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:layout_weight="2"
                 />
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_stop2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="50"
-                app:backgroundTint="@color/Drawable_buttons"
+                app:icon="@drawable/ic_stop"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp"
+                app:iconTint="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 android:text="Stop"
-                tools:ignore="InvalidId" />
+                app:backgroundTint="@color/Drawable_buttons"
+                android:layout_weight="50"/>
         </LinearLayout>
         <!--app:backgroundTint="#376E12"> -->
 
@@ -98,10 +115,6 @@
             app:autoSizeMinTextSize="14sp"
             app:autoSizeTextType="uniform" />
     </LinearLayout>
-
-
-</RelativeLayout>
-
 
 <ScrollView
     android:layout_width="match_parent"

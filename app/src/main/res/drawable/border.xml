@@ -8,7 +8,7 @@
     <!-- corner radius-->
     <corners
         android:radius="5dp"/>
-    <!--paddings-->
+    <!--padding's-->
     <padding
         android:left="0dp"
         android:top="0dp"

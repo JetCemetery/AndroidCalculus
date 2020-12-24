@@ -20,7 +20,7 @@ public class SecondaryForLoop implements Runnable {
     public static String STATE_RUNNING = "Running";
     public static String STATE_FINISHED = "Finished";
     private final Singleton_OperationValues userInput;
-    private int first_integral_value;
+    private final int first_integral_value;
     private Handler handler;
     private final long targetNumber;
     private final int range;
@@ -92,7 +92,7 @@ public class SecondaryForLoop implements Runnable {
                         if (Math.abs(targetNumber - diff) < range) {
                             //if here then number is within range!
                             long dividend = targetNumber - diff;
-                            String phoneNumberTxt = PrintCalc.PrintCalcObjPass(movingLowerLimit, movingUpperLimit, first_integral_value, second_integral_value, third_integral_value, targetNumber, dividend);
+                            String phoneNumberTxt = PrintCalc.PrintCalcObjPass(movingLowerLimit, movingUpperLimit, first_integral_value, second_integral_value, third_integral_value, dividend);
 //                            Log.d(TAG,"****SUCCESS*********" + phoneNumberTxt);
 
                             postMessage(phoneNumberTxt + "\n");

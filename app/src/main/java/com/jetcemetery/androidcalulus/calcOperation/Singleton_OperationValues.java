@@ -20,17 +20,15 @@ public class Singleton_OperationValues {
     private int cpuToUse;
     private float expectedOperations;
     private boolean changesMade = false;
-
     private long local_ProgressOperationsCompleted;
     private String ResultsTextArea;
 
-    private int gl_lastPart = 1000;
 
     public static void initInstance() {
         if (instance == null) {
             // Create the instance
             int INTEGRAL_START_DEFAULT = 1;
-            int INTEGRAL_END_DEFAULT = 4;
+            int INTEGRAL_END_DEFAULT = 100;
             String PhoneNumber;
             try {
                 GettingUserPhoneNumber phoneHelper = new GettingUserPhoneNumber();
@@ -191,7 +189,7 @@ public class Singleton_OperationValues {
         int int1 = integral_1_end - integral_1_sta;
         int int2 = integral_2_end - integral_2_sta;
         int int3 = integral_3_end - integral_3_sta;
-        int lastPart = gl_lastPart;
+        int lastPart = 1000;
         tempVal = tempVal * int1;
         tempVal = tempVal * int2;
         tempVal = tempVal * int3;
@@ -200,7 +198,7 @@ public class Singleton_OperationValues {
     }
 
     private void init() {
-        cpu_options =  cpu_use_options.CPU_SINGLE;
+        cpu_options =  cpu_use_options.CPU_HALF;
         getCPU_Cnt findCPU_cnt = new getCPU_Cnt();
         CPUs_on_device = findCPU_cnt.getCount();
         CPUs_to_use_populate();

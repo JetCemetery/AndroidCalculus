@@ -3,23 +3,19 @@ package com.jetcemetery.androidcalulus.calcOperation;
 public class PrintCalc {
 //	private static int movingX;
 
-    public static String PrintCalcOp(int movingX, int alpha, int beta, int gamma, long num){
-        SingleMathOp mathOperation = new SingleMathOp(movingX, alpha, beta, gamma);
-        mathOperation.runMath();
-
-        String alphaStr = "" + alpha * 4 + "x" + "^3";
-        String beta_str = " + " + beta * 3 + "x" + "^2";
-        String gamma_str = " + " + gamma * 2 + "x" + "";
-//		String end_prt = reducedFraction(mathOp2(mathOperation.getDerivative(),num),movingX) + ") dx";
-        String end_prt = " + " + mathOp2(mathOperation.getDerivative(),num) + "/" + movingX + ") dx";
-        String opening = "the integral of 0 to " + movingX + " of (";
-        return opening + alphaStr + beta_str + gamma_str + end_prt;
-    }
-
-//    private static String reducedFraction(int movingX) {
-//        //you are passed
-//        return null;
+//    public static String PrintCalcOp(int movingX, int alpha, int beta, int gamma, long num){
+//        SingleMathOp mathOperation = new SingleMathOp(movingX, alpha, beta, gamma);
+//        mathOperation.runMath();
+//
+//        String alphaStr = "" + alpha * 4 + "x" + "^3";
+//        String beta_str = " + " + beta * 3 + "x" + "^2";
+//        String gamma_str = " + " + gamma * 2 + "x" + "";
+////		String end_prt = reducedFraction(mathOp2(mathOperation.getDerivative(),num),movingX) + ") dx";
+//        String end_prt = " + " + mathOp2(mathOperation.getDerivative(),num) + "/" + movingX + ") dx";
+//        String opening = "the integral of 0 to " + movingX + " of (";
+//        return opening + alphaStr + beta_str + gamma_str + end_prt;
 //    }
+
 
     private static long mathOp2(long dervValue, long targetNum){
         //the math operation will see if that value is within the accepted range
@@ -52,7 +48,7 @@ public class PrintCalc {
         return builder.toString();
     }
 
-    public static String PrintCalcObjPass(int xlow, int xhigh, int alpha, int beta, int gamma, long number, long diff) {
+    public static String PrintCalcObjPass(int xlow, int xhigh, int alpha, int beta, int gamma, long diff) {
         //figure out the various ways to see if you can get the last part
         int divBot = getDivisor(xlow,xhigh);
         return printResult(xlow,xhigh,alpha,beta,gamma,diff,divBot);

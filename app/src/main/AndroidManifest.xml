@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jetcemetery.androidcalulus">
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/calchashtag"
@@ -9,12 +10,12 @@
         android:roundIcon="@mipmap/calchashtag"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidCalculus">
+
         <activity android:name=".activity.AboutActivity"/>
         <activity android:name=".activity.SettingsActivity" />
         <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -48,14 +48,14 @@
                         android:layout_weight="1">
 
                         <TextView
+                            android:id="@+id/settings_int1"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
                             android:background="@drawable/rounded_corner"
                             android:gravity="center"
                             android:padding="5dp"
-                            android:text="@string/integral_1">
-                        </TextView>
+                            android:text="@string/integral_1" />
 
 
 
@@ -70,14 +70,14 @@
                         android:padding="5dp">
 
                         <TextView
+                            android:id="@+id/settings_int2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
                             android:background="@drawable/rounded_corner"
                             android:gravity="center"
                             android:padding="5dp"
-                            android:text="@string/integral_2">
-                        </TextView>
+                            android:text="@string/integral_2" />
 
 
                     </LinearLayout>
@@ -91,14 +91,14 @@
                         android:padding="5dp">
 
                         <TextView
+                            android:id="@+id/settings_int3"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
                             android:background="@drawable/rounded_corner"
                             android:gravity="center"
                             android:padding="5dp"
-                            android:text="@string/integral_3">
-                        </TextView>
+                            android:text="@string/integral_3" />
 
 
                     </LinearLayout>
@@ -278,14 +278,15 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
                     <TextView
+                        android:id="@+id/settings_cpuCnt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="CPU Count"
                         android:background="@color/Drawable_buttons"
                         android:gravity="center"
-                        android:textSize="28sp">
-                    </TextView>
+                        android:text="CPU Count"
+                        android:textSize="28sp" />
 
                 </LinearLayout>
 
@@ -357,13 +358,15 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@drawable/border">
+
                 <TextView
+                    android:id="@+id/settings_stopOnSuccess"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Stop on First Success"
-                   android:gravity="center"
                     android:background="@color/Drawable_buttons"
-                    android:textSize="24sp"/>
+                    android:gravity="center"
+                    android:text="Stop on First Success"
+                    android:textSize="24sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"

@@ -8,9 +8,6 @@
     android:padding="8dp"
     android:orientation="vertical"
     android:background="@color/Background">
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -75,7 +72,6 @@
                 android:text="Stop"
                 tools:ignore="InvalidId" />
         </LinearLayout>
-        <!--app:backgroundTint="#376E12"> -->
 
         <ProgressBar
             android:id="@+id/pgBar_Progress_bar"
@@ -99,8 +95,6 @@
     </LinearLayout>
 
 
-</RelativeLayout>
-
 
 <ScrollView
     android:layout_width="match_parent"
@@ -110,7 +104,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/results">
-
     </TextView>
 
 </ScrollView>
