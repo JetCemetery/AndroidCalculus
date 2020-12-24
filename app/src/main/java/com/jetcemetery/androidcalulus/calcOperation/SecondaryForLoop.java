@@ -6,7 +6,6 @@ import android.os.Message;
 import android.util.Log;
 
 import com.jetcemetery.androidcalulus.activity.MainActivity;
-import com.jetcemetery.androidcalulus.helper.OperationValues_default;
 import com.jetcemetery.androidcalulus.helper.getRandomInRange;
 
 public class SecondaryForLoop implements Runnable {
@@ -35,7 +34,6 @@ public class SecondaryForLoop implements Runnable {
         this.movingValue = movingValue;
         this.handler = handler;
         this.targetNumber = data.getParsedPhoneNumber();
-//        this.targetNumber = OperationValues_default.parsePhoneInput(data.getNumber());
         this.range = 1000;
         currentBatchAmount = 0;
         currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(100, 1000);
@@ -48,10 +46,10 @@ public class SecondaryForLoop implements Runnable {
         //this function will need some kind of optimization
         //see https://howtodoinjava.com/java/collections/performance-comparison-of-different-for-loops-in-java/
         //according to that, we need to reduce the number of function calls, so I am, and here it is
-        int movingIntegral_2 = (short) userInput.betaStart();
-        int end_Integral_2 = (short)userInput.betaEnd();
-        int movingIntegral_3 = (short)userInput.gammaStart();
-        int end_Integral_3 = (short)userInput.gammaEnd();
+        int movingIntegral_2 = (short) userInput.integral_2_Start();
+        int end_Integral_2 = (short)userInput.integral_2_End();
+        int movingIntegral_3 = (short)userInput.integral_3_Start();
+        int end_Integral_3 = (short)userInput.integral_3_End();
         int rangeStart = (short) userInput.xStart();
         int rangeEnd = (short) userInput.xEnd();
 
@@ -186,7 +184,7 @@ public class SecondaryForLoop implements Runnable {
             //to mimic authenticity, set the range amount to some random number
             //it's faking it I know, but that's okay, at least app does not crash anymore.
             currentBatchAmount = 0;
-            currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(100, 1000);
+            currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(500, 5000);
         }
 
     }
