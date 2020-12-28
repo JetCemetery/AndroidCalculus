@@ -163,15 +163,10 @@ public class MainActivity extends AppCompatActivity {
         btnPause_Resume.setOnClickListener(v -> {
             String currentTxt = btnPause_Resume.getText().toString();
             if(currentTxt.equalsIgnoreCase(PauseStr)){
-                @SuppressLint("UseCompatLoadingForDrawables") Drawable myIcon = getResources().getDrawable( R.drawable.ic_resume );
-                btnPause_Resume.setText(ResumeStr);
-                btnPause_Resume.setIcon(myIcon);
+                setPauseResumeButtonTo_Pause(false);
                 safePauseAllThreads();
             }else{
-
-                @SuppressLint("UseCompatLoadingForDrawables") Drawable myIcon = getResources().getDrawable( drawable.ic_pause );
-                btnPause_Resume.setText(PauseStr);
-                btnPause_Resume.setIcon(myIcon);
+                setPauseResumeButtonTo_Pause(true);
                 safeResumeAllThreads();
             }
         });
@@ -181,6 +176,26 @@ public class MainActivity extends AppCompatActivity {
             safeStopAllThreads();
             resetDataObj();
         });
+    }
+
+    private void setPauseResumeButtonTo_Pause(boolean settingTpPause) {
+        //if true is passed,
+        //  set the text of the button to 'pause'
+        //  update the icon to have the pause icon
+        //
+        //if false is passed
+        //  set the text of the button to 'resume'
+        //  update the icon
+        @SuppressLint("UseCompatLoadingForDrawables") Drawable myIcon;
+        if(settingTpPause){
+            myIcon = getResources().getDrawable(drawable.ic_pause);
+            btnPause_Resume.setText(PauseStr);
+        }else{
+            myIcon = getResources().getDrawable(drawable.ic_resume);
+            btnPause_Resume.setText(ResumeStr);
+
+        }
+        btnPause_Resume.setIcon(myIcon);
     }
 
     private void LockStartButton() {
@@ -261,7 +276,6 @@ public class MainActivity extends AppCompatActivity {
         txt_progressBar2.setText(progressText);
     }
 
-
     private void InitiateMainForLoopThread() {
         Log.d(TAG, "Calling InitiateMainForLoopThread");
         //this function shall create a new thread, and start the MainForLoopThread2 operation
@@ -288,8 +302,6 @@ public class MainActivity extends AppCompatActivity {
         String progressTxt = local_currentOperationsCompleted + " / " + local_TotalExpected;
         txt_progressBar2.setText(progressTxt);
     }
-
-
 
     private void ShowStart_HidePauseStop(boolean showStart) {
         Log.d(TAG, "Calling ShowStart_HidePauseStop");
@@ -337,6 +349,7 @@ public class MainActivity extends AppCompatActivity {
             Fifty_MS_delay.start();
         }
         UnlockStartButton();
+        setPauseResumeButtonTo_Pause(true);
     }
 
     private void safeResumeAllThreads() {
@@ -346,7 +359,8 @@ public class MainActivity extends AppCompatActivity {
             ShowStart_HidePauseStop(false);
             LockStartButton();
         }
-        btnPause_Resume.setText(PauseStr);
+        //btnPause_Resume.setText(PauseStr);
+        setPauseResumeButtonTo_Pause(true);
     }
 
     private void safePauseAllThreads() {
@@ -355,7 +369,8 @@ public class MainActivity extends AppCompatActivity {
             singleton_Thread.pauseAllThreads();
 
         }
-        btnPause_Resume.setText(ResumeStr);
+        //btnPause_Resume.setText(ResumeStr);
+        setPauseResumeButtonTo_Pause(false);
     }
 
     @Override
