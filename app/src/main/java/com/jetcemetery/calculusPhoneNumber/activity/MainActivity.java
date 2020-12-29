@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "Calling onCreate");
         super.onCreate(savedInstanceState);
         setContentView(layout.activity_main);
         Log.d(TAG, "Calling onCreate");
@@ -85,7 +86,53 @@ public class MainActivity extends AppCompatActivity {
         createUpdateUiHandler();
         setUIData();
         safeResumeAllThreads();
+        txtPhone4.setText(localDataObj.getPhoneNumber());
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "Calling onStart");
+        init_BothSingleTons();
+        safeResumeAllThreads();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "Calling onResume");
+        init_BothSingleTons();
+        safeResumeAllThreads();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "Calling onPause");
+        safePauseAllThreads();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "Calling onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "Calling onDestroy");
+        safeStopAllThreads();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "Calling onRestart");
+        init_BothSingleTons();
+        safeResumeAllThreads();
+    }
+
 
     private void init_BothSingleTons() {
         Log.d(TAG, "Inside init_BothSingleTons");
@@ -93,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         localDataObj = Singleton_OperationValues.getInstance();
         singleton_Thread = Singleton_MainLoop.getInstance();
 
-        txtPhone4.setText(localDataObj.getPhoneNumber());
+//        txtPhone4.setText(localDataObj.getPhoneNumber());
     }
 
     private void initView() {
@@ -176,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
             safeStopAllThreads();
             resetDataObj();
         });
+
     }
 
     private void setPauseResumeButtonTo_Pause(boolean settingTpPause) {
@@ -320,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void safeStopAllThreads() {
-        Log.d(TAG, "Calling safeStopAllThreads");
+        Log.d(TAG, "safe STOP all threads called");
         if(singleton_Thread != null){
             singleton_Thread.stopAllThreads();
             singleton_Thread = null;
@@ -353,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void safeResumeAllThreads() {
-        Log.d(TAG, "calling safeResumeAllThreads");
+        Log.d(TAG, "safe RESUME all threads called");
         if(singleton_Thread != null){
             singleton_Thread.resumeAllThreads(updateUIHandler);
             ShowStart_HidePauseStop(false);
@@ -364,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void safePauseAllThreads() {
-        Log.d(TAG, "calling safePauseAllThreads");
+        Log.d(TAG, "safe PAUSE all threads called");
         if(singleton_Thread != null){
             singleton_Thread.pauseAllThreads();
 
@@ -378,7 +426,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "calling onSaveInstanceState");
         super.onSaveInstanceState(savedInstanceState);
         safePauseAllThreads();
-        SaveDataObjState();
+//        SaveDataObjState();
     }
 
     @Override
