@@ -15,7 +15,7 @@ import android.view.WindowManager;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 
-import com.jetcemetery.androidcalulus.R;
+import com.jetcemetery.androidcalculus.R;
 import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_OperationValues;
 
 public class SettingsActivity extends AppCompatActivity {

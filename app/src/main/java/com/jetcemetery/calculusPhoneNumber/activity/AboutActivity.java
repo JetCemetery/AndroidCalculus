@@ -14,7 +14,7 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.EditText;
 
-import com.jetcemetery.androidcalulus.R;
+import com.jetcemetery.androidcalculus.R;
 
 public class AboutActivity extends AppCompatActivity {
     private static final String TAG = "AboutActivity";

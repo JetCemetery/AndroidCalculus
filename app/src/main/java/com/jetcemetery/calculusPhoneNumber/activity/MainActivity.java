@@ -24,12 +24,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
-import com.jetcemetery.androidcalulus.R;
+import com.jetcemetery.androidcalculus.R;
 import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_MainLoop;
 import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_OperationValues;
 import com.jetcemetery.calculusPhoneNumber.helper.StartOperationHelper;
 
-import static com.jetcemetery.androidcalulus.R.*;
+import static com.jetcemetery.androidcalculus.R.*;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -139,8 +139,6 @@ public class MainActivity extends AppCompatActivity {
         Singleton_OperationValues.initInstance();
         localDataObj = Singleton_OperationValues.getInstance();
         singleton_Thread = Singleton_MainLoop.getInstance();
-
-//        txtPhone4.setText(localDataObj.getPhoneNumber());
     }
 
     private void initView() {

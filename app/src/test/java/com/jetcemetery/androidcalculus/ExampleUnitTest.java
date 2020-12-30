@@ -1,4 +1,4 @@
-package com.jetcemetery.androidcalulus;
+package com.jetcemetery.androidcalculus;
 
 import org.junit.Test;
 
