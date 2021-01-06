@@ -198,7 +198,7 @@ public class Singleton_OperationValues {
     }
 
     private void init() {
-        cpu_options =  cpu_use_options.CPU_HALF;
+        cpu_options =  cpu_use_options.CPU_ALL;
         getCPU_Cnt findCPU_cnt = new getCPU_Cnt();
         CPUs_on_device = findCPU_cnt.getCount();
         CPUs_to_use_populate();

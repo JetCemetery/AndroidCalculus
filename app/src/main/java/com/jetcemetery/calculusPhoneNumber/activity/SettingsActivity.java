@@ -168,9 +168,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //need to finish this stuff to complete the menu actions
-        Log.d(TAG, "Start of onOptionsItemSelected");
         Intent intent;
-
         switch (item.getItemId()){
             case R.id.menu_about:
                 Log.d(TAG, "Menu button hit, going to menu_about");

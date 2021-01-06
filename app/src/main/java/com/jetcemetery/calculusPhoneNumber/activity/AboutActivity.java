@@ -40,7 +40,6 @@ public class AboutActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "Calling onResume");
-//        SetDataObjIntent();
     }
 
     @Override

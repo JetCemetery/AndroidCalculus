@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Calling onDestroy");
-        safeStopAllThreads();
+//        safeStopAllThreads();
     }
 
     @Override
@@ -224,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void setPauseResumeButtonTo_Pause(boolean settingTpPause) {
         //if true is passed,
         //  set the text of the button to 'pause'
@@ -341,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateProgressBar_and_Text() {
-//        Log.d(TAG, "Calling updateProgressBar_and_Text");
+        Log.d(TAG, "Calling updateProgressBar_and_Text");
         if(!blockUpdates){
             prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(local_currentOperationsCompleted));
         }
@@ -405,7 +406,6 @@ public class MainActivity extends AppCompatActivity {
             ShowStart_HidePauseStop(false);
             LockStartButton();
         }
-        //btnPause_Resume.setText(PauseStr);
         setPauseResumeButtonTo_Pause(true);
     }
 
@@ -413,9 +413,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "safe PAUSE all threads called");
         if(singleton_Thread != null){
             singleton_Thread.pauseAllThreads();
-
         }
-        //btnPause_Resume.setText(ResumeStr);
         setPauseResumeButtonTo_Pause(false);
     }
 
@@ -424,7 +422,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "calling onSaveInstanceState");
         super.onSaveInstanceState(savedInstanceState);
         safePauseAllThreads();
-//        SaveDataObjState();
+        SaveDataObjState();
     }
 
     @Override
@@ -475,11 +473,9 @@ public class MainActivity extends AppCompatActivity {
                 SaveDataObjState();
                 startActivity(intent);
                 break;
-
             default:
                 return super.onOptionsItemSelected(item);
         }
-
         return true;
     }
 
@@ -517,7 +513,6 @@ public class MainActivity extends AppCompatActivity {
                     if(msg != null){
                         int messageTypeID = msg.what;
                         if(messageTypeID == POST_MESSAGE_IN_RESULTS){
-                            //Log.d(TAG,"Got into the post message in results section");
                             //if here, then we are going to post a message text of some kind
                             //in the text view area
                             Bundle bundle = msg.getData();
@@ -541,7 +536,6 @@ public class MainActivity extends AppCompatActivity {
                             //multi threading, isn't it fun????
                             Bundle bundle = msg.getData();
                             String strMSg = bundle.getString(MESSAGE_NAME_ID);
-                            //Log.d(TAG,"strMSg == " + strMSg);
                             if(strMSg != null){
                                 if(!strMSg.isEmpty()){
                                     local_currentOperationsCompleted += Long.parseLong(strMSg);
@@ -563,12 +557,4 @@ public class MainActivity extends AppCompatActivity {
             };
         }
     }
-
-//    private void addTextAreaListener() {
-////        txtPhone4.addTextChangedListener(setTextWatcher());
-//    }
-//
-//    private void removeTextAreaListener() {
-//        txtPhone4.removeTextChangedListener(setTextWatcher());
-//    }
 }

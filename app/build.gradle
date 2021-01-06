@@ -7,11 +7,11 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.jetcemetery.androidcalulus"
+        applicationId "com.jetcemetery.androidcalculus"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 1
-        versionName "Dec-24-2020_Initial"
+        versionCode 4
+        versionName "Jan-06-2021"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

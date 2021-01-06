@@ -1,12 +1,11 @@
 package com.jetcemetery.calculusPhoneNumber.calcOperation;
 
 import android.os.Handler;
-
+import android.util.Log;
 import java.util.ArrayList;
 
 public class Singleton_MainLoop {
-//    private static final String TAG = "Singleton_MainLoop";
-//    public static String DATA_OBJ_NAME = "Singleton_MainLoop";
+    private static final String TAG = "Singleton_MainLoop";
     private static Singleton_MainLoop instance;
     private transient Handler mainLoopHandler;
     private int[] pointsArray;
@@ -24,28 +23,25 @@ public class Singleton_MainLoop {
     }
 
     public void pauseAllThreads() {
-//        Log.d(TAG,"At start of pausing");
+        Log.d(TAG,"pauseAllThreads");
         if(NoActiveThreads()){
             return;
         }
         for (SecondaryForLoop curTh : runnableList){
             if(curTh != null){
                 if(curTh.getState().equals(SecondaryForLoop.STATE_RUNNING)){
-//                    Log.d(TAG,"A thread was paused as it's state was running");
                     curTh.pause();
                 }
                 else if(curTh.getState().equals(SecondaryForLoop.STATE_NEW)){
                     //should never get here, but just in case you know
-//                    Log.d(TAG,"A thread was paused as it's state was new");
                     curTh.pause();
                 }
             }
         }
-//        Log.d(TAG,"All threads pausing completed");
     }
 
     public void resumeAllThreads(Handler updateUIHandler) {
-//        Log.d(TAG,"At start of resuming");
+        Log.d(TAG,"At start of resumeAllThreads");
         this.mainLoopHandler = updateUIHandler;
         if(NoActiveThreads()){
             return;
@@ -70,7 +66,7 @@ public class Singleton_MainLoop {
     }
 
     public void stopAllThreads() {
-//        Log.d(TAG,"At start of Killing all threads");
+        Log.d(TAG,"At start of stopAllThreads");
         stopAllThreadsCalled = true;
         if(runnableList != null){
             if(runnableList.size() > 0){
@@ -109,7 +105,6 @@ public class Singleton_MainLoop {
     }
 
     public void StartProcess(Singleton_OperationValues data){
-        // Log.d(TAG, "StartProcess called, total loop should be " + (pointsArray.length-1));
         runnableList = new ArrayList<>();
         for(int opCount=0; opCount < pointsArray.length-1; opCount++){
             //the goal plan for this is to create a new thread that passes the start/end values
@@ -123,14 +118,12 @@ public class Singleton_MainLoop {
         //however start them only when there is room available
         //hence if this operation needs to create 500 operations but there are only 8 threads
         //create 8 threads and when one is finished, create the next one
-        //Log.d(TAG,"Starting new thread start val [" + start + "] end val [" + end + "]");
 
         Thread myThread = new Thread() {
             @Override
             public void run()
             {
-                int endVal = end;
-                for(int first_integral_value = start; first_integral_value < endVal; first_integral_value++){
+                for(int first_integral_value = start; first_integral_value < end; first_integral_value++){
                     SecondaryForLoop secondObj = new SecondaryForLoop(data, first_integral_value, mainLoopHandler);
                     if(runnableList == null){
                         //if here, then we PROBABLY set the stop on first success
@@ -146,7 +139,6 @@ public class Singleton_MainLoop {
             }
         };
         myThread.start();
-        //Log.d(TAG,"Stand alone thread has started");
     }
 
     private int[] createPointsArray(Singleton_OperationValues data) {
@@ -173,5 +165,4 @@ public class Singleton_MainLoop {
         returningArr[coresToUse] = data.integral_1_End();
         return returningArr;
     }
-
 }
