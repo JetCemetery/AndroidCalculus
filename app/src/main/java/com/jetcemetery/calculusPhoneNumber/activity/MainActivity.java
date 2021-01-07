@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnPause_Resume = findViewById(id.btn_PauseResume);
         btnPause_Resume.setText(PauseStr);
-        btnStop = findViewById(id.btn_stop2);
+        btnStop = findViewById(id.btn_stop);
         btnPauseStopLayout = findViewById(id.layout_pause_stop);
 
         prbBar_progressBar = findViewById(id.pgBar_Progress_bar);

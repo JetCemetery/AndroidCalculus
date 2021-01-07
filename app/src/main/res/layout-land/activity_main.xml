@@ -78,7 +78,7 @@
                 />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_stop2"
+                android:id="@+id/btn_stop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:icon="@drawable/ic_stop"
