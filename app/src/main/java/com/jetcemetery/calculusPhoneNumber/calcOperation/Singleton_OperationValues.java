@@ -30,16 +30,17 @@ public class Singleton_OperationValues {
             int INTEGRAL_START_DEFAULT = 1;
             int INTEGRAL_END_DEFAULT = 100;
             String PhoneNumber;
+            String defNumber = "555-555-5555";
             try {
                 GettingUserPhoneNumber phoneHelper = new GettingUserPhoneNumber();
                 PhoneNumber = phoneHelper.getUserNumber();
                 if(PhoneNumber == null){
-                    PhoneNumber = "555-555-5555";
+                    PhoneNumber = defNumber;
                 }else if(PhoneNumber.length() <= 1){
-                    PhoneNumber = "555-555-5555";
+                    PhoneNumber = defNumber;
                 }
             } catch (Exception e) {
-                PhoneNumber = "555-555-5555";
+                PhoneNumber = defNumber;
             }
 
             int integral_1_sta, integral_2_sta, integral_3_sta;
@@ -205,6 +206,7 @@ public class Singleton_OperationValues {
         local_ProgressOperationsCompleted = 0;
         changesMade = false;
         updateTotalExpectedOperations();
+        setTextArea("Results");
     }
 
     private void CPUs_to_use_populate() {

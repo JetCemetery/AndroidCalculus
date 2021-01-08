@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     public static int ONE_CALCULATION_COMPLETED = 557;
     public static int SUCCESSFUL_OPERATION = 558;
     public final static String MESSAGE_NAME_ID ="My_data_msg";
-    private EditText txtPhone4;
+    private EditText txtPhone;
     private TextView txtError, txtResults, txt_progressBar2;
     private Button btnStart;
     private View btnPauseStopLayout;
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         //TODO - Add adapter to the result so you can copy the thing
 
-        txtPhone4 = findViewById(id.txt_phoneID);
+        txtPhone = findViewById(id.txt_phoneID);
         txtError = findViewById(id.errorText);
         btnStart = findViewById(id.btn_start);
 
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         createUpdateUiHandler();
         setUIData();
         safeResumeAllThreads();
-        txtPhone4.setText(localDataObj.getPhoneNumber());
+        txtPhone.setText(localDataObj.getPhoneNumber());
     }
 
     @Override
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Integral range is out of sequence", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if(helperObj.numberInputValid(txtPhone4)){
+            if(helperObj.numberInputValid(txtPhone)){
                 txtError.setVisibility(View.GONE);
                 InitiateMainForLoopThread();
                 LockStartButton();
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
                 boolean lettersFound = false;
                 boolean numberNotValid = false;
                 int numberCount = 0;
-                String rawNumbStr = txtPhone4.getText().toString();
+                String rawNumbStr = txtPhone.getText().toString();
                 for(char c : rawNumbStr.toCharArray()){
                     if(Character.isAlphabetic(c)){
                         lettersFound = true;
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    private void setPauseResumeButtonTo_Pause(boolean settingTpPause) {
+    private void setPauseResumeButtonTo_Pause(boolean settingToPause) {
         //if true is passed,
         //  set the text of the button to 'pause'
         //  update the icon to have the pause icon
@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
         //  set the text of the button to 'resume'
         //  update the icon
         @SuppressLint("UseCompatLoadingForDrawables") Drawable myIcon;
-        if(settingTpPause){
+        if(settingToPause){
             myIcon = getResources().getDrawable(drawable.ic_pause);
             btnPause_Resume.setText(PauseStr);
         }else{
@@ -249,17 +249,17 @@ public class MainActivity extends AppCompatActivity {
         //helper method that will do the following:
         //set the phone number.editable to false
         //grey out the phone number color
-        txtPhone4.setEnabled(false);
-        txtPhone4.setBackgroundColor(Color.GRAY);
+        txtPhone.setEnabled(false);
+        txtPhone.setBackgroundColor(Color.GRAY);
     }
 
     private void UnlockStartButton() {
         //helper method that will do the following:
-        //set the phone number.editable to false
-        //grey out the phone number color
-        txtPhone4.setEnabled(true);
+        //set the phone number.editable to true
+        //un-grey out the phone number color
+        txtPhone.setEnabled(true);
         int myColor = (Color.parseColor("#B7B773"));
-        txtPhone4.setBackgroundColor(myColor);
+        txtPhone.setBackgroundColor(myColor);
     }
 
     private void setUIData() {
@@ -277,10 +277,6 @@ public class MainActivity extends AppCompatActivity {
             //a call to stop all threads must be made
             //then a clear change made latch
             //When function was data changed is called, it should update total expected operations
-            //also reset the progress operations completed
-
-            //issue was found that the safe stop all threads wont work here
-            //we need to instantiate the singleton thread...
             Log.d(TAG, "about to call stop all threads because localDataObj.wasDataChanged()");
             safeStopAllThreads();
             localDataObj.clearChangesMadeLatch();
@@ -327,13 +323,14 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Calling InitiateMainForLoopThread");
         //this function shall create a new thread, and start the MainForLoopThread2 operation
         txtResults.setText("");
+        localDataObj.setTextArea("");
         if(singleton_Thread != null){
             //if here, well we have other threads a going
             //kill the threads, and set singleton to null
             singleton_Thread.stopAllThreads();
             singleton_Thread = null;
         }
-        localDataObj.setPhoneNumber(txtPhone4.getText().toString());
+        localDataObj.setPhoneNumber(txtPhone.getText().toString());
         Singleton_MainLoop.initInstance();
         singleton_Thread = Singleton_MainLoop.getInstance();
         singleton_Thread.MainForLoopThread(localDataObj, updateUIHandler);
@@ -493,7 +490,7 @@ public class MainActivity extends AppCompatActivity {
         localDataObj.setProgressCount(local_currentOperationsCompleted);
         localDataObj.setTextArea(txtResults.getText().toString());
 
-        String rawPhone = String.valueOf(txtPhone4.getText());
+        String rawPhone = String.valueOf(txtPhone.getText());
         localDataObj.setPhoneNumber(rawPhone);
     }
 
@@ -526,6 +523,7 @@ public class MainActivity extends AppCompatActivity {
                             //if here, then we are going to update the progress bar
                             //and update the text saying how many operation are completed
                             //vs how many more to go
+                            //  FYI this method is depreciated, but we will keep it around
                             local_currentOperationsCompleted++;
                             updateProgressBar_and_Text();
 
