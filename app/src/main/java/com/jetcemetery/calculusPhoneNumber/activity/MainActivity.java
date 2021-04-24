@@ -2,8 +2,6 @@ package com.jetcemetery.calculusPhoneNumber.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -29,7 +27,6 @@ import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_MainLoop;
 import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_OperationValues;
 import com.jetcemetery.calculusPhoneNumber.helper.StartOperationHelper;
 
-import static com.jetcemetery.androidcalculus.R.*;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -48,8 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler updateUIHandler;
     private boolean blockUpdates;
 
-    private final String ResumeStr = "Resume";
-    private final String PauseStr = "Pause";
+//    private String PauseStr = "Pause";
 
     private String local_TotalExpected;
     private long local_currentOperationsCompleted;
@@ -60,25 +56,25 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "Calling onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(layout.activity_main);
+        setContentView(R.layout.activity_main);
         Log.d(TAG, "Calling onCreate");
         //fixed the keyboard issue popping up each time...
         //https://stackoverflow.com/questions/2496901/android-on-screen-keyboard-auto-popping-up
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         //TODO - Add adapter to the result so you can copy the thing
 
-        txtPhone = findViewById(id.txt_phoneID);
-        txtError = findViewById(id.errorText);
-        btnStart = findViewById(id.btn_start);
+        txtPhone = findViewById(R.id.txt_phoneID);
+        txtError = findViewById(R.id.errorText);
+        btnStart = findViewById(R.id.btn_start);
 
-        btnPause_Resume = findViewById(id.btn_PauseResume);
-        btnPause_Resume.setText(PauseStr);
-        btnStop = findViewById(id.btn_stop);
-        btnPauseStopLayout = findViewById(id.layout_pause_stop);
+        btnPause_Resume = findViewById(R.id.btn_PauseResume);
+        btnPause_Resume.setText(R.string.strPause);
+        btnStop = findViewById(R.id.btn_stop);
+        btnPauseStopLayout = findViewById(R.id.layout_pause_stop);
 
-        prbBar_progressBar = findViewById(id.pgBar_Progress_bar);
-        txt_progressBar2 = findViewById(id.txt_progress);
-        txtResults = findViewById(id.txt_results);
+        prbBar_progressBar = findViewById(R.id.pgBar_Progress_bar);
+        txt_progressBar2 = findViewById(R.id.txt_progress);
+        txtResults = findViewById(R.id.txt_results);
         blockUpdates = false;
 
         init_BothSingleTons();
@@ -122,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Calling onDestroy");
-//        safeStopAllThreads();
     }
 
     @Override
@@ -207,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnPause_Resume.setOnClickListener(v -> {
             String currentTxt = btnPause_Resume.getText().toString();
-            if(currentTxt.equalsIgnoreCase(PauseStr)){
+            if(currentTxt.equalsIgnoreCase("Pause")){
                 setPauseResumeButtonTo_Pause(false);
                 safePauseAllThreads();
             }else{
@@ -224,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
+//    @SuppressLint("UseCompatLoadingForDrawables")
     private void setPauseResumeButtonTo_Pause(boolean settingToPause) {
         //if true is passed,
         //  set the text of the button to 'pause'
@@ -233,13 +228,16 @@ public class MainActivity extends AppCompatActivity {
         //if false is passed
         //  set the text of the button to 'resume'
         //  update the icon
-        @SuppressLint("UseCompatLoadingForDrawables") Drawable myIcon;
+//        @SuppressLint("UseCompatLoadingForDrawables") Drawable myIcon;
+        Drawable myIcon;
         if(settingToPause){
-            myIcon = getResources().getDrawable(drawable.ic_pause);
+            myIcon = getResources().getDrawable(R.drawable.ic_pause);
+            String PauseStr = "Pause";
             btnPause_Resume.setText(PauseStr);
         }else{
-            myIcon = getResources().getDrawable(drawable.ic_resume);
-            btnPause_Resume.setText(ResumeStr);
+            myIcon = getResources().getDrawable(R.drawable.ic_resume);
+            String resumeStr = "Resume";
+            btnPause_Resume.setText(resumeStr);
 
         }
         btnPause_Resume.setIcon(myIcon);
@@ -369,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
             singleton_Thread.stopAllThreads();
             singleton_Thread = null;
             //if we killed the thread, lets set the button text...
-            btnPause_Resume.setText(PauseStr);
+            btnPause_Resume.setText(R.string.strPause);
             ShowStart_HidePauseStop(true);
 
             //last step, reset data object
@@ -444,7 +442,7 @@ public class MainActivity extends AppCompatActivity {
         //if here, hide the home button, as we are home
         for (int i = 0; i < menu.size(); i++){
             int menuObjID = menu.getItem(i).getItemId();
-            if(menuObjID == id.menu_home){
+            if(menuObjID == R.id.menu_home){
                 menu.getItem(i).setVisible(false);
                 break;
             }
@@ -452,19 +450,18 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //need to finish this stuff to complete the menu actions
         Intent intent;
         switch (item.getItemId()){
-            case id.menu_settings:
+            case R.id.menu_settings:
                 Log.d(TAG, "Menu button hit, going to menu_settings");
                 intent = new Intent(getApplicationContext(), SettingsActivity.class);
                 SaveDataObjState();
                 startActivity(intent);
                 break;
-            case id.menu_about:
+            case R.id.menu_about:
                 Log.d(TAG, "Menu button hit, going to menu_about");
                 intent = new Intent(getApplicationContext(), AboutActivity.class);
                 SaveDataObjState();

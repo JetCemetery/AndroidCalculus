@@ -22,4 +22,5 @@
     <string name="about_why">Why: I like writing code</string>
     <string name="about_how">How: The program iterates on three loops, the first for loop is broken into parts based on thread count on the host hardware. The second and third loop iterate over the values based on the second and third integral. Once the first, second and third integral ranges are set, the app will do the derivative, and see if your phone number is a match. If the derivative is a match, it will the work backwords and create the integral.</string>
     <string name="setting_stopOnSuccess"><![CDATA[Setting: Lets you control the range of the three integrals, CPU count & to stop the calculations on first success]]></string>
+    <string name="strPause">Pause</string>
 </resources>
