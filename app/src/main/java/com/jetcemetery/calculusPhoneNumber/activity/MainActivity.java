@@ -2,6 +2,12 @@ package com.jetcemetery.calculusPhoneNumber.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -27,8 +33,12 @@ import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_MainLoop;
 import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_OperationValues;
 import com.jetcemetery.calculusPhoneNumber.helper.StartOperationHelper;
 
+import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CalcRecyclerViewAdapter.ItemClickListener {
+
+    CalcRecyclerViewAdapter adapter;
+
     private static final String TAG = "MainActivity";
     public static int POST_MESSAGE_IN_RESULTS = 555;
     public static int ONE_CALCULATION_COMPLETED_BATCH = 556;
@@ -36,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     public static int SUCCESSFUL_OPERATION = 558;
     public final static String MESSAGE_NAME_ID ="My_data_msg";
     private EditText txtPhone;
-    private TextView txtError, txtResults, txt_progressBar2;
+    private TextView txtError, txt_progressBar;
     private Button btnStart;
     private View btnPauseStopLayout;
     private MaterialButton btnPause_Resume;
@@ -44,8 +54,6 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar prbBar_progressBar;
     private Handler updateUIHandler;
     private boolean blockUpdates;
-
-//    private String PauseStr = "Pause";
 
     private String local_TotalExpected;
     private long local_currentOperationsCompleted;
@@ -61,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         //fixed the keyboard issue popping up each time...
         //https://stackoverflow.com/questions/2496901/android-on-screen-keyboard-auto-popping-up
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        //TODO - Add adapter to the result so you can copy the thing
+
 
         txtPhone = findViewById(R.id.txt_phoneID);
         txtError = findViewById(R.id.errorText);
@@ -73,8 +81,19 @@ public class MainActivity extends AppCompatActivity {
         btnPauseStopLayout = findViewById(R.id.layout_pause_stop);
 
         prbBar_progressBar = findViewById(R.id.pgBar_Progress_bar);
-        txt_progressBar2 = findViewById(R.id.txt_progress);
-        txtResults = findViewById(R.id.txt_results);
+        txt_progressBar = findViewById(R.id.txt_progress);
+
+        //TODO - Add adapter to the result so you can copy the thing
+        //txtResults = findViewById(R.id.txt_results);
+        ArrayList<String> tempDataFolder = new ArrayList<>();
+        tempDataFolder.add("Results");
+
+        RecyclerView recyclerView = findViewById(R.id.resV_result);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new CalcRecyclerViewAdapter(this, tempDataFolder);
+        adapter.setClickListener(this);
+        recyclerView.setAdapter(adapter);
+
         blockUpdates = false;
 
         init_BothSingleTons();
@@ -83,6 +102,22 @@ public class MainActivity extends AppCompatActivity {
         setUIData();
         safeResumeAllThreads();
         txtPhone.setText(localDataObj.getPhoneNumber());
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        //Toast.makeText(this, "You clicked " + adapter.getItem(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
+        //when here, we need to
+        //  1 - Copy the text into the user clipboard
+        //  2 - Toast a message saying formula copied
+        String formula = adapter.getItem(position);
+
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Formula", formula);
+        clipboard.setPrimaryClip(clip);
+
+        Toast.makeText(this, "Formula copied to clipboard", Toast.LENGTH_SHORT).show();;
+
     }
 
     @Override
@@ -287,8 +322,10 @@ public class MainActivity extends AppCompatActivity {
         //part 2 set progress bar, progress text, and result text
         prbBar_progressBar.setProgress(localDataObj.operationForProgressBar());
         String progressText = local_currentOperationsCompleted + " / " + local_TotalExpected;
-        txt_progressBar2.setText(progressText);
-        txtResults.setText(localDataObj.getTextArea());
+        txt_progressBar.setText(progressText);
+        adapter.ClearData();
+        adapter.AddDataList(localDataObj.nu_GetDataList());
+        //txtResults.setText(localDataObj.getTextArea());
 
     }
 
@@ -314,13 +351,14 @@ public class MainActivity extends AppCompatActivity {
         //Part 3, dealing with the UI elements
         prbBar_progressBar.setProgress(0);
         String progressText = "0 / " + local_TotalExpected;
-        txt_progressBar2.setText(progressText);
+        txt_progressBar.setText(progressText);
     }
 
     private void InitiateMainForLoopThread() {
         Log.d(TAG, "Calling InitiateMainForLoopThread");
         //this function shall create a new thread, and start the MainForLoopThread2 operation
-        txtResults.setText("");
+        adapter.ClearData();
+        //txtResults.setText("");
         localDataObj.setTextArea("");
         if(singleton_Thread != null){
             //if here, well we have other threads a going
@@ -337,12 +375,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateProgressBar_and_Text() {
-        Log.d(TAG, "Calling updateProgressBar_and_Text");
+        //Log.d(TAG, "Calling updateProgressBar_and_Text");
         if(!blockUpdates){
             prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(local_currentOperationsCompleted));
         }
         String progressTxt = local_currentOperationsCompleted + " / " + local_TotalExpected;
-        txt_progressBar2.setText(progressTxt);
+        txt_progressBar.setText(progressTxt);
     }
 
     private void ShowStart_HidePauseStop(boolean showStart) {
@@ -423,12 +461,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "calling onRestoreInstanceState");
-        String tempTxt = localDataObj.getTextArea();
+        //String tempTxt = localDataObj.getTextArea();
+        String[] tempTxt = localDataObj.nu_GetDataList();
         super.onRestoreInstanceState(savedInstanceState);
         //if here, then there was a chance that the text was removed from the result area
         //cause, change from landscape to portrait or vice versa...
-        if(tempTxt != null && !tempTxt.isEmpty()){
-            txtResults.setText(tempTxt);
+        adapter.ClearData();
+        if(tempTxt != null && tempTxt.length >0){
+            //txtResults.setText(tempTxt);
+            adapter.AddDataList(tempTxt);
         }
         updateProgressBar_and_Text();
         safeResumeAllThreads();
@@ -485,7 +526,8 @@ public class MainActivity extends AppCompatActivity {
 
         //part 1, save the data
         localDataObj.setProgressCount(local_currentOperationsCompleted);
-        localDataObj.setTextArea(txtResults.getText().toString());
+        localDataObj.nu_saveData(adapter.getList());
+        //localDataObj.setTextArea(txtResults.getText().toString());
 
         String rawPhone = String.valueOf(txtPhone.getText());
         localDataObj.setPhoneNumber(rawPhone);
@@ -513,7 +555,8 @@ public class MainActivity extends AppCompatActivity {
                             String strMSg = bundle.getString(MESSAGE_NAME_ID);
                             if(strMSg != null){
                                 if(!strMSg.isEmpty()){
-                                    txtResults.append(strMSg);
+                                    String[] manyResults = strMSg.split("\n");
+                                    adapter.addManyResult(manyResults);
                                 }
                             }
                         }else if(messageTypeID == ONE_CALCULATION_COMPLETED){

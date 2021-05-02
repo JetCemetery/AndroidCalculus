@@ -24,7 +24,7 @@ public class PrintCalc {
 
     private static String printResult(int lowerX, int upperX,int alpha, int beta, int gamma, long dividend, long divisor){
         StringBuilder builder = new StringBuilder();
-        builder.append("the integral of ");
+        builder.append("The integral of ");
         builder.append(lowerX);
         builder.append(" to ");
         builder.append(upperX);
@@ -54,7 +54,7 @@ public class PrintCalc {
         return printResult(xlow,xhigh,alpha,beta,gamma,diff,divBot);
     }
 
-    private static int getDivisor(int xlow,int xhigh) {
+    private static int getDivisor(int xlow, int xhigh) {
         //The divisor (bottom part) is simply the upper limit minus the lower limit
         return xhigh - xlow;
     }

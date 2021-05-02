@@ -23,6 +23,8 @@ public class Singleton_OperationValues {
     private long local_ProgressOperationsCompleted;
     private String ResultsTextArea;
 
+    private ArrayList<String> resultsList;
+
 
     public static void initInstance() {
         if (instance == null) {
@@ -52,7 +54,7 @@ public class Singleton_OperationValues {
             integral_1_end = INTEGRAL_END_DEFAULT;
             integral_2_end = INTEGRAL_END_DEFAULT;
             integral_3_end = INTEGRAL_END_DEFAULT;
-
+            //resultsList = new ArrayList<String>();
             instance = new Singleton_OperationValues(PhoneNumber,
                     integral_1_sta,
                     integral_2_sta,
@@ -61,6 +63,7 @@ public class Singleton_OperationValues {
                     integral_2_end,
                     integral_3_end,
                     false);
+            instance.resultsList = new ArrayList<String>();
         }
     }
 
@@ -129,6 +132,28 @@ public class Singleton_OperationValues {
 
     public long getCurrentProgressCount(){
         return this.local_ProgressOperationsCompleted;
+    }
+
+    public void setArrayList(ArrayList<String> resultsList) {
+        this.resultsList = resultsList;
+    }
+
+    public ArrayList<String> getTextArray(){
+        return this.resultsList;
+    }
+
+    public String[] nu_GetDataList() {
+        //this function shall return each individual calculated result
+        if(resultsList == null)
+            resultsList = new ArrayList<String>();
+        return resultsList.toArray(new String[resultsList.size()]);
+    }
+
+    public void nu_saveData(String[] list) {
+        resultsList.clear();
+        for(String str : list){
+            resultsList.add(str);
+        }
     }
 
     public enum cpu_use_options {

@@ -119,13 +119,10 @@
 <ScrollView
     android:layout_width="match_parent"
     android:layout_height="fill_parent">
-    <TextView
-        android:id="@+id/txt_results"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/resV_result"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/results">
-
-    </TextView>
+        android:layout_height="match_parent"/>
 
 </ScrollView>
 
