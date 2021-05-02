@@ -10,8 +10,8 @@ android {
         applicationId "com.jetcemetery.androidcalculus"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 4
-        versionName "Jan-06-2021"
+        versionCode 5
+        versionName "May-02-2021"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
