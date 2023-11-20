@@ -1,5 +1,6 @@
 package com.jetcemetery.calculusPhoneNumber.helper;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 public class getRandomInRange {
@@ -14,7 +15,7 @@ public class getRandomInRange {
             throw new IllegalArgumentException("max must be greater than min");
         }
 
-        Random r = new Random();
+        Random r = new SecureRandom();
         return r.nextInt((max - min) + 1) + min;
     }
 }
