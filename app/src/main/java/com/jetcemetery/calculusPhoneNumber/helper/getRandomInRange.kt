@@ -1,20 +1,19 @@
-package com.jetcemetery.calculusPhoneNumber.helper;
+package com.jetcemetery.calculusPhoneNumber.helper
 
-import java.util.Random;
+import java.util.Random
 
-public class getRandomInRange {
+object getRandomInRange {
 
-    public static int getRandomNumberInRange(int min, int max) {
-        return getRandomNumberInRangePrivate(min, max);
+    @JvmStatic
+    fun getRandomNumberInRange(min: Int, max: Int): Int {
+        return getRandomNumberInRangePrivate(min, max)
     }
 
-    private static int getRandomNumberInRangePrivate(int min, int max) {
-        //from https://mkyong.com/java/java-generate-random-integers-in-a-range/
+    private fun getRandomNumberInRangePrivate(min: Int, max: Int): Int {
         if (min >= max) {
-            throw new IllegalArgumentException("max must be greater than min");
+            throw IllegalArgumentException("max must be greater than min")
         }
-
-        Random r = new Random();
-        return r.nextInt((max - min) + 1) + min;
+        val r = Random()
+        return r.nextInt(max - min + 1) + min
     }
 }

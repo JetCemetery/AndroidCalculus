@@ -1,239 +1,176 @@
-package com.jetcemetery.calculusPhoneNumber.calcOperation;
+package com.jetcemetery.calculusPhoneNumber.calcOperation
 
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
+import android.os.Bundle
+import android.os.Handler
+import android.util.Log
+import com.jetcemetery.calculusPhoneNumber.activity.MainActivity
+import com.jetcemetery.calculusPhoneNumber.helper.getRandomInRange
+import kotlin.math.abs
 
-import com.jetcemetery.calculusPhoneNumber.activity.MainActivity;
-import com.jetcemetery.calculusPhoneNumber.helper.getRandomInRange;
+class SecondaryForLoop(
+    private val userInput: Singleton_OperationValues,
+    private val first_integral_value: Int,
+    private var handler: Handler?
+) : Runnable {
 
-public class SecondaryForLoop implements Runnable {
-    //for enabling pause resume section
-    //--------------
-    private volatile boolean pauseWork = false;
-    private volatile String state = STATE_NEW;
-    //--------------
-    private static final String TAG = "SecondaryForLoop";
-    public static String STATE_NEW = "New";
-    public static String STATE_PAUSED = "Paused";
-    public static String STATE_RUNNING = "Running";
-    public static String STATE_FINISHED = "Finished";
-    private final Singleton_OperationValues userInput;
-    private final int first_integral_value;
-    private Handler handler;
-    private final long targetNumber;
-    private final int range;
-    private final boolean operatingInBatchMode;
-    private int currentBatchAmountRange;
-    private int currentBatchAmount;
-    private volatile boolean stopProcess;// = false;
+    @Volatile
+    private var pauseWork = false
 
-    public SecondaryForLoop(Singleton_OperationValues data, int first_integral_value, Handler handler) {
-        this.userInput = data;
-        this.first_integral_value = first_integral_value;
-        this.handler = handler;
-        this.targetNumber = data.getParsedPhoneNumber();
-        this.range = 1000;
-        currentBatchAmount = 0;
-        currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(100, 1000);
-        operatingInBatchMode = true;
-        stopProcess = false;
-    }
+    @Volatile
+    private var state = STATE_NEW
 
-    @Override
-    public void run() {
-        //this function will need some kind of optimization
-        //see https://howtodoinjava.com/java/collections/performance-comparison-of-different-for-loops-in-java/
-        //according to that, we need to reduce the number of function calls, so I am, and here it is
-        int movingIntegral_2 = (short) userInput.integral_2_Start();
-        int end_Integral_2 = (short)userInput.integral_2_End();
-        int movingIntegral_3 = (short)userInput.integral_3_Start();
-        int end_Integral_3 = (short)userInput.integral_3_End();
-        int rangeStart = (short) userInput.xStart();
-        int rangeEnd = (short) userInput.xEnd();
+    private val targetNumber: Long = userInput.getParsedPhoneNumber()
+    private val range: Int = 1000
+    private val operatingInBatchMode: Boolean = true
+    private var currentBatchAmountRange: Int = getRandomInRange.getRandomNumberInRange(100, 1000)
+    private var currentBatchAmount: Int = 0
 
-        for(int second_integral_value = movingIntegral_2; second_integral_value<end_Integral_2; second_integral_value++){
-            //use to kill thread process gracefully
-//            Log.d(TAG,"At outer moving for loop beta == " + second_integral_value);
-            for(int third_integral_value = movingIntegral_3; third_integral_value<end_Integral_3; third_integral_value++) {
-                //use to kill thread process gracefully
-                for (int movingLowerLimit = rangeStart; movingLowerLimit < rangeEnd; movingLowerLimit++) {
-                    //for enabling pause resume section
-                    //--------------
-                    while(pauseWork)
-                    {
-                        setState(STATE_PAUSED);
-                        try
-                        {
-                            //noinspection BusyWait
-                            Thread.sleep(1000); //stop for 1000ms increments
-                            //use to kill thread process gracefully
-                            if(stopProcess){
-                                gracefulExit_kill_thread();
-                                return;
+    @Volatile
+    private var stopProcess = false
+
+    override fun run() {
+        val movingIntegral_2 = userInput.integral_2_Start()
+        val end_Integral_2 = userInput.integral_2_End()
+        val movingIntegral_3 = userInput.integral_3_Start()
+        val end_Integral_3 = userInput.integral_3_End()
+        val rangeStart = userInput.xStart()
+        val rangeEnd = userInput.xEnd()
+
+        for (second_integral_value in movingIntegral_2 until end_Integral_2) {
+            for (third_integral_value in movingIntegral_3 until end_Integral_3) {
+                for (movingLowerLimit in rangeStart until rangeEnd) {
+                    while (pauseWork) {
+                        setState(STATE_PAUSED)
+                        try {
+                            Thread.sleep(1000)
+                            if (stopProcess) {
+                                gracefulExit_kill_thread()
+                                return
                             }
-                        } catch (InterruptedException ie)
-                        {
-                            Log.e(TAG,"Interrupt on secondary for loop!");
-                            Log.e(TAG,ie.getMessage());
-                            //report or ignore
+                        } catch (ie: InterruptedException) {
+                            Log.e(TAG, "Interrupt on secondary for loop!")
+                            Log.e(TAG, ie.message ?: "")
                         }
                     }
-                    setState(STATE_RUNNING);
-                    //--------------
+                    setState(STATE_RUNNING)
 
-                    SingleMathOp lowerLimitCalc = new SingleMathOp(movingLowerLimit, first_integral_value, second_integral_value, third_integral_value);
-                    long lowerLimitValue = lowerLimitCalc.getDerivative();
-                    for (int movingUpperLimit = (movingLowerLimit + 1); movingUpperLimit <= rangeEnd; movingUpperLimit++) {
-                        SingleMathOp mathOp = new SingleMathOp(movingUpperLimit, first_integral_value, second_integral_value, third_integral_value);
-                        long upperLimitValue = mathOp.getDerivative();
-                        long diff = upperLimitValue - lowerLimitValue;
-                        if (Math.abs(targetNumber - diff) < range) {
-                            //if here then number is within range!
-                            long dividend = targetNumber - diff;
-                            String phoneNumberTxt = PrintCalc.PrintCalcObjPass(movingLowerLimit, movingUpperLimit, first_integral_value, second_integral_value, third_integral_value, dividend);
-//                            Log.d(TAG,"****SUCCESS*********" + phoneNumberTxt);
-
-                            postMessage(phoneNumberTxt + "\n");
-                            if(userInput.getStopOnFirstSuccess()){
-                                SignalStop();
+                    val lowerLimitCalc = SingleMathOp(movingLowerLimit, first_integral_value, second_integral_value, third_integral_value)
+                    val lowerLimitValue = lowerLimitCalc.getDerivative()
+                    for (movingUpperLimit in (movingLowerLimit + 1)..rangeEnd) {
+                        val mathOp = SingleMathOp(movingUpperLimit, first_integral_value, second_integral_value, third_integral_value)
+                        val upperLimitValue = mathOp.getDerivative()
+                        val diff = upperLimitValue - lowerLimitValue
+                        if (abs(targetNumber - diff) < range) {
+                            val dividend = targetNumber - diff
+                            val phoneNumberTxt = PrintCalc.PrintCalcObjPass(movingLowerLimit, movingUpperLimit, first_integral_value, second_integral_value, third_integral_value, dividend)
+                            postMessage("$phoneNumberTxt\n")
+                            if (userInput.getStopOnFirstSuccess()) {
+                                signalStop()
                             }
                         }
-                        //use to kill thread process gracefully
-                        if(stopProcess){
-                            gracefulExit_kill_thread();
-                            return;
+                        if (stopProcess) {
+                            gracefulExit_kill_thread()
+                            return
                         }
-
                     }
-                    postCompleteOperation();
+                    postCompleteOperation()
                 }
-                //need to increment current batch here
-                //cause, the loop math logic, so leave it be.
-                currentBatchAmount++;
+                currentBatchAmount++
             }
-
         }
 
-
-        if(operatingInBatchMode){
-            //if we were operating in batch mode, we need to clear out what left, and post it into the UI filed
-            //to do so we call the normal postCompleteOperationBatch operation, but pass true in the parameter field
-            //yup that's all
-            postCompleteOperationBatch(true);
+        if (operatingInBatchMode) {
+            postCompleteOperationBatch(true)
         }
-        setState(STATE_FINISHED);
+        setState(STATE_FINISHED)
     }
 
-    private void SignalStop() {
-        //if here, then user wanted to stop on first success
-        //use post massage to stop all threads
-        stopProcess = true;
-        Message msg = handler.obtainMessage();
-        msg.what = MainActivity.SUCCESSFUL_OPERATION;
-        handler.sendMessage(msg);
+    private fun signalStop() {
+        stopProcess = true
+        handler?.let {
+            val msg = it.obtainMessage()
+            msg.what = MainActivity.SUCCESSFUL_OPERATION
+            it.sendMessage(msg)
+        }
     }
 
-    private void postCompleteOperation() {
-        //we have two methods of posting an operation, either solo or batch
-        //make the call the same, and figure which mode later, or right below
-        if(operatingInBatchMode){
-            postCompleteOperationBatch(false);
+    private fun postCompleteOperation() {
+        if (operatingInBatchMode) {
+            postCompleteOperationBatch(false)
+        } else {
+            postCompleteOperationSingle()
         }
-        else{
-            postCompleteOperationSingle();
-        }
-    }
-    private void postCompleteOperationSingle() {
-        if(stopProcess){
-            return;
-        }
-        //there was an issue with the main UI thread
-        //calling this update UI function a few thousand times per second broke the UI thread
-        //so now we must Make with call as Batch!
-        Message msg = handler.obtainMessage();
-        msg.what = MainActivity.ONE_CALCULATION_COMPLETED_BATCH;
-        handler.sendMessage(msg);
     }
 
-    private void postCompleteOperationBatch(boolean forceSend) {
-        if(stopProcess){
-            return;
+    private fun postCompleteOperationSingle() {
+        if (stopProcess) return
+        handler?.let {
+            val msg = it.obtainMessage()
+            msg.what = MainActivity.ONE_CALCULATION_COMPLETED_BATCH
+            it.sendMessage(msg)
         }
-        //this method was WAY to taxing on the main thread
-        //need to do this stuff in a batch kind of mode, see new method
-        //include a boolean called forced send
-        //this means after the current integral for loop is completed, there probably is left over stuff
-        //saved in this batch mode
-        //go ahead and send the remainder to the UI thread to update and show true and accurate count
-        //of the number of operation completed
-        currentBatchAmount++;
-        if(currentBatchAmount >= currentBatchAmountRange || forceSend){
-            if(forceSend){
-                //if here, then decrement the count by one, we didn't really finish another operation
-                //we are here to clear out our queue.
-                currentBatchAmount--;
+    }
+
+    private fun postCompleteOperationBatch(forceSend: Boolean) {
+        if (stopProcess) return
+        currentBatchAmount++
+        if (currentBatchAmount >= currentBatchAmountRange || forceSend) {
+            if (forceSend) {
+                currentBatchAmount--
             }
-            Message msg = handler.obtainMessage();
-            msg.what = MainActivity.ONE_CALCULATION_COMPLETED_BATCH;
-            Bundle bundle = new Bundle();
-            bundle.putString(MainActivity.MESSAGE_NAME_ID, String.valueOf(currentBatchAmount));
-            msg.setData(bundle);
-            handler.sendMessage(msg);
-            //to mimic authenticity, set the range amount to some random number
-            //it's faking it I know, but that's okay, at least app does not crash anymore.
-            currentBatchAmount = 0;
-            currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(100, 1000);
+            handler?.let {
+                val msg = it.obtainMessage()
+                msg.what = MainActivity.ONE_CALCULATION_COMPLETED_BATCH
+                val bundle = Bundle()
+                bundle.putString(MainActivity.MESSAGE_NAME_ID, currentBatchAmount.toString())
+                msg.data = bundle
+                it.sendMessage(msg)
+            }
+            currentBatchAmount = 0
+            currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(100, 1000)
         }
-
     }
 
-    private void postMessage(String msgStr) {
-        //normal post message operation
-        if(stopProcess){
-            return;
+    private fun postMessage(msgStr: String) {
+        if (stopProcess) return
+        handler?.let {
+            val msg = it.obtainMessage()
+            msg.what = MainActivity.POST_MESSAGE_IN_RESULTS
+            val bundle = Bundle()
+            bundle.putString(MainActivity.MESSAGE_NAME_ID, msgStr)
+            msg.data = bundle
+            it.sendMessage(msg)
         }
-        Message msg = handler.obtainMessage();
-        msg.what = MainActivity.POST_MESSAGE_IN_RESULTS;
-        Bundle bundle = new Bundle();
-        bundle.putString(MainActivity.MESSAGE_NAME_ID, msgStr);
-        msg.setData(bundle);
-        handler.sendMessage(msg);
     }
 
-
-    //for enabling pause resume section
-    //--------------
-    //taken from
-    //https://coderanch.com/t/436108/java/Pause-Resume-Thread
-    public void pause()
-    {
-        this.pauseWork = true;
+    fun pause() {
+        this.pauseWork = true
     }
 
-    public void resume(Handler mainLoopHandler)
-    {
-        this.handler = mainLoopHandler;
-        this.pauseWork = false;
+    fun resume(mainLoopHandler: Handler) {
+        this.handler = mainLoopHandler
+        this.pauseWork = false
     }
 
-    private void setState(String state)
-    {
-        this.state = state;
+    private fun setState(state: String) {
+        this.state = state
     }
 
-    public String getState()
-    {
-        return this.state;
+    fun getState(): String = this.state
+
+    fun gracefulExit() {
+        stopProcess = true
     }
 
-    public void gracefulExit(){
-        stopProcess = true;
+    private fun gracefulExit_kill_thread() {
+        this.handler = null
     }
 
-    private void gracefulExit_kill_thread(){
-        this.handler = null;
+    companion object {
+        private const val TAG = "SecondaryForLoop"
+        const val STATE_NEW = "New"
+        const val STATE_PAUSED = "Paused"
+        const val STATE_RUNNING = "Running"
+        const val STATE_FINISHED = "Finished"
     }
-
 }

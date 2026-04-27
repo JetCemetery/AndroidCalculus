@@ -1,65 +1,46 @@
-package com.jetcemetery.calculusPhoneNumber.helper;
+package com.jetcemetery.calculusPhoneNumber.helper
 
-import android.os.Build;
-import android.util.Log;
+import android.os.Build
+import android.util.Log
+import java.io.File
+import java.io.FileFilter
+import java.io.Serializable
+import java.util.regex.Pattern
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.Serializable;
-import java.util.regex.Pattern;
+class getCPU_Cnt : Serializable {
 
-public class getCPU_Cnt  implements Serializable{
+    val count: Int
+        get() = numberOfCores
 
-    public int getCount() {
-        return getNumberOfCores();
-    }
-
-    private int getNumberOfCores() {
-        if(Build.VERSION.SDK_INT >= 17) {
-            return Runtime.getRuntime().availableProcessors();
-        }
-        else {
-            // Use saurabh64's answer
-            return getNumCoresOldPhones();
-        }
-    }
-
-    /**
-     * Gets the number of cores available in this device, across all processors.
-     * Requires: Ability to peruse the filesystem at "/sys/devices/system/cpu"
-     * @return The number of cores, or 1 if failed to get result
-     */
-    private int getNumCoresOldPhones() {
-        //Private Class to display only CPU devices in the directory listing
-        class CpuFilter implements FileFilter {
-            @Override
-            public boolean accept(File pathname) {
-                //Check if filename is "cpu", followed by a single digit number
-                return Pattern.matches("cpu[0-9]+", pathname.getName());
+    private val numberOfCores: Int
+        get() {
+            return if (Build.VERSION.SDK_INT >= 17) {
+                Runtime.getRuntime().availableProcessors()
+            } else {
+                numCoresOldPhones
             }
         }
 
-        //taken from
-        //http://forums.makingmoneywithandroid.com/android-development/280-%5Bhow-%5D-get-number-cpu-cores-android-device.html
-        String TAG = "GetCPU_Cnt";
-        try {
-            //Get directory containing CPU info
-            File dir = new File("/sys/devices/system/cpu/");
-            //Filter to only list the devices we care about
-            File[] files = dir.listFiles(new CpuFilter());
-            //Log.d(TAG, "CPU Count: "+files.length);
-            //Return the number of cores (virtual CPU devices)
-            if(files == null){
-                return 1;
+    private val numCoresOldPhones: Int
+        get() {
+            class CpuFilter : FileFilter {
+                override fun accept(pathname: File): Boolean {
+                    return Pattern.matches("cpu[0-9]+", pathname.name)
+                }
             }
-            return files.length;
 
-        } catch(Exception e) {
-            //Print exception
-            Log.d(TAG, "CPU Count: Failed.");
-            e.printStackTrace();
-            //Default to return 1 core
-            return 1;
+            return try {
+                val dir = File("/sys/devices/system/cpu/")
+                val files = dir.listFiles(CpuFilter())
+                files?.size ?: 1
+            } catch (e: Exception) {
+                Log.d(TAG, "CPU Count: Failed.")
+                e.printStackTrace()
+                1
+            }
         }
+
+    companion object {
+        private const val TAG = "GetCPU_Cnt"
     }
 }

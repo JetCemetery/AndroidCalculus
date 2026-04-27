@@ -1,95 +1,80 @@
-package com.jetcemetery.calculusPhoneNumber.activity;
+package com.jetcemetery.calculusPhoneNumber.activity
 
-import android.content.Context;
-import android.util.Log;
-import android.view.*;
-import android.widget.TextView;
-import androidx.recyclerview.widget.RecyclerView;
-import com.jetcemetery.androidcalculus.R;
+import android.content.Context
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.jetcemetery.androidcalculus.R
 
-import java.util.List;
+class CalcRecyclerViewAdapter(context: Context, private val integralResult_Str: MutableList<String>) :
+    RecyclerView.Adapter<CalcRecyclerViewAdapter.ViewHolder>() {
 
-public class CalcRecyclerViewAdapter extends RecyclerView.Adapter<CalcRecyclerViewAdapter.ViewHolder> {
+    private val inflatorObj: LayoutInflater = LayoutInflater.from(context)
+    private var clickListenerObj: ItemClickListener? = null
 
-    private static final String TAG = "CalcRecyclerViewAdapter";
-    private List<String> integralResult_Str;
-    private LayoutInflater inflatorObj;
-    private ItemClickListener clickListenerObj;
-
-    CalcRecyclerViewAdapter(Context context, List<String> data) {
-        this.inflatorObj = LayoutInflater.from(context);
-        this.integralResult_Str = data;
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = inflatorObj.inflate(R.layout.recyclerview_row, parent, false)
+        return ViewHolder(view)
     }
 
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflatorObj.inflate(R.layout.recyclerview_row, parent, false);
-        return new ViewHolder(view);
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val data = integralResult_Str[position]
+        holder.myTextView.text = data
     }
 
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        String data = integralResult_Str.get(position);
-        holder.myTextView.setText(data);
+    override fun getItemCount(): Int = integralResult_Str.size
+
+    fun clearData() {
+        integralResult_Str.clear()
+        notifyDataSetChanged()
     }
 
-    @Override
-    public int getItemCount() {
-        return integralResult_Str.size();
-    }
-
-    public void ClearData() {
-        //this function shall delete the current data list
-        integralResult_Str.clear();
-    }
-
-    public void AddDataList(String[] srcData) {
-        for(String str : srcData){
-            integralResult_Str.add(str);
+    fun addDataList(srcData: Array<String>) {
+        for (str in srcData) {
+            integralResult_Str.add(str)
         }
-        notifyDataSetChanged();
+        notifyDataSetChanged()
     }
 
-    public String[] getList() {
-        return integralResult_Str.toArray(new String[integralResult_Str.size()]);
-    }
+    fun getList(): Array<String> = integralResult_Str.toTypedArray()
 
-    public void addManyResult(String[] manyResults) {
-        for(String str : manyResults){
-            integralResult_Str.add(str);
+    fun addManyResult(manyResults: Array<String>) {
+        for (str in manyResults) {
+            integralResult_Str.add(str)
         }
-        notifyDataSetChanged();
+        notifyDataSetChanged()
     }
 
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        val myTextView: TextView = itemView.findViewById(R.id.txtV_result)
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView myTextView;
-
-        ViewHolder(View itemView) {
-            super(itemView);
-            myTextView = itemView.findViewById(R.id.txtV_result);
-            itemView.setOnClickListener(this);
+        init {
+            itemView.setOnClickListener(this)
         }
 
-        @Override
-        public void onClick(View view) {
-            if (clickListenerObj != null){
-                Log.d(TAG, "Calling onClick");
-                clickListenerObj.onItemClick(view, getAdapterPosition());
-                Log.d(TAG, "Post Calling onClick");
+        override fun onClick(view: View) {
+            clickListenerObj?.let {
+                Log.d(TAG, "Calling onClick")
+                it.onItemClick(view, bindingAdapterPosition)
+                Log.d(TAG, "Post Calling onClick")
             }
         }
     }
 
-    String getItem(int id) {
-        return integralResult_Str.get(id);
+    fun getItem(id: Int): String = integralResult_Str[id]
+
+    fun setClickListener(itemClickListener: ItemClickListener) {
+        this.clickListenerObj = itemClickListener
     }
 
-    void setClickListener(ItemClickListener itemClickListener) {
-        this.clickListenerObj = itemClickListener;
+    interface ItemClickListener {
+        fun onItemClick(view: View, position: Int)
     }
 
-    public interface ItemClickListener {
-        void onItemClick(View view, int position);
+    companion object {
+        private const val TAG = "CalcRecyclerViewAdapter"
     }
 }

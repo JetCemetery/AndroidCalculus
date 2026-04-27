@@ -1,205 +1,169 @@
-package com.jetcemetery.calculusPhoneNumber.activity;
+package com.jetcemetery.calculusPhoneNumber.activity
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent
+import android.os.Bundle
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
+import android.widget.NumberPicker
+import android.widget.RadioButton
+import androidx.appcompat.app.AppCompatActivity
+import com.jetcemetery.androidcalculus.R
+import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_OperationValues
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.NumberPicker;
-import android.widget.RadioButton;
+class SettingsActivity : AppCompatActivity() {
 
-import com.jetcemetery.androidcalculus.R;
-import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_OperationValues;
+    private lateinit var integral1_start: NumberPicker
+    private lateinit var integral2_start: NumberPicker
+    private lateinit var integral3_start: NumberPicker
+    private lateinit var integral1_end: NumberPicker
+    private lateinit var integral2_end: NumberPicker
+    private lateinit var integral3_end: NumberPicker
+    
+    private lateinit var cpu_cnt_Single: RadioButton
+    private lateinit var cpu_cnt_half: RadioButton
+    private lateinit var cpu_cnt_all_minus1: RadioButton
+    private lateinit var cpu_cnt_all: RadioButton
+    
+    private lateinit var stopOnSuccess_Yes: RadioButton
+    private lateinit var stopOnSuccess_No: RadioButton
+    
+    private var localDataObj: Singleton_OperationValues? = null
 
-public class SettingsActivity extends AppCompatActivity {
-    public static String TAG = "SettingsActivity";
-    private NumberPicker integral1_start, integral2_start, integral3_start;
-    private NumberPicker integral1_end, integral2_end, integral3_end;
-    private RadioButton cpu_cnt_Single, cpu_cnt_half, cpu_cnt_all_minus1, cpu_cnt_all;
-    private RadioButton stopOnSuccess_Yes, stopOnSuccess_No;
-    private Singleton_OperationValues localDataObj;
+    private val numberPicker_setMinValue = 1
+    private val numberPicker_setMaxValue = 10000
 
-    private final int numberPicker_setMinValue = 1;
-    private final int numberPicker_setMaxValue = 10000;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_settings)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+        Log.d(TAG, "Start of onCreate")
+        
+        integral1_start = findViewById(R.id.integral1_start)
+        integral2_start = findViewById(R.id.integral2_start)
+        integral3_start = findViewById(R.id.integral3_start)
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        Log.d(TAG, "Start of onCreate");
-        integral1_start = findViewById(R.id.integral1_start);
-        integral2_start = findViewById(R.id.integral2_start);
-        integral3_start = findViewById(R.id.integral3_start);
+        integral1_end = findViewById(R.id.integral1_end)
+        integral2_end = findViewById(R.id.integral2_end)
+        integral3_end = findViewById(R.id.integral3_end)
+        
+        cpu_cnt_Single = findViewById(R.id.cpu_cnt_Single)
+        cpu_cnt_half = findViewById(R.id.cpu_cnt_half)
+        cpu_cnt_all_minus1 = findViewById(R.id.cpu_cnt_all_minus1)
+        cpu_cnt_all = findViewById(R.id.cpu_cnt_all)
+        
+        stopOnSuccess_Yes = findViewById(R.id.stopOnSuccess_Yes)
+        stopOnSuccess_No = findViewById(R.id.stopOnSuccess_No)
 
-        integral1_end = findViewById(R.id.integral1_end);
-        integral2_end = findViewById(R.id.integral2_end);
-        integral3_end = findViewById(R.id.integral3_end);
-        //CPU Count
-        cpu_cnt_Single = findViewById(R.id.cpu_cnt_Single);
-        cpu_cnt_half = findViewById(R.id.cpu_cnt_half);
-        cpu_cnt_all_minus1 = findViewById(R.id.cpu_cnt_all_minus1);
-        cpu_cnt_all = findViewById(R.id.cpu_cnt_all);
-        //Stop on first success
-        stopOnSuccess_Yes = findViewById(R.id.stopOnSuccess_Yes);
-        stopOnSuccess_No = findViewById(R.id.stopOnSuccess_No);
-
-        initDataObjectSingleton();
-        init();
+        initDataObjectSingleton()
+        initUI()
     }
 
-    private void initDataObjectSingleton() {
-        //we should NOT need to init the singleton, but just in case....
-        Singleton_OperationValues.initInstance();
-        localDataObj = Singleton_OperationValues.getInstance();
+    private fun initDataObjectSingleton() {
+        Singleton_OperationValues.initInstance()
+        localDataObj = Singleton_OperationValues.instance
     }
 
-    private void init() {
-//        Log.d(TAG, "Inside init");
-        //this function will initialize all of the user buttons/function/action listeners
-        //Number Pickers
-        setStartIntegral(integral1_start);
-        setStartIntegral(integral2_start);
-        setStartIntegral(integral3_start);
-        setEndIntegral(integral1_end);
-        setEndIntegral(integral2_end);
-        setEndIntegral(integral3_end);
-        switch (localDataObj.getCPU_OptionsEnum()){
-            case CPU_HALF:
-                cpu_cnt_half.setChecked(true);
-                break;
-            case CPU_ALL_MINUS_1:
-                cpu_cnt_all_minus1.setChecked(true);
-                break;
-            case CPU_ALL:
-                cpu_cnt_all.setChecked(true);
-                break;
-            case CPU_SINGLE:
-            default:
-                cpu_cnt_Single.setChecked(true);
-                break;
+    private fun initUI() {
+        setStartIntegral(integral1_start)
+        setStartIntegral(integral2_start)
+        setStartIntegral(integral3_start)
+        setEndIntegral(integral1_end)
+        setEndIntegral(integral2_end)
+        setEndIntegral(integral3_end)
+
+        val dataObj = localDataObj ?: return
+
+        when (dataObj.getCPU_OptionsEnum()) {
+            Singleton_OperationValues.CpuUseOptions.CPU_HALF -> cpu_cnt_half.isChecked = true
+            Singleton_OperationValues.CpuUseOptions.CPU_ALL_MINUS_1 -> cpu_cnt_all_minus1.isChecked = true
+            Singleton_OperationValues.CpuUseOptions.CPU_ALL -> cpu_cnt_all.isChecked = true
+            Singleton_OperationValues.CpuUseOptions.CPU_SINGLE -> cpu_cnt_Single.isChecked = true
+            else -> cpu_cnt_Single.isChecked = true
         }
 
-        if(localDataObj.getStopOnFirstSuccess()){
-            stopOnSuccess_Yes.setChecked(true);
-        }else{
-            stopOnSuccess_No.setChecked(true);
+        if (dataObj.getStopOnFirstSuccess()) {
+            stopOnSuccess_Yes.isChecked = true
+        } else {
+            stopOnSuccess_No.isChecked = true
         }
 
-        cpu_cnt_Single.setOnClickListener(init_cpuSingle());
-        cpu_cnt_half.setOnClickListener(init_cpuHalf());
-        cpu_cnt_all_minus1.setOnClickListener(init_cpuMinus1());
-        cpu_cnt_all.setOnClickListener(init_cpuAll());
+        cpu_cnt_Single.setOnClickListener { dataObj.setCpu_single() }
+        cpu_cnt_half.setOnClickListener { dataObj.setCpu_half() }
+        cpu_cnt_all_minus1.setOnClickListener { dataObj.setCpu_all_m_1() }
+        cpu_cnt_all.setOnClickListener { dataObj.setCpu_all() }
 
-        //Stop on Success Group
-        stopOnSuccess_Yes.setOnClickListener(init_stopOnSuccess_Yes());
-        stopOnSuccess_No.setOnClickListener(init_stopOnSuccess_No());
+        stopOnSuccess_Yes.setOnClickListener { dataObj.setStopOnSuccess(true) }
+        stopOnSuccess_No.setOnClickListener { dataObj.setStopOnSuccess(false) }
 
-        //set values from the local data object
-        integral1_start.setValue(localDataObj.integral_1_Start());
-        integral2_start.setValue(localDataObj.integral_2_Start());
-        integral3_start.setValue(localDataObj.integral_3_Start());
+        integral1_start.value = dataObj.integral_1_Start()
+        integral2_start.value = dataObj.integral_2_Start()
+        integral3_start.value = dataObj.integral_3_Start()
 
-        integral1_end.setValue(localDataObj.integral_1_End());
-        integral2_end.setValue(localDataObj.integral_2_End());
-        integral3_end.setValue(localDataObj.integral_3_End());
+        integral1_end.value = dataObj.integral_1_End()
+        integral2_end.value = dataObj.integral_2_End()
+        integral3_end.value = dataObj.integral_3_End()
     }
 
-    private View.OnClickListener init_cpuSingle() {
-        return v -> localDataObj.setCpu_single();
+    private fun setStartIntegral(srcIntegral: NumberPicker) {
+        srcIntegral.minValue = numberPicker_setMinValue
+        srcIntegral.maxValue = numberPicker_setMaxValue
+        srcIntegral.setOnValueChangedListener { _, _, _ -> localDataObj?.changesMade() }
     }
 
-    private View.OnClickListener init_cpuHalf() {
-        return v -> localDataObj.setCpu_half();
+    private fun setEndIntegral(srcIntegral: NumberPicker) {
+        srcIntegral.minValue = numberPicker_setMinValue
+        srcIntegral.maxValue = numberPicker_setMaxValue
+        srcIntegral.setOnValueChangedListener { _, _, _ -> localDataObj?.changesMade() }
     }
 
-    private View.OnClickListener init_cpuMinus1() {
-        return v -> localDataObj.setCpu_all_m_1();
-    }
-
-    private View.OnClickListener init_cpuAll() {
-        return v -> localDataObj.setCpu_all();
-    }
-
-    private View.OnClickListener init_stopOnSuccess_Yes() {
-        return v -> localDataObj.setStopOnSuccess(true);
-    }
-
-    private View.OnClickListener init_stopOnSuccess_No() {
-        return v -> localDataObj.setStopOnSuccess(false);
-    }
-
-    private void setStartIntegral(NumberPicker srcIntegral) {
-        srcIntegral.setMinValue(numberPicker_setMinValue);
-        srcIntegral.setMaxValue(numberPicker_setMaxValue);
-        srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> localDataObj.changesMade());
-    }
-
-    private void setEndIntegral(NumberPicker srcIntegral) {
-        srcIntegral.setMinValue(numberPicker_setMinValue);
-        srcIntegral.setMaxValue(numberPicker_setMaxValue);
-        srcIntegral.setOnValueChangedListener((picker, oldVal, newVal) -> localDataObj.changesMade());
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //Need this for the menu stuff
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        //if here, hide the home button, as we are home
-        for (int i = 0; i < menu.size(); i++){
-            int menuObjID = menu.getItem(i).getItemId();
-            if(menuObjID == R.id.menu_settings){
-                menu.getItem(i).setVisible(false);
-                break;
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        for (i in 0 until menu.size()) {
+            if (menu.getItem(i).itemId == R.id.menu_settings) {
+                menu.getItem(i).isVisible = false
+                break
             }
         }
-        return true;
+        return true
     }
 
-    @SuppressLint("NonConstantResourceId")
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        //need to finish this stuff to complete the menu actions
-        Intent intent;
-        switch (item.getItemId()){
-            case R.id.menu_about:
-                Log.d(TAG, "Menu button hit, going to menu_about");
-                intent = new Intent(getApplicationContext(), AboutActivity.class);
-                SaveDataObjState();
-                startActivity(intent);
-                break;
-            case R.id.menu_home:
-                Log.d(TAG, "Menu button hit, going to menu_home");
-                intent = new Intent(getApplicationContext(), MainActivity.class);
-                SaveDataObjState();
-                startActivity(intent);
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val intent: Intent
+        when (item.itemId) {
+            R.id.menu_about -> {
+                Log.d(TAG, "Menu button hit, going to menu_about")
+                intent = Intent(applicationContext, AboutActivity::class.java)
+                saveDataObjState()
+                startActivity(intent)
+            }
+            R.id.menu_home -> {
+                Log.d(TAG, "Menu button hit, going to menu_home")
+                intent = Intent(applicationContext, MainActivity::class.java)
+                saveDataObjState()
+                startActivity(intent)
+            }
+            else -> return super.onOptionsItemSelected(item)
         }
-        return true;
+        return true
     }
 
-    private void SaveDataObjState() {
-        //this function shall update the current OperationValues, and update any of the fields as needed
-        Log.d(TAG, "Inside SaveDataObjState");
-        int start1 = integral1_start.getValue();
-        int start2 = integral2_start.getValue();
-        int start3 = integral3_start.getValue();
+    private fun saveDataObjState() {
+        Log.d(TAG, "Inside SaveDataObjState")
+        val start1 = integral1_start.value
+        val start2 = integral2_start.value
+        val start3 = integral3_start.value
+        val end1 = integral1_end.value
+        val end2 = integral2_end.value
+        val end3 = integral3_end.value
 
-        int end1 = integral1_end.getValue();
-        int end2 = integral2_end.getValue();
-        int end3 = integral3_end.getValue();
+        localDataObj?.setIntegralRanges(start1, start2, start3, end1, end2, end3)
+        localDataObj?.updateTotalExpectedOperations()
+    }
 
-        localDataObj.setIntegralRanges(start1, start2 , start3, end1, end2, end3);
-        localDataObj.updateTotalExpectedOperations();
+    companion object {
+        const val TAG = "SettingsActivity"
     }
 }

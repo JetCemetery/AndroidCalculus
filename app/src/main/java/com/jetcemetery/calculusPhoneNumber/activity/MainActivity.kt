@@ -1,598 +1,423 @@
-package com.jetcemetery.calculusPhoneNumber.activity;
+package com.jetcemetery.calculusPhoneNumber.activity
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
+import com.jetcemetery.androidcalculus.R
+import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_MainLoop
+import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_OperationValues
+import com.jetcemetery.calculusPhoneNumber.helper.StartOperationHelper
+import java.util.ArrayList
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
+class MainActivity : AppCompatActivity(), CalcRecyclerViewAdapter.ItemClickListener {
 
-import com.google.android.material.button.MaterialButton;
-import com.jetcemetery.androidcalculus.R;
-import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_MainLoop;
-import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_OperationValues;
-import com.jetcemetery.calculusPhoneNumber.helper.StartOperationHelper;
+    private var adapter: CalcRecyclerViewAdapter? = null
 
-import java.util.ArrayList;
+    private lateinit var txtPhone: EditText
+    private lateinit var txtError: TextView
+    private lateinit var txt_progressBar: TextView
+    private lateinit var btnStart: Button
+    private lateinit var btnPauseStopLayout: View
+    private lateinit var btnPause_Resume: MaterialButton
+    private lateinit var btnStop: Button
+    private lateinit var prbBar_progressBar: ProgressBar
+    private var updateUIHandler: Handler? = null
+    private var blockUpdates: Boolean = false
 
-public class MainActivity extends AppCompatActivity implements CalcRecyclerViewAdapter.ItemClickListener {
+    private var local_TotalExpected: String? = null
+    private var local_currentOperationsCompleted: Long = 0
+    private var singleton_Thread: Singleton_MainLoop? = null
+    private var localDataObj: Singleton_OperationValues? = null
 
-    CalcRecyclerViewAdapter adapter;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "Calling onCreate")
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
 
-    private static final String TAG = "MainActivity";
-    public static int POST_MESSAGE_IN_RESULTS = 555;
-    public static int ONE_CALCULATION_COMPLETED_BATCH = 556;
-    public static int ONE_CALCULATION_COMPLETED = 557;
-    public static int SUCCESSFUL_OPERATION = 558;
-    public final static String MESSAGE_NAME_ID ="My_data_msg";
-    private EditText txtPhone;
-    private TextView txtError, txt_progressBar;
-    private Button btnStart;
-    private View btnPauseStopLayout;
-    private MaterialButton btnPause_Resume;
-    private Button btnStop;
-    private ProgressBar prbBar_progressBar;
-    private Handler updateUIHandler;
-    private boolean blockUpdates;
+        txtPhone = findViewById(R.id.txt_phoneID)
+        txtError = findViewById(R.id.errorText)
+        btnStart = findViewById(R.id.btn_start)
+        btnPause_Resume = findViewById(R.id.btn_PauseResume)
+        btnPause_Resume.setText(R.string.strPause)
+        btnStop = findViewById(R.id.btn_stop)
+        btnPauseStopLayout = findViewById(R.id.layout_pause_stop)
+        prbBar_progressBar = findViewById(R.id.pgBar_Progress_bar)
+        txt_progressBar = findViewById(R.id.txt_progress)
 
-    private String local_TotalExpected;
-    private long local_currentOperationsCompleted;
-    private Singleton_MainLoop singleton_Thread;
-    private Singleton_OperationValues localDataObj;
+        val tempDataFolder = ArrayList<String>()
+        tempDataFolder.add("Results")
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "Calling onCreate");
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Log.d(TAG, "Calling onCreate");
-        //fixed the keyboard issue popping up each time...
-        //https://stackoverflow.com/questions/2496901/android-on-screen-keyboard-auto-popping-up
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        val recyclerView = findViewById<RecyclerView>(R.id.resV_result)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = CalcRecyclerViewAdapter(this, tempDataFolder)
+        adapter?.setClickListener(this)
+        recyclerView.adapter = adapter
 
+        blockUpdates = false
 
-        txtPhone = findViewById(R.id.txt_phoneID);
-        txtError = findViewById(R.id.errorText);
-        btnStart = findViewById(R.id.btn_start);
-
-        btnPause_Resume = findViewById(R.id.btn_PauseResume);
-        btnPause_Resume.setText(R.string.strPause);
-        btnStop = findViewById(R.id.btn_stop);
-        btnPauseStopLayout = findViewById(R.id.layout_pause_stop);
-
-        prbBar_progressBar = findViewById(R.id.pgBar_Progress_bar);
-        txt_progressBar = findViewById(R.id.txt_progress);
-
-        //TODO - Add adapter to the result so you can copy the thing
-        //txtResults = findViewById(R.id.txt_results);
-        ArrayList<String> tempDataFolder = new ArrayList<>();
-        tempDataFolder.add("Results");
-
-        RecyclerView recyclerView = findViewById(R.id.resV_result);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new CalcRecyclerViewAdapter(this, tempDataFolder);
-        adapter.setClickListener(this);
-        recyclerView.setAdapter(adapter);
-
-        blockUpdates = false;
-
-        init_BothSingleTons();
-        initView();
-        createUpdateUiHandler();
-        setUIData();
-        safeResumeAllThreads();
-        txtPhone.setText(localDataObj.getPhoneNumber());
+        init_BothSingleTons()
+        initView()
+        createUpdateUiHandler()
+        setUIData()
+        safeResumeAllThreads()
+        txtPhone.setText(localDataObj?.getPhoneNumber())
     }
 
-    @Override
-    public void onItemClick(View view, int position) {
-        //Toast.makeText(this, "You clicked " + adapter.getItem(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
-        //when here, we need to
-        //  1 - Copy the text into the user clipboard
-        //  2 - Toast a message saying formula copied
-        String formula = adapter.getItem(position);
-
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("Formula", formula);
-        clipboard.setPrimaryClip(clip);
-
-        Toast.makeText(this, "Formula copied to clipboard", Toast.LENGTH_SHORT).show();;
-
+    override fun onItemClick(view: View, position: Int) {
+        val formula = adapter?.getItem(position) ?: return
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("Formula", formula)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(this, "Formula copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d(TAG, "Calling onStart");
-        init_BothSingleTons();
-        safeResumeAllThreads();
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "Calling onStart")
+        init_BothSingleTons()
+        safeResumeAllThreads()
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "Calling onResume");
-        init_BothSingleTons();
-        safeResumeAllThreads();
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "Calling onResume")
+        init_BothSingleTons()
+        safeResumeAllThreads()
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "Calling onPause");
-        safePauseAllThreads();
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "Calling onPause")
+        safePauseAllThreads()
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG, "Calling onStop");
+    private fun init_BothSingleTons() {
+        Log.d(TAG, "Inside init_BothSingleTons")
+        Singleton_OperationValues.initInstance()
+        localDataObj = Singleton_OperationValues.instance
+        singleton_Thread = Singleton_MainLoop.instance
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "Calling onDestroy");
-    }
+    private fun initView() {
+        Log.d(TAG, "Calling initView")
+        txtError.visibility = View.GONE
+        showStart_HidePauseStop(true)
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.d(TAG, "Calling onRestart");
-        init_BothSingleTons();
-        safeResumeAllThreads();
-    }
-
-
-    private void init_BothSingleTons() {
-        Log.d(TAG, "Inside init_BothSingleTons");
-        Singleton_OperationValues.initInstance();
-        localDataObj = Singleton_OperationValues.getInstance();
-        singleton_Thread = Singleton_MainLoop.getInstance();
-    }
-
-    private void initView() {
-        Log.d(TAG, "Calling initView");
-        //Section below shall initialize the code need when the start button is clicked
-        //IF QC passes inside the code, call the MainForLoopThread2 on a new thread
-        //passing the data object and the handler thread
-        txtError.setVisibility(TextView.GONE);
-        ShowStart_HidePauseStop(true);
-
-        btnStart.setOnClickListener(v -> {
-            txtError.setVisibility(TextView.GONE);
-            StartOperationHelper helperObj = new StartOperationHelper(localDataObj);
-            if(singleton_Thread != null){
-                //you should NEVER get here
-                //the singleton thread should always be null
-                //just in case, I'll go ahead and call the stop thread and continue...
-                safeStopAllThreads();
+        btnStart.setOnClickListener {
+            txtError.visibility = View.GONE
+            val dataObj = localDataObj ?: return@setOnClickListener
+            val helperObj = StartOperationHelper(dataObj)
+            if (singleton_Thread != null) {
+                safeStopAllThreads()
             }
-            if(helperObj.misconstruedIntegralRange()){
-                //should never get here
-                //however if here, then the user set the integral start / end in wrong direction
-                txtError.setVisibility(TextView.VISIBLE);
-                txtError.setText(helperObj.getMisconstruedIntegralRange_text());
-                Toast.makeText(getApplicationContext(), "Integral range is out of sequence", Toast.LENGTH_SHORT).show();
-                return;
+            if (helperObj.misconstruedIntegralRange()) {
+                txtError.visibility = View.VISIBLE
+                txtError.text = helperObj.misconstruedIntegralRange_text
+                Toast.makeText(applicationContext, "Integral range is out of sequence", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
-            if(helperObj.numberInputValid(txtPhone)){
-                txtError.setVisibility(View.GONE);
-                InitiateMainForLoopThread();
-                LockStartButton();
-            }
-            else{
-                //if here, then number is NOT valid
-                //this error should come into two favours
-                //one there is a letter of some kinda
-                //OR there are not enough characters
-                boolean lettersFound = false;
-                boolean numberNotValid = false;
-                int numberCount = 0;
-                String rawNumbStr = txtPhone.getText().toString();
-                for(char c : rawNumbStr.toCharArray()){
-                    if(Character.isAlphabetic(c)){
-                        lettersFound = true;
-                        break;
+            if (helperObj.numberInputValid(txtPhone)) {
+                txtError.visibility = View.GONE
+                initiateMainForLoopThread()
+                lockStartButton()
+            } else {
+                var lettersFound = false
+                var numberNotValid = false
+                var numberCount = 0
+                val rawNumbStr = txtPhone.text.toString()
+                for (c in rawNumbStr.toCharArray()) {
+                    if (c.isLetter()) {
+                        lettersFound = true
+                        break
                     }
-                    if(Character.isDigit(c)){
-                        numberCount++;
+                    if (c.isDigit()) {
+                        numberCount++
                     }
                 }
-                if(numberCount <= 3){
-                    numberNotValid = true;
+                if (numberCount <= 3) {
+                    numberNotValid = true
                 }
-                String errorMsg = "Number Not valid!";
-                if(lettersFound){
-                    errorMsg = "Number should not have any latin characters";
+                var errorMsg = "Number Not valid!"
+                if (lettersFound) {
+                    errorMsg = "Number should not have any latin characters"
+                } else if (numberNotValid) {
+                    errorMsg = "Number is to small to be a valid phone number"
                 }
-                else if(numberNotValid){
-                    errorMsg = "Number is to small to be a valid phone number";
-                }
-                txtError.setVisibility(View.VISIBLE);
-                txtError.setText(errorMsg);
-                Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btnPause_Resume.setOnClickListener(v -> {
-            String currentTxt = btnPause_Resume.getText().toString();
-            if(currentTxt.equalsIgnoreCase("Pause")){
-                setPauseResumeButtonTo_Pause(false);
-                safePauseAllThreads();
-            }else{
-                setPauseResumeButtonTo_Pause(true);
-                safeResumeAllThreads();
-            }
-        });
-
-        btnStop.setOnClickListener(v -> {
-            Log.d(TAG, "about to call stop all threads because btnStop.setOnClickListener");
-            safeStopAllThreads();
-            resetDataObj();
-        });
-
-    }
-
-//    @SuppressLint("UseCompatLoadingForDrawables")
-    private void setPauseResumeButtonTo_Pause(boolean settingToPause) {
-        //if true is passed,
-        //  set the text of the button to 'pause'
-        //  update the icon to have the pause icon
-        //
-        //if false is passed
-        //  set the text of the button to 'resume'
-        //  update the icon
-//        @SuppressLint("UseCompatLoadingForDrawables") Drawable myIcon;
-        Drawable myIcon;
-        if(settingToPause){
-            myIcon = getResources().getDrawable(R.drawable.ic_pause);
-            String PauseStr = "Pause";
-            btnPause_Resume.setText(PauseStr);
-        }else{
-            myIcon = getResources().getDrawable(R.drawable.ic_resume);
-            String resumeStr = "Resume";
-            btnPause_Resume.setText(resumeStr);
-
-        }
-        btnPause_Resume.setIcon(myIcon);
-    }
-
-    private void LockStartButton() {
-        //helper method that will do the following:
-        //set the phone number.editable to false
-        //grey out the phone number color
-        txtPhone.setEnabled(false);
-        txtPhone.setBackgroundColor(Color.GRAY);
-    }
-
-    private void UnlockStartButton() {
-        //helper method that will do the following:
-        //set the phone number.editable to true
-        //un-grey out the phone number color
-        txtPhone.setEnabled(true);
-        int myColor = (Color.parseColor("#B7B773"));
-        txtPhone.setBackgroundColor(myColor);
-    }
-
-    private void setUIData() {
-        //this method shall have two parts to it,
-        //Part 1, local counter, local totalExpected
-        //  set the local counter to localDataObj counter, set total expected from localDataObj as well
-        //Part 2, UI objects
-        //  set progress bar, progress text, and result text
-        //Part 3, set the localDataObj phone to whatever the current UI has
-
-        //HOWEVER, we also need to take care if data was changed (IE we called this from another activity
-
-        if(localDataObj.wasDataChanged()){
-            //if here, then data was changed
-            //a call to stop all threads must be made
-            //then a clear change made latch
-            //When function was data changed is called, it should update total expected operations
-            Log.d(TAG, "about to call stop all threads because localDataObj.wasDataChanged()");
-            safeStopAllThreads();
-            localDataObj.clearChangesMadeLatch();
-        }
-        //part 1 - set local signals to date FROM localDataObj
-
-        local_TotalExpected = localDataObj.getTotalOperationExpected();
-        local_currentOperationsCompleted = localDataObj.getCurrentProgressCount();
-
-        //part 2 set progress bar, progress text, and result text
-        prbBar_progressBar.setProgress(localDataObj.operationForProgressBar());
-        String progressText = local_currentOperationsCompleted + " / " + local_TotalExpected;
-        txt_progressBar.setText(progressText);
-        adapter.ClearData();
-        adapter.AddDataList(localDataObj.nu_GetDataList());
-        //txtResults.setText(localDataObj.getTextArea());
-
-    }
-
-    private void resetDataObj() {
-        Log.d(TAG, "Calling resetUIData");
-        //Reset function will have three parts to it
-        //Part 1, localDataObj
-        //  reset the counter, reset the text area, and update the phone number as well
-        //Part 2, local counter, local totalExpected
-        //  set the local counter to zero, reset total expected from localDataObj
-        //Part 3, UI objects
-        //  set progress bar, progress text, and result text
-
-
-        //Part 1, dealing with the localDataObj
-        localDataObj.setProgressCount(0);
-        localDataObj.setTextArea("");
-
-        //Part 2, local counter, local totalExpected
-        local_TotalExpected = localDataObj.getTotalOperationExpected();
-        local_currentOperationsCompleted = 0;
-
-        //Part 3, dealing with the UI elements
-        prbBar_progressBar.setProgress(0);
-        String progressText = "0 / " + local_TotalExpected;
-        txt_progressBar.setText(progressText);
-    }
-
-    private void InitiateMainForLoopThread() {
-        Log.d(TAG, "Calling InitiateMainForLoopThread");
-        //this function shall create a new thread, and start the MainForLoopThread2 operation
-        adapter.ClearData();
-        //txtResults.setText("");
-        localDataObj.setTextArea("");
-        if(singleton_Thread != null){
-            //if here, well we have other threads a going
-            //kill the threads, and set singleton to null
-            singleton_Thread.stopAllThreads();
-            singleton_Thread = null;
-        }
-        localDataObj.setPhoneNumber(txtPhone.getText().toString());
-        Singleton_MainLoop.initInstance();
-        singleton_Thread = Singleton_MainLoop.getInstance();
-        singleton_Thread.MainForLoopThread(localDataObj, updateUIHandler);
-        singleton_Thread.StartProcess(localDataObj);
-        ShowStart_HidePauseStop(false);
-    }
-
-    private void updateProgressBar_and_Text() {
-        //Log.d(TAG, "Calling updateProgressBar_and_Text");
-        if(!blockUpdates){
-            prbBar_progressBar.setProgress(localDataObj.operationForProgressBar(local_currentOperationsCompleted));
-        }
-        String progressTxt = local_currentOperationsCompleted + " / " + local_TotalExpected;
-        txt_progressBar.setText(progressTxt);
-    }
-
-    private void ShowStart_HidePauseStop(boolean showStart) {
-        Log.d(TAG, "Calling ShowStart_HidePauseStop");
-        //helper function that will take care of setting things visible / invisible
-        //if passing true then
-        //  show the start button, but hide the pause and stop button
-        //if passing false then
-        //  hide the start button, but show the pause and stop button
-        if(showStart){
-            btnPauseStopLayout.setVisibility(View.GONE);
-            btnStart.setVisibility(View.VISIBLE);
-        }else {
-            btnPauseStopLayout.setVisibility(View.VISIBLE);
-            btnStart.setVisibility(View.GONE);
-        }
-    }
-
-    private void safeStopAllThreads() {
-        Log.d(TAG, "safe STOP all threads called");
-        if(singleton_Thread != null){
-            singleton_Thread.stopAllThreads();
-            singleton_Thread = null;
-            //if we killed the thread, lets set the button text...
-            btnPause_Resume.setText(R.string.strPause);
-            ShowStart_HidePauseStop(true);
-
-            //last step, reset data object
-
-            //I need a 50 m sec delay
-            //This multi thread is a killer, I tell the stuff to stop processing, but it keeps going...
-            //resume / pause isn't much of a problem. Or any problem, I don't care if that process
-            //takes 500 milliseconds to propagate. Only the stop cause an issue...
-            Thread Fifty_MS_delay = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        sleep(50);
-                        resetDataObj();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-
-            Fifty_MS_delay.start();
-        }
-        UnlockStartButton();
-        setPauseResumeButtonTo_Pause(true);
-    }
-
-    private void safeResumeAllThreads() {
-        Log.d(TAG, "safe RESUME all threads called");
-        if(singleton_Thread != null){
-            singleton_Thread.resumeAllThreads(updateUIHandler);
-            ShowStart_HidePauseStop(false);
-            LockStartButton();
-        }
-        setPauseResumeButtonTo_Pause(true);
-    }
-
-    private void safePauseAllThreads() {
-        Log.d(TAG, "safe PAUSE all threads called");
-        if(singleton_Thread != null){
-            singleton_Thread.pauseAllThreads();
-        }
-        setPauseResumeButtonTo_Pause(false);
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
-        Log.d(TAG, "calling onSaveInstanceState");
-        super.onSaveInstanceState(savedInstanceState);
-        safePauseAllThreads();
-        SaveDataObjState();
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.d(TAG, "calling onRestoreInstanceState");
-        //String tempTxt = localDataObj.getTextArea();
-        String[] tempTxt = localDataObj.nu_GetDataList();
-        super.onRestoreInstanceState(savedInstanceState);
-        //if here, then there was a chance that the text was removed from the result area
-        //cause, change from landscape to portrait or vice versa...
-        adapter.ClearData();
-        if(tempTxt != null && tempTxt.length >0){
-            //txtResults.setText(tempTxt);
-            adapter.AddDataList(tempTxt);
-        }
-        updateProgressBar_and_Text();
-        safeResumeAllThreads();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //Need this for the menu stuff
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        //if here, hide the home button, as we are home
-        for (int i = 0; i < menu.size(); i++){
-            int menuObjID = menu.getItem(i).getItemId();
-            if(menuObjID == R.id.menu_home){
-                menu.getItem(i).setVisible(false);
-                break;
+                txtError.visibility = View.VISIBLE
+                txtError.text = errorMsg
+                Toast.makeText(applicationContext, errorMsg, Toast.LENGTH_SHORT).show()
             }
         }
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        //need to finish this stuff to complete the menu actions
-        Intent intent;
-        switch (item.getItemId()){
-            case R.id.menu_settings:
-                Log.d(TAG, "Menu button hit, going to menu_settings");
-                intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                SaveDataObjState();
-                startActivity(intent);
-                break;
-            case R.id.menu_about:
-                Log.d(TAG, "Menu button hit, going to menu_about");
-                intent = new Intent(getApplicationContext(), AboutActivity.class);
-                SaveDataObjState();
-                startActivity(intent);
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
+        btnPause_Resume.setOnClickListener {
+            val currentTxt = btnPause_Resume.text.toString()
+            if (currentTxt.equals("Pause", ignoreCase = true)) {
+                setPauseResumeButtonTo_Pause(false)
+                safePauseAllThreads()
+            } else {
+                setPauseResumeButtonTo_Pause(true)
+                safeResumeAllThreads()
+            }
         }
-        return true;
+
+        btnStop.setOnClickListener {
+            Log.d(TAG, "about to call stop all threads because btnStop.setOnClickListener")
+            safeStopAllThreads()
+            resetDataObj()
+        }
     }
 
-    private void SaveDataObjState() {
-        Log.d(TAG, "calling SaveDataObjState");
-        //This function is called just before moving into a new activity
-        //There will be two parts, part 1
-        //update localDataObj
-        //  update the current counter, and update the text area only
-        //Part 2, remove text watcher
-        //There is an issue on the resume function, as the text gets update from the localDataObj
-        //the reset function is tripped....
-
-        //part 1, save the data
-        localDataObj.setProgressCount(local_currentOperationsCompleted);
-        localDataObj.nu_saveData(adapter.getList());
-        //localDataObj.setTextArea(txtResults.getText().toString());
-
-        String rawPhone = String.valueOf(txtPhone.getText());
-        localDataObj.setPhoneNumber(rawPhone);
+    private fun setPauseResumeButtonTo_Pause(settingToPause: Boolean) {
+        val myIcon: Drawable?
+        if (settingToPause) {
+            myIcon = ContextCompat.getDrawable(this, R.drawable.ic_pause)
+            btnPause_Resume.text = "Pause"
+        } else {
+            myIcon = ContextCompat.getDrawable(this, R.drawable.ic_resume)
+            btnPause_Resume.text = "Resume"
+        }
+        btnPause_Resume.icon = myIcon
     }
 
-    /*
-        This section of code shall initialize the threaded handler.
-        It will contain the code that will process incoming messages.
-        It will get the text from the message, and then append to the results area
-    */
-    private void createUpdateUiHandler()
-    {
-        if(updateUIHandler == null)
-        {
-            updateUIHandler = new Handler(Looper.myLooper())
-            {
-                @Override
-                public void handleMessage(Message msg) {
-                    if(msg != null){
-                        int messageTypeID = msg.what;
-                        if(messageTypeID == POST_MESSAGE_IN_RESULTS){
-                            //if here, then we are going to post a message text of some kind
-                            //in the text view area
-                            Bundle bundle = msg.getData();
-                            String strMSg = bundle.getString(MESSAGE_NAME_ID);
-                            if(strMSg != null){
-                                if(!strMSg.isEmpty()){
-                                    String[] manyResults = strMSg.split("\n");
-                                    adapter.addManyResult(manyResults);
-                                }
+    private fun lockStartButton() {
+        txtPhone.isEnabled = false
+        txtPhone.setBackgroundColor(Color.GRAY)
+    }
+
+    private fun unlockStartButton() {
+        txtPhone.isEnabled = true
+        txtPhone.setBackgroundColor(Color.parseColor("#B7B773"))
+    }
+
+    private fun setUIData() {
+        val dataObj = localDataObj ?: return
+        if (dataObj.wasDataChanged()) {
+            Log.d(TAG, "about to call stop all threads because localDataObj.wasDataChanged()")
+            safeStopAllThreads()
+            dataObj.clearChangesMadeLatch()
+        }
+        local_TotalExpected = dataObj.getTotalOperationExpected()
+        local_currentOperationsCompleted = dataObj.getCurrentProgressCount()
+
+        prbBar_progressBar.progress = dataObj.operationForProgressBar()
+        val progressText = "$local_currentOperationsCompleted / $local_TotalExpected"
+        txt_progressBar.text = progressText
+        adapter?.clearData()
+        adapter?.addDataList(dataObj.nu_GetDataList())
+    }
+
+    private fun resetDataObj() {
+        Log.d(TAG, "Calling resetUIData")
+        localDataObj?.setProgressCount(0)
+        localDataObj?.setTextArea("")
+
+        local_TotalExpected = localDataObj?.getTotalOperationExpected()
+        local_currentOperationsCompleted = 0
+
+        prbBar_progressBar.progress = 0
+        val progressText = "0 / $local_TotalExpected"
+        txt_progressBar.text = progressText
+    }
+
+    private fun initiateMainForLoopThread() {
+        Log.d(TAG, "Calling initiateMainForLoopThread")
+        adapter?.clearData()
+        localDataObj?.setTextArea("")
+        singleton_Thread?.stopAllThreads()
+        singleton_Thread = null
+        
+        localDataObj?.setPhoneNumber(txtPhone.text.toString())
+        Singleton_MainLoop.initInstance()
+        singleton_Thread = Singleton_MainLoop.instance
+        val handler = updateUIHandler ?: return
+        val dataObj = localDataObj ?: return
+        singleton_Thread?.MainForLoopThread(dataObj, handler)
+        singleton_Thread?.StartProcess(dataObj)
+        showStart_HidePauseStop(false)
+    }
+
+    private fun updateProgressBar_and_Text() {
+        val dataObj = localDataObj ?: return
+        if (!blockUpdates) {
+            prbBar_progressBar.progress = dataObj.operationForProgressBar(local_currentOperationsCompleted.toFloat())
+        }
+        val progressTxt = "$local_currentOperationsCompleted / $local_TotalExpected"
+        txt_progressBar.text = progressTxt
+    }
+
+    private fun showStart_HidePauseStop(showStart: Boolean) {
+        Log.d(TAG, "Calling ShowStart_HidePauseStop")
+        if (showStart) {
+            btnPauseStopLayout.visibility = View.GONE
+            btnStart.visibility = View.VISIBLE
+        } else {
+            btnPauseStopLayout.visibility = View.VISIBLE
+            btnStart.visibility = View.GONE
+        }
+    }
+
+    private fun safeStopAllThreads() {
+        Log.d(TAG, "safe STOP all threads called")
+        singleton_Thread?.let {
+            it.stopAllThreads()
+            singleton_Thread = null
+            btnPause_Resume.setText(R.string.strPause)
+            showStart_HidePauseStop(true)
+
+            Thread {
+                try {
+                    Thread.sleep(50)
+                    runOnUiThread { resetDataObj() }
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
+                }
+            }.start()
+        }
+        unlockStartButton()
+        setPauseResumeButtonTo_Pause(true)
+    }
+
+    private fun safeResumeAllThreads() {
+        Log.d(TAG, "safe RESUME all threads called")
+        singleton_Thread?.let {
+            val handler = updateUIHandler ?: return@let
+            it.resumeAllThreads(handler)
+            showStart_HidePauseStop(false)
+            lockStartButton()
+        }
+        setPauseResumeButtonTo_Pause(true)
+    }
+
+    private fun safePauseAllThreads() {
+        Log.d(TAG, "safe PAUSE all threads called")
+        singleton_Thread?.pauseAllThreads()
+        setPauseResumeButtonTo_Pause(false)
+    }
+
+    override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        Log.d(TAG, "calling onSaveInstanceState")
+        super.onSaveInstanceState(savedInstanceState)
+        safePauseAllThreads()
+        saveDataObjState()
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        Log.d(TAG, "calling onRestoreInstanceState")
+        val tempTxt = localDataObj?.nu_GetDataList()
+        super.onRestoreInstanceState(savedInstanceState)
+        adapter?.clearData()
+        if (tempTxt != null && tempTxt.isNotEmpty()) {
+            adapter?.addDataList(tempTxt)
+        }
+        updateProgressBar_and_Text()
+        safeResumeAllThreads()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        for (i in 0 until menu.size()) {
+            if (menu.getItem(i).itemId == R.id.menu_home) {
+                menu.getItem(i).isVisible = false
+                break
+            }
+        }
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val intent: Intent
+        when (item.itemId) {
+            R.id.menu_settings -> {
+                Log.d(TAG, "Menu button hit, going to menu_settings")
+                intent = Intent(applicationContext, SettingsActivity::class.java)
+                saveDataObjState()
+                startActivity(intent)
+            }
+            R.id.menu_about -> {
+                Log.d(TAG, "Menu button hit, going to menu_about")
+                intent = Intent(applicationContext, AboutActivity::class.java)
+                saveDataObjState()
+                startActivity(intent)
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
+    }
+
+    private fun saveDataObjState() {
+        Log.d(TAG, "calling SaveDataObjState")
+        localDataObj?.setProgressCount(local_currentOperationsCompleted)
+        adapter?.let { localDataObj?.nu_saveData(it.getList()) }
+        val rawPhone = txtPhone.text.toString()
+        localDataObj?.setPhoneNumber(rawPhone)
+    }
+
+    private fun createUpdateUiHandler() {
+        if (updateUIHandler == null) {
+            updateUIHandler = object : Handler(Looper.getMainLooper()) {
+                override fun handleMessage(msg: Message) {
+                    when (msg.what) {
+                        POST_MESSAGE_IN_RESULTS -> {
+                            val strMsg = msg.data.getString(MESSAGE_NAME_ID)
+                            if (!strMsg.isNullOrEmpty()) {
+                                val manyResults = strMsg.split("\n").toTypedArray()
+                                adapter?.addManyResult(manyResults)
                             }
-                        }else if(messageTypeID == ONE_CALCULATION_COMPLETED){
-                            //if here, then we are going to update the progress bar
-                            //and update the text saying how many operation are completed
-                            //vs how many more to go
-                            //  FYI this method is depreciated, but we will keep it around
-                            local_currentOperationsCompleted++;
-                            updateProgressBar_and_Text();
-
-                        }else if(messageTypeID == ONE_CALCULATION_COMPLETED_BATCH){
-                            //if here, then we are doing a batch operation complete
-                            //this was an issue when dealing with the UI thread being to slow
-                            //so now we batch the stuff up and send it to the UI thread
-                            //multi threading, isn't it fun????
-                            Bundle bundle = msg.getData();
-                            String strMSg = bundle.getString(MESSAGE_NAME_ID);
-                            if(strMSg != null){
-                                if(!strMSg.isEmpty()){
-                                    local_currentOperationsCompleted += Long.parseLong(strMSg);
-                                    updateProgressBar_and_Text();
-                                }
+                        }
+                        ONE_CALCULATION_COMPLETED -> {
+                            local_currentOperationsCompleted++
+                            updateProgressBar_and_Text()
+                        }
+                        ONE_CALCULATION_COMPLETED_BATCH -> {
+                            val strMsg = msg.data.getString(MESSAGE_NAME_ID)
+                            if (!strMsg.isNullOrEmpty()) {
+                                local_currentOperationsCompleted += strMsg.toLong()
+                                updateProgressBar_and_Text()
                             }
-                        }else if(messageTypeID == SUCCESSFUL_OPERATION){
-                            Log.d(TAG, "messageTypeID == SUCCESSFUL_OPERATION");
-                            //if here, then user wanted to stop on first successful operation
-                            //kill all threads and set progress to 100;
-                            Log.d(TAG, "about to call stop all threads because of messageTypeID == SUCCESSFUL_OPERATION");
-                            safeStopAllThreads();
-                            blockUpdates = true;
-                            prbBar_progressBar.setProgress(100);
-                            singleton_Thread = null;
+                        }
+                        SUCCESSFUL_OPERATION -> {
+                            Log.d(TAG, "messageTypeID == SUCCESSFUL_OPERATION")
+                            safeStopAllThreads()
+                            blockUpdates = true
+                            prbBar_progressBar.progress = 100
+                            singleton_Thread = null
                         }
                     }
                 }
-            };
+            }
         }
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
+        const val POST_MESSAGE_IN_RESULTS = 555
+        const val ONE_CALCULATION_COMPLETED_BATCH = 556
+        const val ONE_CALCULATION_COMPLETED = 557
+        const val SUCCESSFUL_OPERATION = 558
+        const val MESSAGE_NAME_ID = "My_data_msg"
     }
 }
