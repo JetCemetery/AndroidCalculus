@@ -232,16 +232,9 @@ class Singleton_OperationValues(
                 val INTEGRAL_START_DEFAULT = 1
                 val INTEGRAL_END_DEFAULT = 100
                 val defaultNumber = "555-555-5555"
-                var phoneNumber: String? = try {
-                    val phoneHelper = GettingUserPhoneNumber()
-                    val UserRealNumber = phoneHelper.userNumber
-                    if (UserRealNumber.length <= 1) defaultNumber else UserRealNumber
-                } catch (e: Exception) {
-                    defaultNumber
-                }
 
                 instance = Singleton_OperationValues(
-                    phoneNumber,
+                    defaultNumber,
                     INTEGRAL_START_DEFAULT,
                     INTEGRAL_START_DEFAULT,
                     INTEGRAL_START_DEFAULT,
