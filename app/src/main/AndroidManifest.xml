@@ -12,8 +12,6 @@
 
         <activity android:name="com.jetcemetery.calculusPhoneNumber.activity.AboutActivity"
             android:exported="false" />
-        <activity android:name="com.jetcemetery.calculusPhoneNumber.activity.SettingsActivity"
-            android:exported="false" />
 
         <activity android:name="com.jetcemetery.calculusPhoneNumber.activity.NewMainActivity"
             android:theme="@style/Theme.CalculusPhoneNumber.NoActionBar"
@@ -23,9 +21,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name="com.jetcemetery.calculusPhoneNumber.activity.MainActivity"
-            android:exported="false" />
 
     </application>
 
