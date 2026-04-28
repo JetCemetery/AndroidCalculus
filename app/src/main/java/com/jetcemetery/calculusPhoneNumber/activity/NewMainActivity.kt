@@ -25,7 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jetcemetery.androidcalculus.R
+import com.jetcemetery.calculusPhoneNumber.R
 import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_MainLoop
 import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_OperationValues
 

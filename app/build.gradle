@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace "com.jetcemetery.androidcalculus"
+    namespace "com.jetcemetery.calculusPhoneNumber"
     compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        applicationId "com.jetcemetery.androidcalculus"
+        applicationId "com.jetcemetery.calculusPhoneNumber"
         minSdk libs.versions.minSdk.get().toInteger()
         targetSdk libs.versions.targetSdk.get().toInteger()
         versionCode 5
