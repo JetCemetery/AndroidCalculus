@@ -7,14 +7,14 @@ import android.content.res.Configuration
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
-import com.jetcemetery.calculusPhoneNumber.activity.MainActivity
+import com.jetcemetery.calculusPhoneNumber.activity.NewMainActivity
 import java.util.concurrent.CountDownLatch
 
 class UT_Helper {
 
     fun helper_startMainActivity() {
         val appContext = getInstrumentation().targetContext
-        val intent = Intent(appContext, MainActivity::class.java)
+        val intent = Intent(appContext, NewMainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         appContext.startActivity(intent)
     }

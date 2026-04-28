@@ -3,7 +3,7 @@ package com.jetcemetery.calculusPhoneNumber.calcOperation
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import com.jetcemetery.calculusPhoneNumber.activity.MainActivity
+import com.jetcemetery.calculusPhoneNumber.activity.NewMainActivity
 import com.jetcemetery.calculusPhoneNumber.helper.getRandomInRange
 import kotlin.math.abs
 
@@ -89,7 +89,7 @@ class SecondaryForLoop(
         stopProcess = true
         handler?.let {
             val msg = it.obtainMessage()
-            msg.what = MainActivity.SUCCESSFUL_OPERATION
+            msg.what = NewMainActivity.SUCCESSFUL_OPERATION
             it.sendMessage(msg)
         }
     }
@@ -106,7 +106,7 @@ class SecondaryForLoop(
         if (stopProcess) return
         handler?.let {
             val msg = it.obtainMessage()
-            msg.what = MainActivity.ONE_CALCULATION_COMPLETED_BATCH
+            msg.what = NewMainActivity.ONE_CALCULATION_COMPLETED_BATCH
             it.sendMessage(msg)
         }
     }
@@ -120,9 +120,9 @@ class SecondaryForLoop(
             }
             handler?.let {
                 val msg = it.obtainMessage()
-                msg.what = MainActivity.ONE_CALCULATION_COMPLETED_BATCH
+                msg.what = NewMainActivity.ONE_CALCULATION_COMPLETED_BATCH
                 val bundle = Bundle()
-                bundle.putString(MainActivity.MESSAGE_NAME_ID, currentBatchAmount.toString())
+                bundle.putString(NewMainActivity.MESSAGE_NAME_ID, currentBatchAmount.toString())
                 msg.data = bundle
                 it.sendMessage(msg)
             }
@@ -135,9 +135,9 @@ class SecondaryForLoop(
         if (stopProcess) return
         handler?.let {
             val msg = it.obtainMessage()
-            msg.what = MainActivity.POST_MESSAGE_IN_RESULTS
+            msg.what = NewMainActivity.POST_MESSAGE_IN_RESULTS
             val bundle = Bundle()
-            bundle.putString(MainActivity.MESSAGE_NAME_ID, msgStr)
+            bundle.putString(NewMainActivity.MESSAGE_NAME_ID, msgStr)
             msg.data = bundle
             it.sendMessage(msg)
         }
