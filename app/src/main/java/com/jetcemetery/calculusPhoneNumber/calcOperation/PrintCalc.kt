@@ -8,28 +8,18 @@ object PrintCalc {
         return abs(targetNum - dervValue)
     }
 
-    private fun printResult(lowerX: Int, upperX: Int, alpha: Int, beta: Int, gamma: Int, dividend: Long, divisor: Int): String {
-        val builder = StringBuilder()
-        builder.append("The integral of ")
-        builder.append(lowerX)
-        builder.append(" to ")
-        builder.append(upperX)
-        builder.append(" of (")
-        builder.append(alpha * 4)
-        builder.append("x^3 +")
-        builder.append(beta * 3)
-        builder.append("x^2 +")
-        builder.append(gamma * 2)
-        if (dividend >= 0) {
-            builder.append("x +")
-        } else {
-            builder.append("x ")
-        }
-        builder.append(dividend)
-        builder.append("/")
-        builder.append(divisor)
-        builder.append(") dx")
-        return builder.toString()
+    private fun printResult(
+        lowerX: Int,
+        upperX: Int,
+        alpha: Int,
+        beta: Int,
+        gamma: Int,
+        dividend: Long,
+        divisor: Int
+    ): String {
+        val sign = if (dividend >= 0) "+" else ""
+
+        return "The integral of $lowerX to $upperX of (${alpha * 4}x^3 +${beta * 3}x^2 +${gamma * 2}x $sign$dividend/$divisor) dx"
     }
 
     @JvmStatic

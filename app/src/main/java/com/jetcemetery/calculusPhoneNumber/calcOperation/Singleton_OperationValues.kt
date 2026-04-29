@@ -1,7 +1,6 @@
 package com.jetcemetery.calculusPhoneNumber.calcOperation
 
 import android.util.Log
-import com.jetcemetery.calculusPhoneNumber.helper.GettingUserPhoneNumber
 import com.jetcemetery.calculusPhoneNumber.helper.getCPU_Cnt
 import java.util.ArrayList
 

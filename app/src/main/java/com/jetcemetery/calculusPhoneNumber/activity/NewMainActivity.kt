@@ -12,8 +12,11 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,13 +26,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -38,6 +42,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -47,13 +52,18 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_MainLoop
@@ -70,6 +80,8 @@ class NewMainActivity : ComponentActivity() {
     // UI State
     private var isRunning by mutableStateOf(false)
     private var phoneNumber by mutableStateOf("")
+    private var currentProgress by mutableFloatStateOf(0f)
+    private var progressText by mutableStateOf("")
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,6 +96,16 @@ class NewMainActivity : ComponentActivity() {
                     POST_MESSAGE_IN_RESULTS -> {
                         msg.data.getString(MESSAGE_NAME_ID)?.let {
                             resultsList.addAll(it.split("\n").filter { s -> s.isNotEmpty() })
+                        }
+                    }
+                    ONE_CALCULATION_COMPLETED_BATCH -> {
+                        msg.data.getString(MESSAGE_NAME_ID)?.let {
+                            val completedInBatch = it.toLongOrNull() ?: 0L
+                            localDataObj?.let { data ->
+                                data.setProgressCount(data.getCurrentProgressCount() + completedInBatch)
+                                currentProgress = data.operationForProgressBar() / 100f
+                                progressText = "${data.getCurrentProgressCount()} / ${data.getTotalOperationExpected()}"
+                            }
                         }
                     }
                     SUCCESSFUL_OPERATION -> {
@@ -124,6 +146,8 @@ class NewMainActivity : ComponentActivity() {
                         results = resultsList,
                         isRunning = isRunning,
                         phoneNumber = phoneNumber,
+                        currentProgress = currentProgress,
+                        progressText = progressText,
                         onPhoneNumberChange = { phoneNumber = it },
                         onStart = { startCalculation(handler) },
                         onPause = { pauseCalculation() },
@@ -143,14 +167,20 @@ class NewMainActivity : ComponentActivity() {
         localDataObj?.let {
             phoneNumber = it.getPhoneNumber() ?: ""
             resultsList.addAll(it.nu_GetDataList())
+            currentProgress = it.operationForProgressBar() / 100f
+            progressText = "${it.getCurrentProgressCount()} / ${it.getTotalOperationExpected()}"
         }
     }
 
     private fun startCalculation(handler: Handler) {
         resultsList.clear()
+        currentProgress = 0f
+        progressText = ""
         localDataObj?.apply {
             setTextArea("")
             setPhoneNumber(phoneNumber)
+            setProgressCount(0)
+            updateTotalExpectedOperations()
         }
         
         Singleton_MainLoop.initInstance()
@@ -191,6 +221,8 @@ fun MainContent(
     results: List<String>,
     isRunning: Boolean,
     phoneNumber: String,
+    currentProgress: Float,
+    progressText: String,
     onPhoneNumberChange: (String) -> Unit,
     onStart: () -> Unit,
     onPause: () -> Unit,
@@ -219,6 +251,22 @@ fun MainContent(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        if (isRunning) {
+            LinearProgressIndicator(
+                progress = { currentProgress },
+                modifier = Modifier.fillMaxWidth(),
+                color = Color.Black,
+                trackColor = Color.White.copy(alpha = 0.3f),
+            )
+            Text(
+                text = progressText,
+                color = Color.Black,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         if (!isRunning) {
             Button(
@@ -267,10 +315,13 @@ fun MainContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         // The LazyColumn (Modern replacement for RecyclerView)
+        val listState = rememberLazyListState()
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White.copy(alpha = 0.1f))
+                .background(Color(0xFF7272B6))
+                .scrollbar(state = listState, color = Color.Black.copy(alpha = 0.5f))
         ) {
             items(results) { item ->
                 ResultItem(text = item, context = context)
@@ -280,21 +331,69 @@ fun MainContent(
 }
 
 @Composable
+fun Modifier.scrollbar(
+    state: LazyListState,
+    width: Dp = 4.dp,
+    color: Color
+): Modifier {
+    val targetAlpha = if (state.isScrollInProgress) 1f else 0f
+    val duration = if (state.isScrollInProgress) 150 else 500
+
+    val alpha by animateFloatAsState(
+        targetValue = targetAlpha,
+        animationSpec = tween(durationMillis = duration),
+        label = "scrollbarAlpha"
+    )
+
+    return drawWithContent {
+        drawContent()
+
+        val layoutInfo = state.layoutInfo
+        val visibleItems = layoutInfo.visibleItemsInfo
+        val totalItemsCount = layoutInfo.totalItemsCount
+
+        if (visibleItems.isNotEmpty() && totalItemsCount > visibleItems.size) {
+            val firstVisibleItem = visibleItems.first()
+            val viewportHeight = size.height
+            
+            val scrollbarHeight = (visibleItems.size.toFloat() / totalItemsCount) * viewportHeight
+            val scrollbarOffsetY = (firstVisibleItem.index.toFloat() / totalItemsCount) * viewportHeight
+
+            drawRect(
+                color = color,
+                topLeft = Offset(size.width - width.toPx(), scrollbarOffsetY),
+                size = Size(width.toPx(), scrollbarHeight),
+                alpha = alpha
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
 fun ResultItem(text: String, context: Context) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable {
-                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                
-                // Extract only the part after the last space (the dividend/result)
-                val textToCopy = text.substringAfterLast(" ").trim()
-                
-                val clip = ClipData.newPlainText("Calculus Result", textToCopy)
-                clipboard.setPrimaryClip(clip)
-                Toast.makeText(context, "Copied: $textToCopy", Toast.LENGTH_SHORT).show()
-            },
+            .combinedClickable(
+                onClick = {
+                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    
+                    // Copy all text as requested
+                    val clip = ClipData.newPlainText("Calculus Result", text)
+                    clipboard.setPrimaryClip(clip)
+                    Toast.makeText(context, "Copied all text", Toast.LENGTH_SHORT).show()
+                },
+                onDoubleClick = {
+                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    
+                    // Copy all text as requested
+                    val clip = ClipData.newPlainText("Full Calculus Result", text)
+                    clipboard.setPrimaryClip(clip)
+                    Toast.makeText(context, "Copied all text", Toast.LENGTH_SHORT).show()
+                }
+            ),
         colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.2f))
     ) {
         Text(
