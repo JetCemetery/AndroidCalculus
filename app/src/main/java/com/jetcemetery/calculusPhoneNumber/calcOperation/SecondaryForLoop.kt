@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import com.jetcemetery.calculusPhoneNumber.activity.NewMainActivity
-import com.jetcemetery.calculusPhoneNumber.helper.getRandomInRange
+import com.jetcemetery.calculusPhoneNumber.helper.GetRandomInRange
 import kotlin.math.abs
 
 class SecondaryForLoop(
@@ -22,7 +22,7 @@ class SecondaryForLoop(
     private val targetNumber: Long = userInput.getParsedPhoneNumber()
     private val range: Int = 1000
     private val operatingInBatchMode: Boolean = true
-    private var currentBatchAmountRange: Int = getRandomInRange.getRandomNumberInRange(100, 1000)
+    private var currentBatchAmountRange: Int = GetRandomInRange.getRandomNumberInRange(100, 1000)
     private var currentBatchAmount: Int = 0
 
     @Volatile
@@ -127,7 +127,7 @@ class SecondaryForLoop(
                 it.sendMessage(msg)
             }
             currentBatchAmount = 0
-            currentBatchAmountRange = getRandomInRange.getRandomNumberInRange(100, 1000)
+            currentBatchAmountRange = GetRandomInRange.getRandomNumberInRange(100, 1000)
         }
     }
 

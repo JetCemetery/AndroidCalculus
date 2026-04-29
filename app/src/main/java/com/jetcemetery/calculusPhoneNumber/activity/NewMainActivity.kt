@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_MainLoop
 import com.jetcemetery.calculusPhoneNumber.calcOperation.Singleton_OperationValues
+import com.jetcemetery.calculusPhoneNumber.helper.PreferencesManager
 
 class NewMainActivity : ComponentActivity() {
 
@@ -128,7 +129,7 @@ class NewMainActivity : ComponentActivity() {
                                     Icon(Icons.Default.Info, contentDescription = "About", tint = Color.Black)
                                 }
                                 IconButton(onClick = { 
-                                    Toast.makeText(this@NewMainActivity, "Settings removed", Toast.LENGTH_SHORT).show()
+                                    startActivity(Intent(this@NewMainActivity, SettingsActivity::class.java))
                                 }) {
                                     Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Black)
                                 }
@@ -165,6 +166,7 @@ class NewMainActivity : ComponentActivity() {
         singletonThread = Singleton_MainLoop.instance
         
         localDataObj?.let {
+            PreferencesManager(this).loadSettings(it)
             phoneNumber = it.getPhoneNumber() ?: ""
             resultsList.addAll(it.nu_GetDataList())
             currentProgress = it.operationForProgressBar() / 100f
