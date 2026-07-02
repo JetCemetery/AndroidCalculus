@@ -60,6 +60,7 @@ class SettingsActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding),
                         dataObj = dataObj,
                         onSave = { s1, s2, s3, e1, e2, e3, cpu, stop ->
+                            android.util.Log.d("SettingsActivity", "onSave clicked. Ranges: $s1-$e1, $s2-$e2, $s3-$e3")
                             dataObj.setIntegralRanges(s1, s2, s3, e1, e2, e3)
                             when (cpu) {
                                 Singleton_OperationValues.CpuUseOptions.CPU_SINGLE -> dataObj.setCpu_single()

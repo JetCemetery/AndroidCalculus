@@ -61,6 +61,7 @@ class Singleton_MainLoop private constructor() {
     }
 
     private fun createThread(start: Int, end: Int, data: Singleton_OperationValues) {
+        Log.d(TAG, "Creating thread for range: $start to $end")
         Thread {
             for (first_integral_value in start until end) {
                 val secondObj = SecondaryForLoop(data, first_integral_value, mainLoopHandler)
@@ -86,6 +87,7 @@ class Singleton_MainLoop private constructor() {
             returningArr[i] = tempIntegralStartPoint
         }
         returningArr[coresToUse] = data.integral_1_End()
+        Log.d(TAG, "Points array for distribution: ${returningArr.contentToString()}")
         return returningArr
     }
 

@@ -122,6 +122,7 @@ class Singleton_OperationValues(
     }
 
     fun setIntegralRanges(start1: Int, start2: Int, start3: Int, end1: Int, end2: Int, end3: Int) {
+        Log.d(TAG, "Updating ranges: I1: $start1-$end1, I2: $start2-$end2, I3: $start3-$end3")
         integral_1_sta = start1
         integral_2_sta = start2
         integral_3_sta = start3
@@ -157,15 +158,17 @@ class Singleton_OperationValues(
 
     fun updateTotalExpectedOperations() {
         var tempVal = 1L
-        val int1 = integral_1_end - integral_1_sta
-        val int2 = integral_2_end - integral_2_sta
-        val int3 = integral_3_end - integral_3_sta
+        // Use absolute difference to prevent negative or zero operation counts
+        val int1 = Math.abs(integral_1_end - integral_1_sta)
+        val int2 = Math.abs(integral_2_end - integral_2_sta)
+        val int3 = Math.abs(integral_3_end - integral_3_sta)
         val lastPart = 1000
         tempVal *= int1.toLong()
         tempVal *= int2.toLong()
         tempVal *= int3.toLong()
         tempVal *= lastPart.toLong()
         expectedOperations = tempVal.toFloat()
+        Log.d(TAG, "Total expected operations calculated: $expectedOperations (based on ranges I1: $int1, I2: $int2, I3: $int3)")
     }
 
     private fun cpusToUsePopulate() {

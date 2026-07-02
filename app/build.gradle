@@ -4,31 +4,31 @@ plugins {
 }
 
 android {
-    namespace "com.jetcemetery.calculusPhoneNumber"
-    compileSdk libs.versions.compileSdk.get().toInteger()
+    namespace = "com.jetcemetery.calculusPhoneNumber"
+    compileSdk = libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        applicationId "com.jetcemetery.calculusPhoneNumber"
-        minSdk libs.versions.minSdk.get().toInteger()
-        targetSdk libs.versions.targetSdk.get().toInteger()
-        versionCode 5
-        versionName "May-02-2021"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId = "com.jetcemetery.calculusPhoneNumber"
+        minSdk = libs.versions.minSdk.get().toInteger()
+        targetSdk = libs.versions.targetSdk.get().toInteger()
+        versionCode = 5
+        versionName = "May-02-2021"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildFeatures {
-        compose true
+        compose = true
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     kotlin {
         jvmToolchain(21)

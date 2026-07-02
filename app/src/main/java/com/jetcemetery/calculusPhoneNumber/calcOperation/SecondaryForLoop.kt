@@ -36,6 +36,8 @@ class SecondaryForLoop(
         val rangeStart = userInput.xStart()
         val rangeEnd = userInput.xEnd()
 
+        Log.d(TAG, "SecondaryForLoop started: First Integral Value: $first_integral_value, I2: $movingIntegral_2-$end_Integral_2, I3: $movingIntegral_3-$end_Integral_3")
+
         for (second_integral_value in movingIntegral_2 until end_Integral_2) {
             for (third_integral_value in movingIntegral_3 until end_Integral_3) {
                 for (movingLowerLimit in rangeStart until rangeEnd) {
